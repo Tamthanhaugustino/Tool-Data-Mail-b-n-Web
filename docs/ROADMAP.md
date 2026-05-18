@@ -16,8 +16,9 @@ Phase 03  Auth                  ████████████████
 Phase 04  Database schema       ████████████████████  DONE
 Phase 05  Supabase wiring       ████████████████████  DONE
 Phase 06  Supabase setup        ████████████████████  DONE
-Phase 07  Discovery backend     ████████████████░░░░  CURRENT (mock provider + API)
-Phase 08  Auth migration / SerpAPI  ░░░░░░░░░░░░░░░░░░░░
+Phase 07  Discovery backend     ████████████████████  DONE
+Phase 08A SerpAPI provider      ████████████████░░░░  CURRENT (quota-safe)
+Phase 08B Domain Scan / Auth migration  ░░░░░░░░░░░░░░░░░░░░
 Phase 06  Domain Scan jobs      ░░░░░░░░░░░░░░░░░░░░
 Phase 07  Results / Leads       ░░░░░░░░░░░░░░░░░░░░
 Phase 08  Billing               ░░░░░░░░░░░░░░░░░░░░
@@ -173,7 +174,7 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 
 ---
 
-## Phase 07 — Keyword Discovery backend foundation — CURRENT
+## Phase 07 — Keyword Discovery backend foundation — DONE
 
 **Mục tiêu:** Tách logic Keyword Discovery khỏi UI sớm: provider interface, API route nội bộ, validate input, sanitize error. Mock provider để demo UI mà không tiêu quota / không gọi external. Phase 08+ chỉ thay implementation.
 
@@ -200,28 +201,60 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 
 ---
 
-## Phase 08 — Supabase Auth migration *or* SerpAPI real provider
+## Phase 08A — SerpAPI real provider (quota-safe) — CURRENT
 
-**Mục tiêu:** Owner quyết định mở hướng nào trước. Hai nhánh không phụ thuộc nhau quá chặt — có thể đảo thứ tự.
+**Mục tiêu:** Thêm SerpAPI provider cho Keyword Discovery theo hướng quota-safe, server-only, không lộ API key. Giữ mock provider làm default.
 
-**Nhánh A — Auth migration:**
+**Đã làm:**
+
+- [x] [`src/lib/discovery/serpapi-provider.ts`](../src/lib/discovery/serpapi-provider.ts) — server-only (`import "server-only"`), fetch trực tiếp `https://serpapi.com/search.json`, timeout 10s, lọc mega-domain (facebook/youtube/linkedin…), dedupe theo hostname, confidence dựa trên `position`, không retry
+- [x] [`src/app/api/discovery/keyword/route.ts`](../src/app/api/discovery/keyword/route.ts) — accept `provider` trong body, resolve theo body → env → mock, **dynamic import** SerpAPI module để mock deployment không bundle code SerpAPI, return `503 provider_unavailable` (không silent fallback) khi `SERPAPI_API_KEY` thiếu, sanitize `api_key=...` trong error
+- [x] [`src/app/discover/discover-content.tsx`](../src/app/discover/discover-content.tsx) — thêm Provider Select (mock/serpapi), warning rõ ràng khi chọn SerpAPI, gửi `provider` trong body
+- [x] `.env.example` — thêm `DISCOVERY_PROVIDER`, `SERPAPI_API_KEY` (server-only) với comment cảnh báo
+- [x] [`docs/DISCOVERY.md`](./DISCOVERY.md) — section provider resolution + quota-safe rules + env vars + filter domain list
+
+**Quota-safe đảm bảo:**
+
+- 1 outbound fetch / discovery run, max 30 results / 1 request.
+- Timeout 10s qua AbortController.
+- Không auto-retry.
+- Không silent fallback `serpapi → mock` khi key thiếu.
+- Mock deployment không bundle code SerpAPI (dynamic import).
+- Error sanitize mask `api_key=...`, URL, JWT.
+
+**Chưa làm (deferred):**
+
+- [ ] User-scoped SerpAPI key từ `user_api_keys` — Phase 09 (cần Supabase Auth).
+- [ ] Quota counter / rate limit per user — Phase 09.
+- [ ] Persist discovery runs vào DB — chờ Supabase Auth migration.
+- [ ] Pagination / multi-page SerpAPI.
+
+**Deliverable:** Owner điền `SERPAPI_API_KEY` vào `.env.local`, set `DISCOVERY_PROVIDER=serpapi` (hoặc chọn SerpAPI trong UI), bấm "Tìm website" → 1 SERP request → kết quả thật từ Google. Quota tiêu thụ tối đa 1 search / lần bấm.
+
+**Phụ thuộc:** Phase 07.
+
+---
+
+## Phase 08B — Domain Scan backend foundation *or* Supabase Auth migration
+
+**Mục tiêu:** Owner chọn hướng tiếp theo.
+
+**Nhánh A — Domain Scan backend foundation (đối xứng với Phase 07):**
+
+- Tách `src/lib/scan/{types,mock-provider,index}.ts`.
+- `POST /api/scan/domain` validate input, mock provider trả email + name + title cho mỗi domain.
+- Wire `/scan` page DomainScanWizard gọi API thật thay vì step animation.
+
+**Nhánh B — Supabase Auth migration:**
 
 - Swap `src/lib/auth/*` sang Supabase Auth (giữ `Session` shape).
-- Uncomment trigger `on_auth_user_created` ở `0001_initial_schema.sql`.
+- Uncomment trigger `on_auth_user_created`.
 - Seed demo accounts qua `getSupabaseAdminClient()`.
-- Đổi middleware sang Supabase middleware helper (refresh cookie).
-- Bật persistence Discovery → DB (đã có schema sẵn từ Phase 04).
+- Bật persistence Discovery + Scan → DB.
 
-**Nhánh B — SerpAPI real provider:**
+**Deliverable:** Một trong hai nhánh hoàn tất.
 
-- Quyết định encryption scheme cho `user_api_keys.encrypted_key` (Vault vs app KMS).
-- Tạo `src/lib/discovery/serpapi-provider.ts` implement `DiscoveryProvider`.
-- `getDiscoveryProvider()` switch theo env / user setting.
-- Provider đọc key từ `user_api_keys` qua admin client (server-only).
-
-**Deliverable:** Một lượt scan thật từ user thật, có lịch sử trong DB.
-
-**Phụ thuộc:** Phase 06–07.
+**Phụ thuộc:** Phase 08A.
 
 ---
 
@@ -343,3 +376,4 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 | 2026-05-18 | Phase 04 done; Phase 05 in-progress — Supabase client wiring (browser/server/admin/health), env-gated, không đụng auth hiện tại. Provision project + auth swap chuyển sang Phase 06 |
 | 2026-05-18 | Phase 05 done; Phase 06 in-progress — `SUPABASE_SETUP.md` + `GET /api/health/supabase`. Owner tự provision project; auth migration deferred Phase 07 |
 | 2026-05-18 | Phase 06 done; Phase 07 in-progress — discovery domain types + mock provider + `POST /api/discovery/keyword` + `/discover` wired. Không gọi external, không consume quota. Auth migration / SerpAPI deferred Phase 08 |
+| 2026-05-18 | Phase 07 done; Phase 08A in-progress — SerpAPI real provider, server-only + dynamic import, quota-safe (1 req/run, 10s timeout, no retry), env-gated. Auth migration / Domain Scan deferred Phase 08B |

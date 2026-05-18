@@ -17,7 +17,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { ScanResultRow } from "@/lib/mock-data";
-import type { DiscoveryResponse, DiscoveryResultItem } from "@/lib/discovery";
+import type {
+  DiscoveryProviderName,
+  DiscoveryResponse,
+  DiscoveryResultItem,
+} from "@/lib/discovery";
 import { buildScanHref, uniqueDomainsFromRows } from "@/lib/discovery";
 
 function statusForTable(s: DiscoveryResultItem["status"]): ScanResultRow["status"] {
@@ -47,7 +51,8 @@ export function DiscoverContent() {
   const [rows, setRows] = useState<ScanResultRow[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [hasRun, setHasRun] = useState(false);
-  const [provider, setProvider] = useState<string | null>(null);
+  const [selectedProvider, setSelectedProvider] = useState<DiscoveryProviderName>("mock");
+  const [providerUsed, setProviderUsed] = useState<string | null>(null);
   const [durationMs, setDurationMs] = useState<number | null>(null);
 
   const trimmed = keyword.trim();
@@ -69,7 +74,7 @@ export function DiscoverContent() {
       const res = await fetch("/api/discovery/keyword", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ keyword: trimmed, country }),
+        body: JSON.stringify({ keyword: trimmed, country, provider: selectedProvider }),
       });
       const data: unknown = await res.json().catch(() => null);
       if (!res.ok) {
@@ -80,7 +85,7 @@ export function DiscoverContent() {
       }
       const resp = data as DiscoveryResponse;
       setRows(mapToRows(resp));
-      setProvider(resp.run.provider);
+      setProviderUsed(resp.run.provider);
       setDurationMs(resp.run.durationMs);
     } catch (e) {
       setError(e instanceof Error ? e.message : "unknown");
@@ -101,7 +106,7 @@ export function DiscoverContent() {
         <CardHeader>
           <CardTitle className="text-base">Tìm kiếm</CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-[1fr_200px_auto] md:items-end">
+        <CardContent className="grid gap-4 md:grid-cols-[1fr_160px_180px_auto] md:items-end">
           <div className="space-y-2">
             <Label htmlFor="kw">Keyword</Label>
             <Input
@@ -124,12 +129,35 @@ export function DiscoverContent() {
               </SelectContent>
             </Select>
           </div>
+          <div className="space-y-2">
+            <Label>Provider</Label>
+            <Select
+              value={selectedProvider}
+              onValueChange={(v) => v && setSelectedProvider(v as DiscoveryProviderName)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="mock">Mock (offline)</SelectItem>
+                <SelectItem value="serpapi">SerpAPI (quota)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <Button onClick={runDiscover} disabled={loading || trimmed.length === 0}>
             {loading ? <Loader2 className="size-4 animate-spin" /> : <Search className="size-4" />}
             Tìm website
           </Button>
         </CardContent>
       </Card>
+
+      {selectedProvider === "serpapi" && (
+        <div className="mb-6 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+          <b>SerpAPI dùng quota thật.</b> Server chỉ chạy khi đã cấu hình{" "}
+          <code className="font-mono">SERPAPI_API_KEY</code>. Nếu chưa, request sẽ trả lỗi{" "}
+          <code className="font-mono">provider_unavailable</code> mà không tiêu quota.
+        </div>
+      )}
 
       {error && (
         <Card className="mb-6 border-red-200 bg-red-50 shadow-sm">
@@ -142,7 +170,7 @@ export function DiscoverContent() {
       {hasRun && !loading && !error && (
         <p className="mb-3 text-sm text-slate-500">
           Tìm thấy <b>{rows.length}</b> website
-          {provider ? ` · provider: ${provider}` : ""}
+          {providerUsed ? ` · provider: ${providerUsed}` : ""}
           {durationMs != null ? ` · ${durationMs}ms` : ""}
           {rows.length > 0 ? " · có thể chuyển sang Domain Scan." : "."}
         </p>
