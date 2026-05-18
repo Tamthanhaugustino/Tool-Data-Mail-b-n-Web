@@ -7,15 +7,18 @@ import { Topbar } from "@/components/layout/topbar";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { PrototypeProvider } from "@/components/prototype/prototype-context";
+import type { Session } from "@/lib/auth/types";
 
 export function AppShell({
   children,
   title,
   breadcrumb,
+  session,
 }: {
   children: React.ReactNode;
   title: string;
   breadcrumb?: { parent?: string; current: string };
+  session: Session;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -40,7 +43,7 @@ export function AppShell({
             </Button>
             <span className="ml-2 text-sm font-semibold">{title}</span>
           </div>
-          <Topbar title={title} breadcrumb={breadcrumb} />
+          <Topbar title={title} breadcrumb={breadcrumb} session={session} />
           <main className="flex-1 overflow-auto p-4 md:p-7">{children}</main>
         </div>
       </div>

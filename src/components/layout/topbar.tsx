@@ -2,16 +2,19 @@
 
 import { Bell, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { MOCK_USER } from "@/lib/mock-data";
 import { usePrototype } from "@/components/prototype/prototype-context";
 import { Button } from "@/components/ui/button";
+import { UserMenu } from "@/components/layout/user-menu";
+import type { Session } from "@/lib/auth/types";
 
 export function Topbar({
   title,
   breadcrumb,
+  session,
 }: {
   title: string;
   breadcrumb?: { parent?: string; current: string };
+  session: Session;
 }) {
   const { apiStatus } = usePrototype();
 
@@ -49,7 +52,7 @@ export function Topbar({
 
       <div className="ml-auto flex items-center gap-2 md:gap-3">
         <span className="hidden rounded-full border border-amber-200 bg-gradient-to-br from-amber-100 to-amber-200 px-2.5 py-1 text-[11.5px] font-semibold text-amber-900 sm:inline">
-          {MOCK_USER.plan}
+          {session.plan}
         </span>
         <span
           className={cn(
@@ -64,12 +67,7 @@ export function Topbar({
           <Bell className="size-[18px]" />
           <span className="absolute right-1.5 top-1.5 size-1.5 rounded-full border-2 border-white bg-red-500" />
         </Button>
-        <div
-          className="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-blue-600 text-xs font-semibold text-white"
-          title={MOCK_USER.email}
-        >
-          {MOCK_USER.initials}
-        </div>
+        <UserMenu session={session} />
       </div>
     </header>
   );

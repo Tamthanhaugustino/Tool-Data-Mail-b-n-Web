@@ -15,10 +15,12 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { MOCK_ADMIN_USERS } from "@/lib/mock-data";
 import { Users, Zap, Shield } from "lucide-react";
+import { requireAdmin } from "@/lib/auth/session";
 
-export default function AdminPage() {
+export default async function AdminPage() {
+  const session = await requireAdmin();
   return (
-    <AppShell title="Admin" breadcrumb={{ parent: "Admin", current: "Tổng quan" }}>
+    <AppShell title="Admin" breadcrumb={{ parent: "Admin", current: "Tổng quan" }} session={session}>
       <PageHeader
         title="Admin Dashboard"
         subtitle="Vận hành nội bộ — user, usage, audit (mock)."

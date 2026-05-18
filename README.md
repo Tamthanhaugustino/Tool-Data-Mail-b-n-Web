@@ -15,13 +15,14 @@ Desktop app (logic gốc) phát triển riêng tại project **`b2b-lead-finder`
 | Frontend prototype (UI shell + mock data) | **Done** — `npm run build` / `npm run lint` pass |
 | Design handoff (`design/`) | Có — HTML/CSS mock + screenshots |
 | Backend / API thật | Chưa có |
-| Auth (Supabase hoặc tương đương) | Chưa có |
+| Auth foundation (cookie HMAC + demo users) | **Done (Phase 03)** — xem [`docs/AUTH.md`](./docs/AUTH.md) |
+| Supabase Auth / DB | Chưa có (Phase 04+) |
 | Database | Chưa có |
 | Hunter.io / SerpAPI integration | Chưa có (chỉ mock trên UI) |
 | Billing / payment | Chưa có |
 | Production deploy | Chưa có |
 
-**Phase hiện tại:** [Phase 02 — Docs & SaaS planning](./docs/ROADMAP.md#phase-02--docs-and-saas-planning--current)
+**Phase hiện tại:** [Phase 03 — Auth + user account foundation](./docs/ROADMAP.md#phase-03--auth--user-account-foundation--current)
 
 Chi tiết lộ trình: [`docs/ROADMAP.md`](./docs/ROADMAP.md)
 
@@ -59,7 +60,7 @@ Chi tiết lộ trình: [`docs/ROADMAP.md`](./docs/ROADMAP.md)
 | `/admin/users` | Quản lý người dùng (admin) |
 | `/help` | Trợ giúp |
 
-Tất cả route app dùng **mock data** và **local state**; chưa có route handler production.
+Tất cả route trừ `/` và `/login` đều **yêu cầu đăng nhập** (middleware redirect về `/login`). Route `/admin/*` yêu cầu role `admin`. Data nội bộ vẫn là mock cho tới Phase 04+.
 
 ---
 
@@ -74,7 +75,25 @@ npm install
 npm run dev
 ```
 
-Mở [http://localhost:3000](http://localhost:3000). Đăng nhập thử: `/login` → submit form → chuyển `/dashboard` (mock, không auth thật).
+Mở [http://localhost:3000](http://localhost:3000). Đăng nhập thử tại `/login`:
+
+| Tài khoản demo | Mật khẩu | Role |
+|---|---|---|
+| `trang.nguyen@vietsoftware.com.vn` | `demo123` | user |
+| `admin@tooldatamail.dev` | `admin123` | admin |
+
+Auth giai đoạn này dùng cookie HMAC server-side (chưa nối DB / Supabase). Chi tiết: [`docs/AUTH.md`](./docs/AUTH.md).
+
+### Environment
+
+Copy `.env.example` sang `.env.local` rồi điền:
+
+```bash
+cp .env.example .env.local
+# AUTH_SECRET=<>=16 ký tự bất kỳ — bắt buộc trong production
+```
+
+Thiếu `AUTH_SECRET` trong dev sẽ có fallback (không an toàn) + cảnh báo. Production sẽ throw — không boot.
 
 ---
 
@@ -124,8 +143,8 @@ tool-data-mail-web/
 | Phase | Nội dung | Trạng thái |
 |-------|----------|------------|
 | 01 | Frontend prototype scaffold | **Done** |
-| 02 | Docs & SaaS planning | **Current** |
-| 03 | Auth + user account foundation | Planned |
+| 02 | Docs & SaaS planning | **Done** |
+| 03 | Auth + user account foundation | **Current** (foundation done — demo users, real auth provider chờ Phase 04) |
 | 04 | Database schema + lead/project models | Planned |
 | 05 | Keyword Discovery real workflow | Planned |
 | 06 | Domain Scan job system | Planned |
@@ -151,6 +170,7 @@ Bảng đầy đủ, deliverable và phụ thuộc: **[`docs/ROADMAP.md`](./docs
 ## Related documentation
 
 - [Roadmap](./docs/ROADMAP.md)
+- [Auth foundation (Phase 03)](./docs/AUTH.md)
 - [Tech decisions](./docs/TECH_DECISION.md)
 - [API & database draft](./docs/API_DATABASE_DRAFT.md)
 - [UI brief](./plans/tool-data-mail-web-ui-brief.md)

@@ -15,13 +15,15 @@ import { PageHeader } from "@/components/shared/page-header";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MOCK_SCAN_HISTORY, MOCK_STATS, MOCK_USER } from "@/lib/mock-data";
+import { MOCK_SCAN_HISTORY, MOCK_STATS } from "@/lib/mock-data";
+import { requireSession } from "@/lib/auth/session";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const session = await requireSession();
   return (
-    <AppShell title="Dashboard">
+    <AppShell title="Dashboard" session={session}>
       <PageHeader
-        title={`Chào ${MOCK_USER.name} 👋`}
+        title={`Chào ${session.name} 👋`}
         subtitle="Hôm nay là thứ Hai, 18 / 05 / 2026 · workspace của bạn đang ổn."
         actions={
           <>

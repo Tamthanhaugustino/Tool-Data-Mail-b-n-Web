@@ -1,40 +1,43 @@
-"use client";
-
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { Eye } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { redirect } from "next/navigation";
 import { ConfidenceBadge } from "@/components/shared/confidence-badge";
+import { Button } from "@/components/ui/button";
+import { getSession } from "@/lib/auth/session";
+import { LoginForm } from "./login-form";
 
 const PREVIEW_LEADS = [
-  { initials: "VS", email: "trang.nguyen@vietsoftware.com.vn", company: "VietSoftware JSC", role: "Marketing Manager", confidence: 95 },
-  { initials: "RG", email: "contact@realgroup.vn", company: "Real Group Marketing", role: "—", confidence: 68 },
-  { initials: "GH", email: "hr@greenhouse.vn", company: "Green House Co., Ltd", role: "HR Director", confidence: 88 },
+  {
+    initials: "VS",
+    email: "trang.nguyen@vietsoftware.com.vn",
+    company: "VietSoftware JSC",
+    role: "Marketing Manager",
+    confidence: 95,
+  },
+  {
+    initials: "RG",
+    email: "contact@realgroup.vn",
+    company: "Real Group Marketing",
+    role: "—",
+    confidence: 68,
+  },
+  {
+    initials: "GH",
+    email: "hr@greenhouse.vn",
+    company: "Green House Co., Ltd",
+    role: "HR Director",
+    confidence: 88,
+  },
 ];
 
-export default function LoginPage() {
-  const router = useRouter();
-  const [error, setError] = useState(false);
-  const [loading, setLoading] = useState(false);
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ from?: string }>;
+}) {
+  const session = await getSession();
+  if (session) redirect("/dashboard");
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(false);
-    setTimeout(() => {
-      setLoading(false);
-      router.push("/dashboard");
-    }, 600);
-  };
-
-  const handleBadLogin = () => {
-    setError(true);
-  };
+  const { from } = await searchParams;
+  const safeFrom = from && from.startsWith("/") && !from.startsWith("//") ? from : undefined;
 
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
@@ -98,76 +101,34 @@ export default function LoginPage() {
               Chào mừng quay lại. Nhập email & mật khẩu để vào workspace.
             </p>
 
-            {error && (
-              <Alert variant="destructive" className="mt-4">
-                <AlertDescription>Email hoặc mật khẩu chưa đúng.</AlertDescription>
-              </Alert>
-            )}
+            <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-[11.5px] leading-relaxed text-amber-900">
+              <b className="font-semibold">Auth foundation · Phase 03</b>
+              <br />
+              Đây là nền tảng auth bằng cookie ký HMAC, dùng demo users (chưa nối Supabase / DB thật).
+              <br />
+              <span className="font-mono">trang.nguyen@vietsoftware.com.vn / demo123</span> (user)
+              <br />
+              <span className="font-mono">admin@tooldatamail.dev / admin123</span> (admin)
+            </div>
 
-            <form className="mt-6 space-y-4" onSubmit={handleLogin}>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" defaultValue="trang.nguyen@vietsoftware.com.vn" />
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <Label htmlFor="password">Mật khẩu</Label>
-                  <Link href="#" className="text-xs text-primary">
-                    Quên mật khẩu?
-                  </Link>
-                </div>
-                <div className="relative">
-                  <Input id="password" type="password" defaultValue="password-mock" />
-                  <button
-                    type="button"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400"
-                    aria-label="Hiện mật khẩu"
-                  >
-                    <Eye className="size-4" />
-                  </button>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox id="remember" defaultChecked />
-                <label htmlFor="remember" className="text-sm text-slate-600">
-                  Ghi nhớ thiết bị này 30 ngày
-                </label>
-              </div>
-              <Button type="submit" className="w-full" size="lg" disabled={loading}>
-                {loading ? "Đang đăng nhập…" : "Đăng nhập"}
-              </Button>
-            </form>
+            <LoginForm from={safeFrom} />
 
             <div className="relative my-6 text-center text-xs text-slate-400">
               <span className="bg-white px-2 relative z-10">hoặc</span>
               <div className="absolute inset-x-0 top-1/2 border-t border-slate-200" />
             </div>
 
-            <Button variant="outline" className="w-full" type="button">
-              Tiếp tục với Google
+            <Button variant="outline" className="w-full" type="button" disabled>
+              Tiếp tục với Google (sắp có)
             </Button>
 
             <p className="mt-6 text-center text-xs text-slate-500">
               Dành cho khách hàng đã được cấp tài khoản. Chưa có?{" "}
-              <Link href="#" className="text-primary">
-                Liên hệ admin để được tạo tài khoản →
-              </Link>
+              <span className="text-primary">Liên hệ admin để được tạo tài khoản →</span>
             </p>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              className="mt-4 w-full text-xs text-slate-400"
-              type="button"
-              onClick={handleBadLogin}
-            >
-              (Demo) Hiện lỗi đăng nhập
-            </Button>
           </div>
         </div>
       </div>
     </div>
   );
 }
-
-

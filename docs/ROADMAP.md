@@ -11,8 +11,8 @@ Tài liệu phase cũ (Web 01–07, planning-only): [`PHASE_PLAN.md`](./PHASE_PL
 
 ```text
 Phase 01  Prototype UI          ████████████████████  DONE
-Phase 02  Docs & planning       ████████░░░░░░░░░░░░  CURRENT
-Phase 03  Auth                  ░░░░░░░░░░░░░░░░░░░░
+Phase 02  Docs & planning       ████████████████████  DONE
+Phase 03  Auth                  ████████████░░░░░░░░  CURRENT (foundation)
 Phase 04  Database              ░░░░░░░░░░░░░░░░░░░░
 Phase 05  Keyword Discovery     ░░░░░░░░░░░░░░░░░░░░
 Phase 06  Domain Scan jobs      ░░░░░░░░░░░░░░░░░░░░
@@ -43,7 +43,7 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 
 ---
 
-## Phase 02 — Docs and SaaS planning — CURRENT
+## Phase 02 — Docs and SaaS planning — DONE
 
 **Mục tiêu:** Chuẩn hóa tài liệu repo để team/onboarding rõ trạng thái, lộ trình và ràng buộc kỹ thuật trước khi viết backend.
 
@@ -51,8 +51,9 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 
 - [x] README.md dự án (không dùng template Next.js mặc định)
 - [x] `docs/ROADMAP.md` (file này)
+- [x] Quyết định Auth direction (xem [`AUTH.md`](./AUTH.md)) — chốt: HMAC cookie tạm, đổi Supabase Auth khi có DB
 - [ ] Review & cập nhật `PROJECT_STATE.md` theo prototype (tùy chọn)
-- [ ] Chốt mapping phase 03–10 với `API_DATABASE_DRAFT.md` / `TECH_DECISION.md`
+- [ ] Chốt mapping phase 04–10 với `API_DATABASE_DRAFT.md` / `TECH_DECISION.md`
 
 **Deliverable:** Developer mới clone repo → đọc README + ROADMAP là đủ để biết chạy app và phase tiếp theo.
 
@@ -60,18 +61,29 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 
 ---
 
-## Phase 03 — Auth + user account foundation
+## Phase 03 — Auth + user account foundation — CURRENT
 
 **Mục tiêu:** Đăng nhập/đăng xuất thật, session bảo vệ route app, profile cơ bản.
 
-**Công việc dự kiến:**
+**Đã làm (foundation):**
 
-- Supabase Auth (hoặc quyết định cuối từ `TECH_DECISION.md`)
-- Route guard: redirect `/login` khi chưa auth
-- Trang Settings → tab Tài khoản / Đổi mật khẩu nối API thật
-- Bảng `profiles` + RLS
+- [x] Cookie HMAC server-side (`src/lib/auth/*`) — chi tiết [`AUTH.md`](./AUTH.md)
+- [x] `signInAction` / `signOutAction` (React 19 server actions + `useActionState`)
+- [x] Middleware bảo vệ mọi route trừ `/` và `/login`; `/admin/*` chặn theo role
+- [x] `requireSession()` / `requireAdmin()` defense-in-depth trên mọi protected page
+- [x] Topbar + User menu hiển thị user/role/plan thật + nút Đăng xuất
+- [x] Settings → tab Tài khoản đọc tên/email từ session
+- [x] Demo users in-memory: 1 user + 1 admin
+- [x] `.env.example` (chỉ cần `AUTH_SECRET`)
 
-**Deliverable:** User có tài khoản thật, không truy cập dashboard khi chưa login.
+**Chưa làm (chuyển Phase 04 khi có DB):**
+
+- [ ] Supabase Auth thật + bảng `profiles` + RLS
+- [ ] OAuth (Google) — nút đã placeholder, disabled
+- [ ] Quên / đổi mật khẩu thật
+- [ ] Audit log đăng nhập
+
+**Deliverable:** Không vào được dashboard/app/admin khi chưa đăng nhập; admin route chặn role; demo flow hoạt động end-to-end. Auth contract sẵn sàng nối Supabase ở Phase 04.
 
 **Phụ thuộc:** Phase 02.
 
@@ -222,3 +234,4 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 | Ngày | Thay đổi |
 |------|----------|
 | 2026-05-18 | Tạo ROADMAP phase 01–10; Phase 01 done, Phase 02 current |
+| 2026-05-18 | Phase 02 done; Phase 03 in-progress — auth foundation (HMAC cookie + demo users) hoàn tất, chờ Supabase ở Phase 04 |

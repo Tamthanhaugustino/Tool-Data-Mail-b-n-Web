@@ -11,10 +11,12 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { requireAdmin } from "@/lib/auth/session";
 
-export default function AdminUsersPage() {
+export default async function AdminUsersPage() {
+  const session = await requireAdmin();
   return (
-    <AppShell title="Admin" breadcrumb={{ parent: "Admin", current: "Người dùng" }}>
+    <AppShell title="Admin" breadcrumb={{ parent: "Admin", current: "Người dùng" }} session={session}>
       <PageHeader title="Quản lý người dùng" subtitle="Danh sách tài khoản khách hàng (mock)." />
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <Table>

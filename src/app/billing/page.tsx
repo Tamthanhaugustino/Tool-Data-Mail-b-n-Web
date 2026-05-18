@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Check } from "lucide-react";
+import { requireSession } from "@/lib/auth/session";
 
 const PLANS = [
   {
@@ -33,9 +34,10 @@ const PLANS = [
   },
 ];
 
-export default function BillingPage() {
+export default async function BillingPage() {
+  const session = await requireSession();
   return (
-    <AppShell title="Subscription">
+    <AppShell title="Subscription" session={session}>
       <PageHeader
         title="Subscription"
         subtitle="Gói PRO đang active · gia hạn 01 / 06 / 2026 (mock)."

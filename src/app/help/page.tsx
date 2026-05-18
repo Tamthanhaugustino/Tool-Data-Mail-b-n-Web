@@ -2,10 +2,12 @@ import { AppShell } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { requireSession } from "@/lib/auth/session";
 
-export default function HelpPage() {
+export default async function HelpPage() {
+  const session = await requireSession();
   return (
-    <AppShell title="Help">
+    <AppShell title="Help" session={session}>
       <PageHeader title="Trợ giúp" subtitle="Hướng dẫn sử dụng Tool Data Mail Web." />
       <div className="grid gap-4 md:grid-cols-2">
         <Card className="shadow-sm">
