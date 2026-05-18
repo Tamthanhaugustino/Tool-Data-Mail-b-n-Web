@@ -15,31 +15,75 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MOCK_RESULTS } from "@/lib/mock-data";
+import type { ScanResultRow } from "@/lib/mock-data";
+import type { DiscoveryResponse, DiscoveryResultItem } from "@/lib/discovery";
+
+function statusForTable(s: DiscoveryResultItem["status"]): ScanResultRow["status"] {
+  if (s === "verified") return "verified";
+  if (s === "accept_all") return "accept_all";
+  return "webmail";
+}
+
+function mapToRows(resp: DiscoveryResponse): ScanResultRow[] {
+  return resp.results.map((r, idx) => ({
+    id: `${resp.run.id}-${idx}`,
+    email: "—",
+    name: "—",
+    title: r.title,
+    company: r.company_name ?? "—",
+    domain: r.domain,
+    confidence: Math.round(r.confidence * 100),
+    status: statusForTable(r.status),
+  }));
+}
 
 export function DiscoverContent() {
+  const [keyword, setKeyword] = useState("phần mềm ERP doanh nghiệp");
+  const [country, setCountry] = useState("vn");
   const [loading, setLoading] = useState(false);
-  const [hasResults, setHasResults] = useState(false);
-  const [view, setView] = useState<"form" | "empty" | "error">("form");
+  const [rows, setRows] = useState<ScanResultRow[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [hasRun, setHasRun] = useState(false);
+  const [provider, setProvider] = useState<string | null>(null);
+  const [durationMs, setDurationMs] = useState<number | null>(null);
 
-  const runDiscover = () => {
+  const trimmed = keyword.trim();
+
+  const runDiscover = async () => {
+    if (!trimmed) return;
     setLoading(true);
-    setTimeout(() => {
+    setError(null);
+    setHasRun(true);
+    try {
+      const res = await fetch("/api/discovery/keyword", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ keyword: trimmed, country }),
+      });
+      const data: unknown = await res.json().catch(() => null);
+      if (!res.ok) {
+        const err = (data as { message?: string; error?: string } | null) ?? null;
+        setError(err?.message ?? err?.error ?? `HTTP ${res.status}`);
+        setRows([]);
+        return;
+      }
+      const resp = data as DiscoveryResponse;
+      setRows(mapToRows(resp));
+      setProvider(resp.run.provider);
+      setDurationMs(resp.run.durationMs);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "unknown");
+      setRows([]);
+    } finally {
       setLoading(false);
-      setHasResults(true);
-    }, 900);
+    }
   };
 
   return (
     <>
       <PageHeader
         title="Keyword Discovery"
-        subtitle="Tìm website công ty từ keyword + quốc gia qua SerpAPI."
-        actions={
-          <Button variant="outline" size="sm" onClick={() => setView("empty")}>
-            (Demo) Empty
-          </Button>
-        }
+        subtitle="Tìm website công ty từ keyword + quốc gia. Phase 07: mock provider, chưa gọi SerpAPI thật."
       />
 
       <Card className="mb-6 shadow-sm">
@@ -48,12 +92,18 @@ export function DiscoverContent() {
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-[1fr_200px_auto] md:items-end">
           <div className="space-y-2">
-            <Label>Keyword</Label>
-            <Input defaultValue="phần mềm ERP doanh nghiệp" placeholder="Nhập keyword…" />
+            <Label htmlFor="kw">Keyword</Label>
+            <Input
+              id="kw"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              placeholder="Nhập keyword…"
+              maxLength={200}
+            />
           </div>
           <div className="space-y-2">
             <Label>Quốc gia</Label>
-            <Select defaultValue="vn">
+            <Select value={country} onValueChange={(v) => v && setCountry(v)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -63,38 +113,41 @@ export function DiscoverContent() {
               </SelectContent>
             </Select>
           </div>
-          <Button onClick={runDiscover} disabled={loading}>
+          <Button onClick={runDiscover} disabled={loading || trimmed.length === 0}>
             {loading ? <Loader2 className="size-4 animate-spin" /> : <Search className="size-4" />}
             Tìm website
           </Button>
         </CardContent>
       </Card>
 
-      {view === "error" && (
+      {error && (
         <Card className="mb-6 border-red-200 bg-red-50 shadow-sm">
           <CardContent className="py-4 text-sm text-red-800">
-            SerpAPI trả lỗi: quota hết hoặc key không hợp lệ. Kiểm tra Settings → API Keys.
+            <b>Lỗi:</b> {error}
           </CardContent>
         </Card>
       )}
 
-      {view === "empty" && !hasResults && (
-        <ResultsTable rows={[]} emptyMessage="Nhập keyword và bấm Tìm website để bắt đầu." />
+      {hasRun && !loading && !error && (
+        <p className="mb-3 text-sm text-slate-500">
+          Tìm thấy <b>{rows.length}</b> website
+          {provider ? ` · provider: ${provider}` : ""}
+          {durationMs != null ? ` · ${durationMs}ms` : ""}
+          {rows.length > 0 ? " · có thể chuyển sang Domain Scan." : "."}
+        </p>
       )}
 
-      {hasResults && view !== "empty" && (
-        <>
-          <p className="mb-3 text-sm text-slate-500">
-            Tìm thấy <b>28</b> website (mock) · có thể chuyển sang Domain Scan.
-          </p>
-          <ResultsTable rows={MOCK_RESULTS} />
-          <div className="mt-4 flex gap-2">
-            <Button variant="outline" onClick={() => setView("error")}>
-              (Demo) Lỗi API
-            </Button>
-            <Button>Chuyển sang Domain Scan</Button>
-          </div>
-        </>
+      {hasRun && !loading && (
+        <ResultsTable
+          rows={rows}
+          emptyMessage="Không tìm thấy kết quả nào. Thử keyword khác."
+        />
+      )}
+
+      {hasRun && rows.length > 0 && !loading && (
+        <div className="mt-4 flex gap-2">
+          <Button>Chuyển sang Domain Scan</Button>
+        </div>
       )}
     </>
   );

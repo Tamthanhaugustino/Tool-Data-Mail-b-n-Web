@@ -19,12 +19,14 @@ Desktop app (logic gốc) phát triển riêng tại project **`b2b-lead-finder`
 | Database schema (SQL migration + TS types) | **Done (Phase 04 foundation)** — xem [`docs/DATABASE.md`](./docs/DATABASE.md) |
 | Supabase client wiring (browser/server/admin) | **Done (Phase 05 prep)** — factories sẵn sàng, env-gated |
 | Supabase setup guide + health check route | **Done (Phase 06)** — xem [`docs/SUPABASE_SETUP.md`](./docs/SUPABASE_SETUP.md) |
-| Supabase Auth migration | Chưa (chuyển sang Phase 07 — deferred) |
+| Keyword Discovery backend (mock provider + API + UI wire) | **Done (Phase 07)** — xem [`docs/DISCOVERY.md`](./docs/DISCOVERY.md) |
+| Supabase Auth migration | Chưa (deferred) |
+| Hunter.io / SerpAPI real call | Chưa (mock-only) |
 | Hunter.io / SerpAPI integration | Chưa có (chỉ mock trên UI) |
 | Billing / payment | Chưa có |
 | Production deploy | Chưa có |
 
-**Phase hiện tại:** [Phase 06 — Supabase project setup + health check](./docs/ROADMAP.md#phase-06--supabase-project-setup--health-check--current)
+**Phase hiện tại:** [Phase 07 — Keyword Discovery backend foundation](./docs/ROADMAP.md#phase-07--keyword-discovery-backend-foundation--current)
 
 Chi tiết lộ trình: [`docs/ROADMAP.md`](./docs/ROADMAP.md)
 
@@ -155,6 +157,7 @@ tool-data-mail-web/
 │       ├── auth/           # Phase 03 — cookie HMAC session
 │       ├── db/             # Phase 04 — TS types khớp DB schema
 │       ├── supabase/       # Phase 05 — client factories (browser/server/admin) + health
+│       ├── discovery/      # Phase 07 — Keyword Discovery domain + mock provider
 │       ├── mock-data.ts
 │       └── navigation.ts
 ├── middleware.ts
@@ -173,8 +176,9 @@ tool-data-mail-web/
 | 03 | Auth + user account foundation | **Done** (demo HMAC; bridge sang Supabase Auth ở Phase 06) |
 | 04 | Database schema foundation | **Done** (SQL migration + TS types) |
 | 05 | Supabase client wiring + auth migration prep | **Done** (browser/server/admin clients + health, env-gated) |
-| 06 | Supabase project setup + health check | **Current** (setup guide + `/api/health/supabase`) |
-| 07 | Supabase Auth migration *or* Keyword Discovery backend foundation | Planned (auth migration deferred until needed) |
+| 06 | Supabase project setup + health check | **Done** (setup guide + `/api/health/supabase`) |
+| 07 | Keyword Discovery backend foundation | **Current** (mock provider + `/api/discovery/keyword` + wired `/discover`) |
+| 08 | Supabase Auth migration *or* SerpAPI real provider | Planned |
 | 06 | Domain Scan job system | Planned |
 | 07 | Results, Saved Leads, Export | Planned |
 | 08 | Billing / subscription / credit limits | Planned |
@@ -201,6 +205,7 @@ Bảng đầy đủ, deliverable và phụ thuộc: **[`docs/ROADMAP.md`](./docs
 - [Auth foundation (Phase 03)](./docs/AUTH.md)
 - [Database foundation (Phase 04)](./docs/DATABASE.md)
 - [Supabase setup (Phase 06)](./docs/SUPABASE_SETUP.md)
+- [Keyword Discovery backend (Phase 07)](./docs/DISCOVERY.md)
 - [Tech decisions](./docs/TECH_DECISION.md)
 - [API & database draft](./docs/API_DATABASE_DRAFT.md)
 - [UI brief](./plans/tool-data-mail-web-ui-brief.md)

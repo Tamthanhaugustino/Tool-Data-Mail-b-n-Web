@@ -15,8 +15,9 @@ Phase 02  Docs & planning       ████████████████
 Phase 03  Auth                  ████████████████████  DONE (demo)
 Phase 04  Database schema       ████████████████████  DONE
 Phase 05  Supabase wiring       ████████████████████  DONE
-Phase 06  Supabase setup        ████████████████░░░░  CURRENT (setup guide + health)
-Phase 07  Auth migration / KW   ░░░░░░░░░░░░░░░░░░░░
+Phase 06  Supabase setup        ████████████████████  DONE
+Phase 07  Discovery backend     ████████████████░░░░  CURRENT (mock provider + API)
+Phase 08  Auth migration / SerpAPI  ░░░░░░░░░░░░░░░░░░░░
 Phase 06  Domain Scan jobs      ░░░░░░░░░░░░░░░░░░░░
 Phase 07  Results / Leads       ░░░░░░░░░░░░░░░░░░░░
 Phase 08  Billing               ░░░░░░░░░░░░░░░░░░░░
@@ -146,7 +147,7 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 
 ---
 
-## Phase 06 — Supabase project setup + health check — CURRENT
+## Phase 06 — Supabase project setup + health check — DONE
 
 **Mục tiêu:** Hướng dẫn provision Supabase project (do owner tự làm vì cần credential), thêm route diagnostic an toàn để xác nhận app kết nối được DB. Không migrate auth.
 
@@ -172,26 +173,55 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 
 ---
 
-## Phase 07 — Supabase Auth migration *or* Keyword Discovery backend foundation
+## Phase 07 — Keyword Discovery backend foundation — CURRENT
+
+**Mục tiêu:** Tách logic Keyword Discovery khỏi UI sớm: provider interface, API route nội bộ, validate input, sanitize error. Mock provider để demo UI mà không tiêu quota / không gọi external. Phase 08+ chỉ thay implementation.
+
+**Đã làm:**
+
+- [x] [`src/lib/discovery/types.ts`](../src/lib/discovery/types.ts) — `DiscoveryRequest/Response/Provider...` contract
+- [x] [`src/lib/discovery/mock-provider.ts`](../src/lib/discovery/mock-provider.ts) — deterministic mock (FNV-1a hash), zero I/O, không consume quota
+- [x] [`src/lib/discovery/index.ts`](../src/lib/discovery/index.ts) — `getDiscoveryProvider()` switch điểm cho Phase 08
+- [x] [`src/app/api/discovery/keyword/route.ts`](../src/app/api/discovery/keyword/route.ts) — `POST /api/discovery/keyword`, manual `getSession()` (middleware exclude `/api/*`), validate keyword/country/limit, sanitize error, `cache-control: no-store`
+- [x] [`src/app/discover/discover-content.tsx`](../src/app/discover/discover-content.tsx) — wire UI gọi API thật, hiển thị loading/error/provider badge/duration
+- [x] [`docs/DISCOVERY.md`](./DISCOVERY.md) — endpoint, request/response, provider plug-in plan, swap path Phase 08
+
+**Chưa làm (deferred):**
+
+- [ ] Gọi SerpAPI thật
+- [ ] Persist `discovery_runs` + `scan_results` vào DB (chờ Supabase Auth migration để FK xuống `auth.users` hợp lệ)
+- [ ] Quota / rate limit
+- [ ] Lịch sử run hiển thị ở `/history` (data còn in-memory ở client)
+- [ ] Nút "Chuyển sang Domain Scan" thật
+
+**Deliverable:** User đã login bấm tìm trên `/discover` → POST API → trả 10 kết quả mock có domain/company/title/snippet/confidence/status, không cần Supabase project. UI hiển thị provider + duration để dev biết đang dùng mock.
+
+**Phụ thuộc:** Phase 03 (session check).
+
+---
+
+## Phase 08 — Supabase Auth migration *or* SerpAPI real provider
 
 **Mục tiêu:** Owner quyết định mở hướng nào trước. Hai nhánh không phụ thuộc nhau quá chặt — có thể đảo thứ tự.
 
-**Nhánh A — Auth migration (đề xuất đi trước nếu sắp có nhiều người dùng):**
+**Nhánh A — Auth migration:**
 
 - Swap `src/lib/auth/*` sang Supabase Auth (giữ `Session` shape).
 - Uncomment trigger `on_auth_user_created` ở `0001_initial_schema.sql`.
 - Seed demo accounts qua `getSupabaseAdminClient()`.
 - Đổi middleware sang Supabase middleware helper (refresh cookie).
+- Bật persistence Discovery → DB (đã có schema sẵn từ Phase 04).
 
-**Nhánh B — Keyword Discovery backend foundation (đề xuất nếu muốn demo SerpAPI sớm):**
+**Nhánh B — SerpAPI real provider:**
 
 - Quyết định encryption scheme cho `user_api_keys.encrypted_key` (Vault vs app KMS).
-- `POST /api/discovery` insert vào `discovery_runs`, gọi SerpAPI với key user, insert `scan_results`.
-- `/discover` page đọc/ghi data thật, loading/error/empty states.
+- Tạo `src/lib/discovery/serpapi-provider.ts` implement `DiscoveryProvider`.
+- `getDiscoveryProvider()` switch theo env / user setting.
+- Provider đọc key từ `user_api_keys` qua admin client (server-only).
 
 **Deliverable:** Một lượt scan thật từ user thật, có lịch sử trong DB.
 
-**Phụ thuộc:** Phase 06.
+**Phụ thuộc:** Phase 06–07.
 
 ---
 
@@ -312,3 +342,4 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 | 2026-05-18 | Phase 03 done (demo); Phase 04 in-progress — DB schema + RLS draft + TS types + DATABASE.md. Apply lên Supabase project ở Phase 05 |
 | 2026-05-18 | Phase 04 done; Phase 05 in-progress — Supabase client wiring (browser/server/admin/health), env-gated, không đụng auth hiện tại. Provision project + auth swap chuyển sang Phase 06 |
 | 2026-05-18 | Phase 05 done; Phase 06 in-progress — `SUPABASE_SETUP.md` + `GET /api/health/supabase`. Owner tự provision project; auth migration deferred Phase 07 |
+| 2026-05-18 | Phase 06 done; Phase 07 in-progress — discovery domain types + mock provider + `POST /api/discovery/keyword` + `/discover` wired. Không gọi external, không consume quota. Auth migration / SerpAPI deferred Phase 08 |
