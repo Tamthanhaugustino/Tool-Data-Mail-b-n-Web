@@ -16,13 +16,13 @@ Desktop app (logic gốc) phát triển riêng tại project **`b2b-lead-finder`
 | Design handoff (`design/`) | Có — HTML/CSS mock + screenshots |
 | Backend / API thật | Chưa có |
 | Auth foundation (cookie HMAC + demo users) | **Done (Phase 03)** — xem [`docs/AUTH.md`](./docs/AUTH.md) |
-| Supabase Auth / DB | Chưa có (Phase 04+) |
-| Database | Chưa có |
+| Database schema (SQL migration + TS types) | **Done (Phase 04 foundation)** — xem [`docs/DATABASE.md`](./docs/DATABASE.md) |
+| Supabase project (apply migration + Auth) | Chưa có (chuyển sang Phase 05) |
 | Hunter.io / SerpAPI integration | Chưa có (chỉ mock trên UI) |
 | Billing / payment | Chưa có |
 | Production deploy | Chưa có |
 
-**Phase hiện tại:** [Phase 03 — Auth + user account foundation](./docs/ROADMAP.md#phase-03--auth--user-account-foundation--current)
+**Phase hiện tại:** [Phase 04 — Database schema + Supabase foundation](./docs/ROADMAP.md#phase-04--database-schema--supabase-foundation--current)
 
 Chi tiết lộ trình: [`docs/ROADMAP.md`](./docs/ROADMAP.md)
 
@@ -90,10 +90,16 @@ Copy `.env.example` sang `.env.local` rồi điền:
 
 ```bash
 cp .env.example .env.local
-# AUTH_SECRET=<>=16 ký tự bất kỳ — bắt buộc trong production
 ```
 
-Thiếu `AUTH_SECRET` trong dev sẽ có fallback (không an toàn) + cảnh báo. Production sẽ throw — không boot.
+| Biến | Bắt buộc | Mục đích |
+|---|---|---|
+| `AUTH_SECRET` | ≥16 ký tự, prod bắt buộc | Ký HMAC cookie session (Phase 03). Dev có fallback. |
+| `NEXT_PUBLIC_SUPABASE_URL` | Phase 05+ | URL Supabase project. Public — safe ở browser. |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Phase 05+ | Anon key Supabase. RLS protect data. |
+| `SUPABASE_SERVICE_ROLE_KEY` | Phase 05+ | **Server-only.** Bypass RLS. KHÔNG đặt trong `NEXT_PUBLIC_*`. |
+
+Phase 04 chỉ cần `AUTH_SECRET` để chạy local. Các biến Supabase để placeholder cho tới khi Phase 05 nối backend thật.
 
 ---
 
@@ -114,10 +120,14 @@ tool-data-mail-web/
 ├── design/                 # Design handoff (HTML partials, CSS, screenshots)
 ├── docs/
 │   ├── ROADMAP.md          # Lộ trình phase 01–10 (canonical)
+│   ├── AUTH.md             # Phase 03 auth foundation
+│   ├── DATABASE.md         # Phase 04 DB foundation (schema + RLS plan)
 │   ├── PROJECT_STATE.md    # Snapshot trạng thái (có thể lỗi thời)
 │   ├── TECH_DECISION.md    # Đề xuất stack & bảo mật
 │   ├── PHASE_PLAN.md       # Kế hoạch phase cũ (Web 01–07)
 │   └── API_DATABASE_DRAFT.md
+├── supabase/
+│   └── migrations/         # SQL migrations (apply qua Supabase Studio/CLI)
 ├── plans/
 │   └── tool-data-mail-web-ui-brief.md
 ├── public/
@@ -130,8 +140,11 @@ tool-data-mail-web/
 │   │   ├── prototype/      # Mock API status context
 │   │   └── ui/             # shadcn components
 │   └── lib/
+│       ├── auth/           # Phase 03 — cookie HMAC session
+│       ├── db/             # Phase 04 — TS types khớp DB schema
 │       ├── mock-data.ts
 │       └── navigation.ts
+├── middleware.ts
 ├── package.json
 └── README.md
 ```
@@ -144,8 +157,8 @@ tool-data-mail-web/
 |-------|----------|------------|
 | 01 | Frontend prototype scaffold | **Done** |
 | 02 | Docs & SaaS planning | **Done** |
-| 03 | Auth + user account foundation | **Current** (foundation done — demo users, real auth provider chờ Phase 04) |
-| 04 | Database schema + lead/project models | Planned |
+| 03 | Auth + user account foundation | **Done** (demo users, swap sang Supabase ở Phase 05) |
+| 04 | Database schema + lead/project models | **Current** (SQL migration + TS types ready, apply lên Supabase ở Phase 05) |
 | 05 | Keyword Discovery real workflow | Planned |
 | 06 | Domain Scan job system | Planned |
 | 07 | Results, Saved Leads, Export | Planned |
@@ -171,6 +184,7 @@ Bảng đầy đủ, deliverable và phụ thuộc: **[`docs/ROADMAP.md`](./docs
 
 - [Roadmap](./docs/ROADMAP.md)
 - [Auth foundation (Phase 03)](./docs/AUTH.md)
+- [Database foundation (Phase 04)](./docs/DATABASE.md)
 - [Tech decisions](./docs/TECH_DECISION.md)
 - [API & database draft](./docs/API_DATABASE_DRAFT.md)
 - [UI brief](./plans/tool-data-mail-web-ui-brief.md)
