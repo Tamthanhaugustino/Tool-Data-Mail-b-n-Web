@@ -6,7 +6,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -20,30 +19,42 @@ export function UserMenu({ session }: { session: Session }) {
         render={
           <button
             type="button"
-            className="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-blue-600 text-xs font-semibold text-white outline-none ring-offset-2 transition-shadow hover:shadow-md focus-visible:ring-2 focus-visible:ring-primary"
+            className="flex max-w-[200px] items-center gap-2 rounded-lg py-1 pr-1 pl-0.5 outline-none ring-offset-2 transition-colors hover:bg-slate-50 focus-visible:ring-2 focus-visible:ring-primary"
             title={session.email}
             aria-label="Mở menu tài khoản"
           >
-            {session.initials}
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-blue-600 text-xs font-semibold text-white">
+              {session.initials}
+            </span>
+            <span className="hidden min-w-0 flex-col items-start text-left md:flex">
+              <span className="truncate text-sm font-medium text-slate-900">
+                {session.name}
+              </span>
+              <span className="truncate text-xs text-slate-500">{session.email}</span>
+            </span>
           </button>
         }
       />
       <DropdownMenuContent align="end" sideOffset={6} className="min-w-56">
-        <DropdownMenuLabel className="flex flex-col gap-0.5">
-          <span className="text-sm font-semibold">{session.name}</span>
-          <span className="truncate text-xs font-normal text-slate-500">
-            {session.email}
-          </span>
-          <span className="mt-1 inline-flex w-fit items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10.5px] font-medium uppercase tracking-wider text-slate-600">
-            {session.role === "admin" ? (
-              <>
-                <ShieldCheck className="size-3" /> Admin
-              </>
-            ) : (
-              "User"
-            )}
-          </span>
-        </DropdownMenuLabel>
+        <div className="flex flex-col gap-0.5 px-2 py-1.5">
+          <span className="text-sm font-semibold text-slate-900">{session.name}</span>
+          <span className="truncate text-xs text-slate-500">{session.email}</span>
+          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+            <span className="inline-flex items-center rounded-full border border-amber-200 bg-gradient-to-br from-amber-50 to-amber-100 px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wider text-amber-900">
+              {session.plan}
+            </span>
+            <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10.5px] font-medium uppercase tracking-wider text-slate-600">
+              {session.role === "admin" ? (
+                <>
+                  <ShieldCheck className="size-3" />
+                  Admin
+                </>
+              ) : (
+                "User"
+              )}
+            </span>
+          </div>
+        </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem render={<Link href="/settings" />}>
           <Settings className="size-4" />
