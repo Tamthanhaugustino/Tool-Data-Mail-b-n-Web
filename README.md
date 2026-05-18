@@ -18,12 +18,13 @@ Desktop app (logic gốc) phát triển riêng tại project **`b2b-lead-finder`
 | Auth foundation (cookie HMAC + demo users) | **Done (Phase 03)** — xem [`docs/AUTH.md`](./docs/AUTH.md) |
 | Database schema (SQL migration + TS types) | **Done (Phase 04 foundation)** — xem [`docs/DATABASE.md`](./docs/DATABASE.md) |
 | Supabase client wiring (browser/server/admin) | **Done (Phase 05 prep)** — factories sẵn sàng, env-gated |
-| Supabase project (apply migration + Auth) | Chưa có (chuyển sang Phase 06) |
+| Supabase setup guide + health check route | **Done (Phase 06)** — xem [`docs/SUPABASE_SETUP.md`](./docs/SUPABASE_SETUP.md) |
+| Supabase Auth migration | Chưa (chuyển sang Phase 07 — deferred) |
 | Hunter.io / SerpAPI integration | Chưa có (chỉ mock trên UI) |
 | Billing / payment | Chưa có |
 | Production deploy | Chưa có |
 
-**Phase hiện tại:** [Phase 05 — Supabase wiring + auth migration prep](./docs/ROADMAP.md#phase-05--supabase-wiring--auth-migration-prep--current)
+**Phase hiện tại:** [Phase 06 — Supabase project setup + health check](./docs/ROADMAP.md#phase-06--supabase-project-setup--health-check--current)
 
 Chi tiết lộ trình: [`docs/ROADMAP.md`](./docs/ROADMAP.md)
 
@@ -100,7 +101,17 @@ cp .env.example .env.local
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Phase 06+ | Anon key Supabase. RLS protect data. |
 | `SUPABASE_SERVICE_ROLE_KEY` | Phase 06+ | **Server-only.** Bypass RLS. KHÔNG đặt trong `NEXT_PUBLIC_*`. |
 
-Phase 05 chỉ cần `AUTH_SECRET` để chạy local. Supabase client factories build-safe khi thiếu env (return `null`). Các biến Supabase điền khi có project thật ở Phase 06.
+Phase 05–06 chỉ cần `AUTH_SECRET` để chạy local (Supabase client factories return `null` khi thiếu env nên `npm run build` vẫn pass). Khi muốn nối Supabase thật, làm theo [`docs/SUPABASE_SETUP.md`](./docs/SUPABASE_SETUP.md):
+
+```bash
+curl -s http://localhost:3000/api/health/supabase
+# Chưa cấu hình:
+# { "service":"supabase", "configured":false, "reason":"missing_public_env" }
+# Đã cấu hình + apply schema:
+# { "service":"supabase", "configured":true, "ok":true, "latencyMs":<n> }
+```
+
+Route này không trả secret — an toàn để gọi từ monitoring.
 
 ---
 
@@ -161,8 +172,9 @@ tool-data-mail-web/
 | 02 | Docs & SaaS planning | **Done** |
 | 03 | Auth + user account foundation | **Done** (demo HMAC; bridge sang Supabase Auth ở Phase 06) |
 | 04 | Database schema foundation | **Done** (SQL migration + TS types) |
-| 05 | Supabase client wiring + auth migration prep | **Current** (browser/server/admin clients + health, env-gated) |
-| 06 | Keyword Discovery real workflow + Supabase Auth migration | Planned |
+| 05 | Supabase client wiring + auth migration prep | **Done** (browser/server/admin clients + health, env-gated) |
+| 06 | Supabase project setup + health check | **Current** (setup guide + `/api/health/supabase`) |
+| 07 | Supabase Auth migration *or* Keyword Discovery backend foundation | Planned (auth migration deferred until needed) |
 | 06 | Domain Scan job system | Planned |
 | 07 | Results, Saved Leads, Export | Planned |
 | 08 | Billing / subscription / credit limits | Planned |
@@ -188,6 +200,7 @@ Bảng đầy đủ, deliverable và phụ thuộc: **[`docs/ROADMAP.md`](./docs
 - [Roadmap](./docs/ROADMAP.md)
 - [Auth foundation (Phase 03)](./docs/AUTH.md)
 - [Database foundation (Phase 04)](./docs/DATABASE.md)
+- [Supabase setup (Phase 06)](./docs/SUPABASE_SETUP.md)
 - [Tech decisions](./docs/TECH_DECISION.md)
 - [API & database draft](./docs/API_DATABASE_DRAFT.md)
 - [UI brief](./plans/tool-data-mail-web-ui-brief.md)

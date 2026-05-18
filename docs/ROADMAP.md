@@ -14,8 +14,9 @@ Phase 01  Prototype UI          ████████████████
 Phase 02  Docs & planning       ████████████████████  DONE
 Phase 03  Auth                  ████████████████████  DONE (demo)
 Phase 04  Database schema       ████████████████████  DONE
-Phase 05  Supabase wiring       ████████████████░░░░  CURRENT (prep)
-Phase 06  Keyword Discovery     ░░░░░░░░░░░░░░░░░░░░
+Phase 05  Supabase wiring       ████████████████████  DONE
+Phase 06  Supabase setup        ████████████████░░░░  CURRENT (setup guide + health)
+Phase 07  Auth migration / KW   ░░░░░░░░░░░░░░░░░░░░
 Phase 06  Domain Scan jobs      ░░░░░░░░░░░░░░░░░░░░
 Phase 07  Results / Leads       ░░░░░░░░░░░░░░░░░░░░
 Phase 08  Billing               ░░░░░░░░░░░░░░░░░░░░
@@ -115,7 +116,7 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 
 ---
 
-## Phase 05 — Supabase wiring + auth migration prep — CURRENT
+## Phase 05 — Supabase wiring + auth migration prep — DONE
 
 **Mục tiêu:** Cài Supabase SDK và viết factory client cho browser/server/admin. Build-safe khi env vắng. Auth Phase 03 chưa đổi — chỉ chuẩn bị cầu nối.
 
@@ -145,22 +146,52 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 
 ---
 
-## Phase 06 — Keyword Discovery + Supabase Auth migration
+## Phase 06 — Supabase project setup + health check — CURRENT
 
-**Mục tiêu:** Provision Supabase project, swap auth, rồi `/discover` gọi SerpAPI thật, lưu vào `discovery_runs` / `scan_results`.
+**Mục tiêu:** Hướng dẫn provision Supabase project (do owner tự làm vì cần credential), thêm route diagnostic an toàn để xác nhận app kết nối được DB. Không migrate auth.
 
-**Công việc dự kiến:**
+**Đã làm:**
 
-- Provision Supabase project (cloud) + apply [`0001_initial_schema.sql`](../supabase/migrations/0001_initial_schema.sql); uncomment trigger `on_auth_user_created`
-- Swap `src/lib/auth/*` từ HMAC cookie sang Supabase Auth (giữ `Session` shape)
-- Seed demo users qua admin client
-- `POST /api/discovery` insert vào `discovery_runs`, gọi SerpAPI với key user từ `user_api_keys`, insert `scan_results`
-- `/discover` page đọc/ghi data thật, loading/error/empty states
-- Quyết định encryption scheme cho `user_api_keys.encrypted_key`
+- [x] [`docs/SUPABASE_SETUP.md`](./SUPABASE_SETUP.md) — checklist 5 bước: tạo project → lấy env → tạo `.env.local` → apply schema → verify với health route
+- [x] [`src/app/api/health/supabase/route.ts`](../src/app/api/health/supabase/route.ts) — `GET /api/health/supabase` trả JSON envelope (`configured`, `ok`, `latencyMs`, `error`); luôn HTTP 200; sanitize error (mask URL/JWT, cắt 200 ký tự); cache-control no-store
+- [x] Health check phân biệt 4 state rõ ràng: missing public env / missing service role / reachable+ok / reachable+schema-not-applied
+- [x] Route nằm dưới `/api/*` → middleware đã exclude → public OK (không trả secret)
+- [x] Schema Phase 04 (`0001_initial_schema.sql`) **không cần sửa** — chạy được trực tiếp trong Supabase SQL Editor
+- [x] README thêm section verify bằng `curl`, link `SUPABASE_SETUP.md`
 
-**Deliverable:** Một lượt keyword discovery end-to-end có lịch sử trong DB thật.
+**Chưa làm (deferred):**
 
-**Phụ thuộc:** Phase 03–05.
+- [ ] Provision Supabase project thật — owner tự làm theo [`SUPABASE_SETUP.md`](./SUPABASE_SETUP.md), không thể tự động hoá trong repo
+- [ ] Swap demo HMAC → Supabase Auth — **chủ đích giữ lại Phase 03 auth**; chuyển sang Phase 07 nếu cần
+- [ ] Seed demo users qua admin client
+- [ ] Generate types thật từ Supabase CLI
+
+**Deliverable:** Anyone clone repo, làm theo `SUPABASE_SETUP.md`, chạy `curl /api/health/supabase` → `{ ok: true }` trong < 10 phút. App vẫn chạy bình thường khi env vắng.
+
+**Phụ thuộc:** Phase 04–05.
+
+---
+
+## Phase 07 — Supabase Auth migration *or* Keyword Discovery backend foundation
+
+**Mục tiêu:** Owner quyết định mở hướng nào trước. Hai nhánh không phụ thuộc nhau quá chặt — có thể đảo thứ tự.
+
+**Nhánh A — Auth migration (đề xuất đi trước nếu sắp có nhiều người dùng):**
+
+- Swap `src/lib/auth/*` sang Supabase Auth (giữ `Session` shape).
+- Uncomment trigger `on_auth_user_created` ở `0001_initial_schema.sql`.
+- Seed demo accounts qua `getSupabaseAdminClient()`.
+- Đổi middleware sang Supabase middleware helper (refresh cookie).
+
+**Nhánh B — Keyword Discovery backend foundation (đề xuất nếu muốn demo SerpAPI sớm):**
+
+- Quyết định encryption scheme cho `user_api_keys.encrypted_key` (Vault vs app KMS).
+- `POST /api/discovery` insert vào `discovery_runs`, gọi SerpAPI với key user, insert `scan_results`.
+- `/discover` page đọc/ghi data thật, loading/error/empty states.
+
+**Deliverable:** Một lượt scan thật từ user thật, có lịch sử trong DB.
+
+**Phụ thuộc:** Phase 06.
 
 ---
 
@@ -280,3 +311,4 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 | 2026-05-18 | Phase 02 done; Phase 03 in-progress — auth foundation (HMAC cookie + demo users) hoàn tất, chờ Supabase ở Phase 04 |
 | 2026-05-18 | Phase 03 done (demo); Phase 04 in-progress — DB schema + RLS draft + TS types + DATABASE.md. Apply lên Supabase project ở Phase 05 |
 | 2026-05-18 | Phase 04 done; Phase 05 in-progress — Supabase client wiring (browser/server/admin/health), env-gated, không đụng auth hiện tại. Provision project + auth swap chuyển sang Phase 06 |
+| 2026-05-18 | Phase 05 done; Phase 06 in-progress — `SUPABASE_SETUP.md` + `GET /api/health/supabase`. Owner tự provision project; auth migration deferred Phase 07 |
