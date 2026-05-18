@@ -22,13 +22,14 @@ Desktop app (logic gốc) phát triển riêng tại project **`b2b-lead-finder`
 | Keyword Discovery backend (mock provider + API + UI wire) | **Done (Phase 07)** — xem [`docs/DISCOVERY.md`](./docs/DISCOVERY.md) |
 | SerpAPI real provider (quota-safe, server-only) | **Done (Phase 08A)** — `SERPAPI_API_KEY` + `DISCOVERY_PROVIDER` env-gated |
 | SerpAPI live smoke test + typed error UX | **Done (Phase 08B)** — 6 mã code → HTTP status + UI hint; offline smoke test ✓ |
+| Domain Scan backend foundation (mock + API + UI wired) | **Done (Phase 08C)** — xem [`docs/SCAN.md`](./docs/SCAN.md) |
 | Supabase Auth migration | Chưa (deferred) |
-| Hunter.io Domain Scan real call | Chưa (Phase 08B+) |
+| Hunter.io Domain Scan real call | Chưa (Phase 09+) |
 | Hunter.io / SerpAPI integration | Chưa có (chỉ mock trên UI) |
 | Billing / payment | Chưa có |
 | Production deploy | Chưa có |
 
-**Phase hiện tại:** [Phase 08B — SerpAPI live smoke test + UX polish](./docs/ROADMAP.md#phase-08b--serpapi-live-smoke-test--provider-ux-polish--current)
+**Phase hiện tại:** [Phase 08C — Domain Scan backend foundation](./docs/ROADMAP.md#phase-08c--domain-scan-backend-foundation--current)
 
 Chi tiết lộ trình: [`docs/ROADMAP.md`](./docs/ROADMAP.md)
 
@@ -159,7 +160,8 @@ tool-data-mail-web/
 │       ├── auth/           # Phase 03 — cookie HMAC session
 │       ├── db/             # Phase 04 — TS types khớp DB schema
 │       ├── supabase/       # Phase 05 — client factories (browser/server/admin) + health
-│       ├── discovery/      # Phase 07 — Keyword Discovery domain + mock provider
+│       ├── discovery/      # Phase 07/08 — Keyword Discovery (mock + SerpAPI)
+│       ├── scan/           # Phase 08C — Domain Scan (mock provider, domain-utils)
 │       ├── mock-data.ts
 │       └── navigation.ts
 ├── middleware.ts
@@ -181,8 +183,9 @@ tool-data-mail-web/
 | 06 | Supabase project setup + health check | **Done** (setup guide + `/api/health/supabase`) |
 | 07 | Keyword Discovery backend foundation | **Done** (mock provider + `/api/discovery/keyword` + wired `/discover`) |
 | 08A | SerpAPI real provider (quota-safe) | **Done** (server-only fetch, env-gated, dynamic import) |
-| 08B | SerpAPI live smoke test + typed error UX | **Current** (6 mã code → HTTP status + UI hint) |
-| 08C | Domain Scan backend foundation *or* Supabase Auth migration | Planned |
+| 08B | SerpAPI live smoke test + typed error UX | **Done** (6 mã code → HTTP status + UI hint) |
+| 08C | Domain Scan backend foundation | **Current** (mock provider + `/api/scan/domain` + wired wizard) |
+| 09 | Hunter real provider *or* Supabase Auth migration | Planned |
 | 06 | Domain Scan job system | Planned |
 | 07 | Results, Saved Leads, Export | Planned |
 | 08 | Billing / subscription / credit limits | Planned |
@@ -210,6 +213,7 @@ Bảng đầy đủ, deliverable và phụ thuộc: **[`docs/ROADMAP.md`](./docs
 - [Database foundation (Phase 04)](./docs/DATABASE.md)
 - [Supabase setup (Phase 06)](./docs/SUPABASE_SETUP.md)
 - [Keyword Discovery backend (Phase 07)](./docs/DISCOVERY.md)
+- [Domain Scan backend (Phase 08C)](./docs/SCAN.md)
 - [Tech decisions](./docs/TECH_DECISION.md)
 - [API & database draft](./docs/API_DATABASE_DRAFT.md)
 - [UI brief](./plans/tool-data-mail-web-ui-brief.md)

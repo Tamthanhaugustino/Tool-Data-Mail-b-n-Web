@@ -7,14 +7,28 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { ResultsTable } from "@/components/shared/results-table";
-import { DEFAULT_DOMAINS, MOCK_RESULTS } from "@/lib/mock-data";
+import type { ScanResultRow } from "@/lib/mock-data";
+import { DEFAULT_DOMAINS } from "@/lib/mock-data";
+import { normalizeDomains } from "@/lib/scan";
+import type {
+  ScanDomainSummary,
+  ScanResponse,
+  ScanResultItem,
+} from "@/lib/scan";
 import { cn } from "@/lib/utils";
 
 const STEPS = ["Input", "Preview", "Scanning", "Results"] as const;
 type Step = (typeof STEPS)[number];
+
+const ERROR_HINTS: Record<string, string> = {
+  unauthorized: "Phiên đăng nhập đã hết hạn. Đăng nhập lại tại /login.",
+  invalid_input: "Kiểm tra danh sách domain hoặc tham số request.",
+  provider_unavailable:
+    "Hunter provider chưa được wire (Phase 09). Dùng provider Mock.",
+};
 
 type DomainScanWizardProps = {
   /** Mỗi dòng một domain — thường từ ?domains= trên /scan sau Keyword Discovery. */
@@ -22,49 +36,98 @@ type DomainScanWizardProps = {
   fromDiscovery?: boolean;
 };
 
+function statusForTable(s: ScanResultItem["status"]): ScanResultRow["status"] {
+  if (s === "verified") return "verified";
+  if (s === "accept_all") return "accept_all";
+  return "webmail";
+}
+
+function mapToRows(resp: ScanResponse): ScanResultRow[] {
+  return resp.results.map((r, idx) => ({
+    id: `${resp.run.id}-${idx}`,
+    email: r.email,
+    name: [r.first_name, r.last_name].filter(Boolean).join(" ") || "—",
+    title: r.position ?? "—",
+    company: r.company ?? "—",
+    domain: r.domain,
+    confidence: Math.round(r.confidence * 100),
+    status: statusForTable(r.status),
+  }));
+}
+
 export function DomainScanWizard({
   initialDomains,
   fromDiscovery = false,
 }: DomainScanWizardProps) {
   const [step, setStep] = useState<Step>("Input");
   const [domains, setDomains] = useState(initialDomains ?? DEFAULT_DOMAINS);
-  const [limit, setLimit] = useState(50);
-  const [progress, setProgress] = useState(0);
+  const [limit, setLimit] = useState(10);
   const [verifiedOnly, setVerifiedOnly] = useState(true);
   const [autoHistory, setAutoHistory] = useState(true);
 
-  const domainList = useMemo(
-    () =>
-      domains
-        .split("\n")
-        .map((d) => d.trim())
-        .filter(Boolean),
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [errorCode, setErrorCode] = useState<string | null>(null);
+  const [response, setResponse] = useState<ScanResponse | null>(null);
+
+  const rawList = useMemo(
+    () => domains.split("\n").map((d) => d.trim()).filter(Boolean),
     [domains],
   );
 
-  const estimatedRequests = domainList.length * Math.min(limit, 10);
+  const normalizedPreview = useMemo(() => normalizeDomains(rawList), [rawList]);
 
-  const goScanning = () => {
+  const estimatedRequests = normalizedPreview.domains.length * Math.min(limit, 10);
+
+  const runScan = async () => {
     setStep("Scanning");
-    setProgress(0);
-    const interval = setInterval(() => {
-      setProgress((p) => {
-        if (p >= 100) {
-          clearInterval(interval);
-          setStep("Results");
-          return 100;
-        }
-        return p + 12;
+    setLoading(true);
+    setError(null);
+    setErrorCode(null);
+    setResponse(null);
+    try {
+      const res = await fetch("/api/scan/domain", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          domains: rawList,
+          emailLimitPerDomain: limit,
+          provider: "mock",
+        }),
       });
-    }, 400);
+      const data: unknown = await res.json().catch(() => null);
+      if (!res.ok) {
+        const err = (data as { message?: string; error?: string } | null) ?? null;
+        setError(err?.message ?? err?.error ?? `HTTP ${res.status}`);
+        setErrorCode(err?.error ?? null);
+        setStep("Results");
+        return;
+      }
+      setResponse(data as ScanResponse);
+      setStep("Results");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "unknown");
+      setErrorCode("network");
+      setStep("Results");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const rows = useMemo(() => {
+    if (!response) return [] as ScanResultRow[];
+    const mapped = mapToRows(response);
+    return verifiedOnly ? mapped.filter((r) => r.status === "verified") : mapped;
+  }, [response, verifiedOnly]);
+
+  const errorHint = errorCode ? ERROR_HINTS[errorCode] : null;
 
   return (
     <div className="space-y-6">
-      {fromDiscovery && domainList.length > 0 && (
+      {fromDiscovery && rawList.length > 0 && step === "Input" && (
         <Alert>
           <AlertDescription>
-            Đã nhận <b>{domainList.length}</b> domain từ Keyword Discovery. Kiểm tra danh sách
+            Đã nhận <b>{rawList.length}</b> domain từ Keyword Discovery. Kiểm tra danh sách
             bên dưới rồi tiếp tục Preview.
           </AlertDescription>
         </Alert>
@@ -94,7 +157,7 @@ export function DomainScanWizard({
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-base">Danh sách domain</CardTitle>
               <span className="text-xs text-slate-500">
-                <b>{domainList.length} domain</b> · tối đa 500
+                <b>{normalizedPreview.domains.length} domain hợp lệ</b> · tối đa 50
               </span>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -107,16 +170,20 @@ export function DomainScanWizard({
                 />
                 <div className="flex justify-between text-xs text-slate-500">
                   <span>Dán URL đầy đủ cũng được — sẽ tự lấy domain.</span>
-                  <span className="font-mono">{domainList.length} / 500</span>
+                  <span className="font-mono">
+                    {normalizedPreview.domains.length} / 50
+                  </span>
                 </div>
+                {normalizedPreview.warnings.length > 0 && (
+                  <p className="text-xs text-amber-700">
+                    {normalizedPreview.warnings.length} dòng sẽ bị bỏ ở bước Preview (invalid/duplicate).
+                  </p>
+                )}
               </div>
               <div className="flex flex-wrap gap-2">
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" disabled>
                   <Upload className="size-4" />
-                  Upload CSV
-                </Button>
-                <Button variant="outline" size="sm">
-                  + Dán từ clipboard
+                  Upload CSV (sắp có)
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => setDomains("")}>
                   Xoá tất cả
@@ -124,7 +191,10 @@ export function DomainScanWizard({
               </div>
             </CardContent>
             <CardFooter className="justify-end border-t">
-              <Button onClick={() => setStep("Preview")} disabled={domainList.length === 0}>
+              <Button
+                onClick={() => setStep("Preview")}
+                disabled={normalizedPreview.domains.length === 0}
+              >
                 Tiếp tục · Preview
               </Button>
             </CardFooter>
@@ -138,7 +208,7 @@ export function DomainScanWizard({
               <div className="space-y-2">
                 <Label>Email limit / domain</Label>
                 <div className="flex flex-wrap gap-2">
-                  {[10, 50, 100, 500].map((n) => (
+                  {[5, 10, 25, 50].map((n) => (
                     <button
                       key={n}
                       type="button"
@@ -155,7 +225,7 @@ export function DomainScanWizard({
                   ))}
                 </div>
                 <p className="text-xs text-slate-500">
-                  Limit cao ⇒ Hunter.io có thể tính nhiều request hơn cho domain nhiều email.
+                  Mock provider: tối đa 100 email/domain. Hunter sẽ tính 1 request / email tìm được (Phase 09).
                 </p>
               </div>
               <div className="space-y-3 border-t pt-4">
@@ -164,8 +234,8 @@ export function DomainScanWizard({
                   <Switch checked={verifiedOnly} onCheckedChange={setVerifiedOnly} />
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-600">Auto-save scan vào History</span>
-                  <Switch checked={autoHistory} onCheckedChange={setAutoHistory} />
+                  <span className="text-sm text-slate-600">Auto-save scan vào History (Phase 09+)</span>
+                  <Switch checked={autoHistory} onCheckedChange={setAutoHistory} disabled />
                 </div>
               </div>
             </CardContent>
@@ -178,18 +248,35 @@ export function DomainScanWizard({
           <CardHeader>
             <CardTitle className="text-base">Xác nhận trước khi scan</CardTitle>
             <CardDescription>
-              Checkpoint bảo vệ quota — kiểm tra ước tính request trước khi gọi Hunter.io.
+              Checkpoint trước khi gọi mock provider (Hunter sẽ thay ở Phase 09).
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Alert>
               <AlertDescription>
-                Sẽ quét <b>{domainList.length}</b> domain · limit <b>{limit}</b>/domain · ước tính{" "}
-                <b>~{estimatedRequests}</b> request Hunter.io.
+                Sẽ quét <b>{normalizedPreview.domains.length}</b> domain · limit <b>{limit}</b>/domain
+                {" · "}ước tính <b>~{estimatedRequests}</b> request (mock = miễn phí).
               </AlertDescription>
             </Alert>
+            {normalizedPreview.warnings.length > 0 && (
+              <Alert className="border-amber-200 bg-amber-50 text-amber-900">
+                <AlertDescription>
+                  <b>{normalizedPreview.warnings.length}</b> dòng bị bỏ:
+                  <ul className="mt-1 list-inside list-disc text-xs">
+                    {normalizedPreview.warnings.slice(0, 5).map((w, i) => (
+                      <li key={`${w.input}-${i}`} className="font-mono">
+                        [{w.reason}] {w.input}
+                      </li>
+                    ))}
+                    {normalizedPreview.warnings.length > 5 && (
+                      <li>… và {normalizedPreview.warnings.length - 5} dòng khác</li>
+                    )}
+                  </ul>
+                </AlertDescription>
+              </Alert>
+            )}
             <ul className="grid gap-2 sm:grid-cols-2">
-              {domainList.map((d) => (
+              {normalizedPreview.domains.map((d) => (
                 <li key={d} className="rounded-lg border bg-slate-50 px-3 py-2 font-mono text-sm">
                   {d}
                 </li>
@@ -200,7 +287,9 @@ export function DomainScanWizard({
             <Button variant="outline" onClick={() => setStep("Input")}>
               Quay lại
             </Button>
-            <Button onClick={goScanning}>Bắt đầu scan</Button>
+            <Button onClick={runScan} disabled={normalizedPreview.domains.length === 0}>
+              Bắt đầu scan
+            </Button>
           </CardFooter>
         </Card>
       )}
@@ -210,39 +299,140 @@ export function DomainScanWizard({
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <Loader2 className="size-4 animate-spin text-primary" />
-              Đang quét domain…
+              Đang quét {normalizedPreview.domains.length} domain…
             </CardTitle>
-            <CardDescription>
-              vietsoftware.com.vn · 2/4 domain (mock)
-            </CardDescription>
+            <CardDescription>Provider: mock · không tiêu quota Hunter</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <Progress value={progress} />
-            <p className="text-sm text-slate-500">{progress}% · Ước tính còn 1 phút 12 giây</p>
-            <Button variant="outline" size="sm" onClick={() => setStep("Results")}>
-              (Demo) Bỏ qua chờ
-            </Button>
+          <CardContent>
+            <p className="text-sm text-slate-500">
+              {loading
+                ? "Đang chờ server trả về…"
+                : "Đã hoàn tất, chuyển sang Results…"}
+            </p>
           </CardContent>
         </Card>
       )}
 
       {step === "Results" && (
-        <div className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h3 className="font-semibold text-slate-900">Kết quả scan</h3>
-              <p className="text-sm text-slate-500">{MOCK_RESULTS.length} email tìm được (mock)</p>
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setStep("Input")}>
-                Scan mới
-              </Button>
-              <Button>Lưu tất cả vào Saved Leads</Button>
-            </div>
-          </div>
-          <ResultsTable rows={MOCK_RESULTS} />
-        </div>
+        <ScanResultsView
+          response={response}
+          rows={rows}
+          verifiedOnly={verifiedOnly}
+          error={error}
+          errorCode={errorCode}
+          errorHint={errorHint}
+          onReset={() => {
+            setStep("Input");
+            setResponse(null);
+            setError(null);
+            setErrorCode(null);
+          }}
+        />
       )}
+    </div>
+  );
+}
+
+function ScanResultsView({
+  response,
+  rows,
+  verifiedOnly,
+  error,
+  errorCode,
+  errorHint,
+  onReset,
+}: {
+  response: ScanResponse | null;
+  rows: ScanResultRow[];
+  verifiedOnly: boolean;
+  error: string | null;
+  errorCode: string | null;
+  errorHint: string | null;
+  onReset: () => void;
+}) {
+  if (error) {
+    return (
+      <Card className="border-red-200 bg-red-50 shadow-sm">
+        <CardContent className="space-y-2 py-4 text-sm text-red-800">
+          <p>
+            <b>Scan lỗi:</b> {error}
+            {errorCode ? (
+              <span className="ml-2 rounded bg-red-100 px-1.5 py-0.5 font-mono text-[11px]">
+                {errorCode}
+              </span>
+            ) : null}
+          </p>
+          {errorHint ? <p className="text-xs text-red-700">{errorHint}</p> : null}
+          <div>
+            <Button variant="outline" size="sm" onClick={onReset}>
+              Thử lại
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!response) {
+    return null;
+  }
+
+  const { run, domains } = response;
+  const emptyDomains = domains.filter((d) => d.empty);
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h3 className="font-semibold text-slate-900">Kết quả scan</h3>
+          <p className="text-sm text-slate-500">
+            {run.totalEmails} email tìm được · {run.scannedDomains} domain · provider {run.provider} ·{" "}
+            {run.durationMs}ms
+            {verifiedOnly && rows.length !== run.totalEmails
+              ? ` · đang lọc verified (${rows.length}/${run.totalEmails})`
+              : ""}
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={onReset}>
+            Scan mới
+          </Button>
+          <Button disabled>Lưu vào Saved Leads (Phase 09+)</Button>
+        </div>
+      </div>
+
+      {emptyDomains.length > 0 && (
+        <Alert>
+          <AlertDescription>
+            <b>{emptyDomains.length}</b> domain không tìm được email:{" "}
+            {emptyDomains.slice(0, 6).map((d) => (
+              <Badge key={d.domain} variant="secondary" className="mr-1 font-mono">
+                {d.domain}
+              </Badge>
+            ))}
+            {emptyDomains.length > 6 && <span>…</span>}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {run.warnings.length > 0 && (
+        <Alert className="border-amber-200 bg-amber-50 text-amber-900">
+          <AlertDescription>
+            <b>{run.warnings.length}</b> dòng input đã bị bỏ:{" "}
+            <span className="font-mono text-xs">{run.warnings.slice(0, 3).join(" · ")}</span>
+            {run.warnings.length > 3 && <span> … và {run.warnings.length - 3} dòng khác</span>}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      <ResultsTable
+        rows={rows}
+        emptyMessage={
+          verifiedOnly && run.totalEmails > 0
+            ? "Không có email verified. Bỏ tick 'Chỉ giữ email đã verified' để xem tất cả."
+            : "Không tìm được email cho run này."
+        }
+      />
     </div>
   );
 }

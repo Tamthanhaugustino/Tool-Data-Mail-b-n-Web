@@ -18,8 +18,9 @@ Phase 05  Supabase wiring       ████████████████
 Phase 06  Supabase setup        ████████████████████  DONE
 Phase 07  Discovery backend     ████████████████████  DONE
 Phase 08A SerpAPI provider      ████████████████████  DONE (quota-safe)
-Phase 08B SerpAPI live + polish ████████████████░░░░  CURRENT (typed errors, smoke test)
-Phase 08C Domain Scan / Auth migration  ░░░░░░░░░░░░░░░░░░░░
+Phase 08B SerpAPI live + polish ████████████████████  DONE
+Phase 08C Domain Scan backend   ████████████████░░░░  CURRENT (mock + API + wizard)
+Phase 09  Hunter / Auth migration   ░░░░░░░░░░░░░░░░░░░░
 Phase 06  Domain Scan jobs      ░░░░░░░░░░░░░░░░░░░░
 Phase 07  Results / Leads       ░░░░░░░░░░░░░░░░░░░░
 Phase 08  Billing               ░░░░░░░░░░░░░░░░░░░░
@@ -236,7 +237,7 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 
 ---
 
-## Phase 08B — SerpAPI live smoke test + provider UX polish — CURRENT
+## Phase 08B — SerpAPI live smoke test + provider UX polish — DONE
 
 **Mục tiêu:** Polish error path SerpAPI (typed errors + UI hint friendly), smoke test 6 path offline, hướng dẫn owner tự bật live SerpAPI mà không leak key.
 
@@ -262,26 +263,56 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 
 ---
 
-## Phase 08C — Domain Scan backend foundation *or* Supabase Auth migration
+## Phase 08C — Domain Scan backend foundation — CURRENT
+
+**Mục tiêu:** Đối xứng với Phase 07: tách logic Domain Scan khỏi UI, provider interface, normalize/validate input, API route, mock provider để demo UI mà không tiêu quota / không gọi Hunter. Phase 09 chỉ thay implementation.
+
+**Đã làm:**
+
+- [x] [`src/lib/scan/types.ts`](../src/lib/scan/types.ts) — `ScanRequest/Response/Provider/...` contract đối xứng Discovery
+- [x] [`src/lib/scan/domain-utils.ts`](../src/lib/scan/domain-utils.ts) — `normalizeDomain` + `normalizeDomains` (strip scheme/path/port/www, lowercase, regex validate, dedup, warning codes ổn định)
+- [x] [`src/lib/scan/mock-provider.ts`](../src/lib/scan/mock-provider.ts) — deterministic mock theo FNV-1a hash, ~20% domain rỗng (test empty state), email format `<last>.<first>[N]@<domain>`, không I/O
+- [x] [`src/lib/scan/index.ts`](../src/lib/scan/index.ts) — barrel re-export client-safe pieces
+- [x] [`src/app/api/scan/domain/route.ts`](../src/app/api/scan/domain/route.ts) — `POST /api/scan/domain`, manual `getSession()`, normalize → dispatch, MAX_DOMAINS=50, MAX_EMAIL_LIMIT_MOCK=100, `provider: hunter` → 503 (chờ Phase 09), sanitize error
+- [x] [`src/components/scan/domain-scan-wizard.tsx`](../src/components/scan/domain-scan-wizard.tsx) — wire 4-step Input→Preview→Scanning→Results gọi API thật; live preview normalize ở Input; warning list ở Preview; error display có `errorCode` + `ERROR_HINTS`; "Auto-save History" và "Upload CSV" disabled (Phase 09)
+- [x] [`docs/SCAN.md`](./SCAN.md) — endpoint, normalize rules, provider plug-in plan, mapping với DB schema (Phase 04)
+
+**Chưa làm (deferred):**
+
+- [ ] Hunter real provider (Phase 09).
+- [ ] Persist `scan_jobs` / `scan_results` vào DB.
+- [ ] "Lưu Saved Leads" thật (Phase 09+).
+- [ ] Export CSV/JSON (Phase 09+).
+- [ ] Upload CSV input.
+- [ ] User-scoped Hunter key từ `user_api_keys`.
+
+**Deliverable:** User đã login từ `/discover` bấm "Chuyển sang Domain Scan" → `/scan` nhận domains qua query → wizard hiện preview normalize → bấm "Bắt đầu scan" → POST API → trả ~7-20 email mock + per-domain summary + warnings (nếu có). UI hiển thị summary rõ + lọc verified-only client-side. Không tiêu quota Hunter.
+
+**Phụ thuộc:** Phase 03 (session check), Phase 07 (cùng pattern).
+
+---
+
+## Phase 09 — Hunter real provider *or* Supabase Auth migration
 
 **Mục tiêu:** Owner chọn hướng tiếp theo.
 
-**Nhánh A — Domain Scan backend foundation (đối xứng với Phase 07):**
+**Nhánh A — Hunter real provider (đối xứng với Phase 08A SerpAPI):**
 
-- Tách `src/lib/scan/{types,mock-provider,index}.ts`.
-- `POST /api/scan/domain` validate input, mock provider trả email + name + title cho mỗi domain.
-- Wire `/scan` page DomainScanWizard gọi API thật thay vì step animation.
+- Tạo `src/lib/scan/hunter-provider.ts` `import "server-only"`.
+- Quota-safe: hard-cap 10 email/domain, timeout 10s, no retry.
+- API key từ env `HUNTER_API_KEY` (Phase 09); user-scoped key (`user_api_keys`) sau khi có Supabase Auth.
+- Dynamic import từ `route.ts`.
+- Typed errors mirror `SerpapiProviderError`.
 
 **Nhánh B — Supabase Auth migration:**
 
 - Swap `src/lib/auth/*` sang Supabase Auth (giữ `Session` shape).
 - Uncomment trigger `on_auth_user_created`.
-- Seed demo accounts qua `getSupabaseAdminClient()`.
 - Bật persistence Discovery + Scan → DB.
 
 **Deliverable:** Một trong hai nhánh hoàn tất.
 
-**Phụ thuộc:** Phase 08A.
+**Phụ thuộc:** Phase 08C.
 
 ---
 
@@ -405,3 +436,4 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 | 2026-05-18 | Phase 06 done; Phase 07 in-progress — discovery domain types + mock provider + `POST /api/discovery/keyword` + `/discover` wired. Không gọi external, không consume quota. Auth migration / SerpAPI deferred Phase 08 |
 | 2026-05-18 | Phase 07 done; Phase 08A in-progress — SerpAPI real provider, server-only + dynamic import, quota-safe (1 req/run, 10s timeout, no retry), env-gated. Auth migration / Domain Scan deferred Phase 08B |
 | 2026-05-18 | Phase 08A done; Phase 08B in-progress — SerpapiProviderError typed codes (6 mã) → route map HTTP status (429/502/503/504) → UI hiển thị Vietnamese hint. Offline smoke test 6 path đều OK. Live SerpAPI test deferred cho owner (1 search/lần) |
+| 2026-05-18 | Phase 08B done; Phase 08C in-progress — Domain Scan backend foundation (src/lib/scan/* + POST /api/scan/domain + wired wizard). Mock-only, max 50 domains, không gọi Hunter. Phase 09 sẽ wire Hunter hoặc Supabase Auth |
