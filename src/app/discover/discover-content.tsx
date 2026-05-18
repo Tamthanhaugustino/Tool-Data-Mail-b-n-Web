@@ -30,6 +30,25 @@ function statusForTable(s: DiscoveryResultItem["status"]): ScanResultRow["status
   return "webmail";
 }
 
+const ERROR_HINTS: Record<string, string> = {
+  provider_unavailable:
+    "Set SERPAPI_API_KEY trong .env.local rồi restart npm run dev. Hoặc chọn provider Mock.",
+  provider_invalid_key:
+    "Kiểm tra giá trị SERPAPI_API_KEY ở Settings → API của SerpAPI Dashboard.",
+  provider_rate_limited:
+    "Đợi vài phút hoặc nâng cấp gói SerpAPI. Có thể chuyển tạm sang Mock provider.",
+  provider_timeout:
+    "Mạng tới SerpAPI chậm hoặc bị block. Thử lại sau, hoặc dùng Mock.",
+  provider_network:
+    "Server không gọi được SerpAPI. Kiểm tra mạng / firewall của máy chạy server.",
+  provider_parse:
+    "SerpAPI trả về dữ liệu không hợp lệ. Có thể do gói SerpAPI bị thay đổi.",
+  provider_upstream:
+    "SerpAPI trả lỗi không xác định. Kiểm tra trạng thái tại serpapi.com.",
+  unauthorized:
+    "Phiên đăng nhập đã hết hạn. Đăng nhập lại tại /login.",
+};
+
 function mapToRows(resp: DiscoveryResponse): ScanResultRow[] {
   return resp.results.map((r, idx) => ({
     id: `${resp.run.id}-${idx}`,
@@ -54,6 +73,7 @@ export function DiscoverContent() {
   const [selectedProvider, setSelectedProvider] = useState<DiscoveryProviderName>("mock");
   const [providerUsed, setProviderUsed] = useState<string | null>(null);
   const [durationMs, setDurationMs] = useState<number | null>(null);
+  const [errorCode, setErrorCode] = useState<string | null>(null);
 
   const trimmed = keyword.trim();
 
@@ -69,6 +89,7 @@ export function DiscoverContent() {
     if (!trimmed) return;
     setLoading(true);
     setError(null);
+    setErrorCode(null);
     setHasRun(true);
     try {
       const res = await fetch("/api/discovery/keyword", {
@@ -78,8 +99,10 @@ export function DiscoverContent() {
       });
       const data: unknown = await res.json().catch(() => null);
       if (!res.ok) {
-        const err = (data as { message?: string; error?: string } | null) ?? null;
+        const err =
+          (data as { message?: string; error?: string; code?: string } | null) ?? null;
         setError(err?.message ?? err?.error ?? `HTTP ${res.status}`);
+        setErrorCode(err?.error ?? null);
         setRows([]);
         return;
       }
@@ -89,11 +112,14 @@ export function DiscoverContent() {
       setDurationMs(resp.run.durationMs);
     } catch (e) {
       setError(e instanceof Error ? e.message : "unknown");
+      setErrorCode("network");
       setRows([]);
     } finally {
       setLoading(false);
     }
   };
+
+  const errorHint = errorCode ? ERROR_HINTS[errorCode] : null;
 
   return (
     <>
@@ -161,8 +187,16 @@ export function DiscoverContent() {
 
       {error && (
         <Card className="mb-6 border-red-200 bg-red-50 shadow-sm">
-          <CardContent className="py-4 text-sm text-red-800">
-            <b>Lỗi:</b> {error}
+          <CardContent className="space-y-1 py-4 text-sm text-red-800">
+            <p>
+              <b>Lỗi:</b> {error}
+              {errorCode ? (
+                <span className="ml-2 rounded bg-red-100 px-1.5 py-0.5 font-mono text-[11px] text-red-900">
+                  {errorCode}
+                </span>
+              ) : null}
+            </p>
+            {errorHint ? <p className="text-xs text-red-700">{errorHint}</p> : null}
           </CardContent>
         </Card>
       )}

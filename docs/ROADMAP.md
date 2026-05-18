@@ -17,8 +17,9 @@ Phase 04  Database schema       ████████████████
 Phase 05  Supabase wiring       ████████████████████  DONE
 Phase 06  Supabase setup        ████████████████████  DONE
 Phase 07  Discovery backend     ████████████████████  DONE
-Phase 08A SerpAPI provider      ████████████████░░░░  CURRENT (quota-safe)
-Phase 08B Domain Scan / Auth migration  ░░░░░░░░░░░░░░░░░░░░
+Phase 08A SerpAPI provider      ████████████████████  DONE (quota-safe)
+Phase 08B SerpAPI live + polish ████████████████░░░░  CURRENT (typed errors, smoke test)
+Phase 08C Domain Scan / Auth migration  ░░░░░░░░░░░░░░░░░░░░
 Phase 06  Domain Scan jobs      ░░░░░░░░░░░░░░░░░░░░
 Phase 07  Results / Leads       ░░░░░░░░░░░░░░░░░░░░
 Phase 08  Billing               ░░░░░░░░░░░░░░░░░░░░
@@ -201,7 +202,7 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 
 ---
 
-## Phase 08A — SerpAPI real provider (quota-safe) — CURRENT
+## Phase 08A — SerpAPI real provider (quota-safe) — DONE
 
 **Mục tiêu:** Thêm SerpAPI provider cho Keyword Discovery theo hướng quota-safe, server-only, không lộ API key. Giữ mock provider làm default.
 
@@ -235,7 +236,33 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 
 ---
 
-## Phase 08B — Domain Scan backend foundation *or* Supabase Auth migration
+## Phase 08B — SerpAPI live smoke test + provider UX polish — CURRENT
+
+**Mục tiêu:** Polish error path SerpAPI (typed errors + UI hint friendly), smoke test 6 path offline, hướng dẫn owner tự bật live SerpAPI mà không leak key.
+
+**Đã làm:**
+
+- [x] [`SerpapiProviderError`](../src/lib/discovery/serpapi-provider.ts) class với code `missing_key | invalid_key | rate_limited | timeout | network | parse | upstream`; provider throw typed error thay vì raw string
+- [x] Route map error code → HTTP status có ý nghĩa: 429 cho rate_limited, 502 cho invalid_key/network/parse/upstream, 503 cho missing_key, 504 cho timeout
+- [x] UI `/discover` hiển thị badge `error` code + dòng `ERROR_HINTS[code]` tiếng Việt friendly
+- [x] Smoke test 6 path offline (xem [`DISCOVERY.md §10`](./DISCOVERY.md#10-smoke-test-record-phase-08b-2026-05-18)):
+      401 no-session, 200 mock happy, 503 missing-key, 400 invalid provider, 400 limit cap, 400 empty keyword
+- [x] [`docs/DISCOVERY.md §7b`](./DISCOVERY.md): hướng dẫn 3 bước bật SerpAPI cho owner (`.env.local` → restart → UI test), bảng troubleshooting 6 mã code
+- [x] Live SerpAPI test ghi rõ là deferred — repo không có key thật, owner tự test (1 search / lần)
+
+**Chưa làm (Phase 08C):**
+
+- [ ] User-scoped SerpAPI key từ `user_api_keys` (cần Supabase Auth)
+- [ ] Quota counter / rate limit per user
+- [ ] Persist runs vào DB
+
+**Deliverable:** Error path đẹp và self-documenting. Owner có file `.env.local` cộng key thật → smoke test trong 3 phút theo §7b.
+
+**Phụ thuộc:** Phase 08A.
+
+---
+
+## Phase 08C — Domain Scan backend foundation *or* Supabase Auth migration
 
 **Mục tiêu:** Owner chọn hướng tiếp theo.
 
@@ -377,3 +404,4 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 | 2026-05-18 | Phase 05 done; Phase 06 in-progress — `SUPABASE_SETUP.md` + `GET /api/health/supabase`. Owner tự provision project; auth migration deferred Phase 07 |
 | 2026-05-18 | Phase 06 done; Phase 07 in-progress — discovery domain types + mock provider + `POST /api/discovery/keyword` + `/discover` wired. Không gọi external, không consume quota. Auth migration / SerpAPI deferred Phase 08 |
 | 2026-05-18 | Phase 07 done; Phase 08A in-progress — SerpAPI real provider, server-only + dynamic import, quota-safe (1 req/run, 10s timeout, no retry), env-gated. Auth migration / Domain Scan deferred Phase 08B |
+| 2026-05-18 | Phase 08A done; Phase 08B in-progress — SerpapiProviderError typed codes (6 mã) → route map HTTP status (429/502/503/504) → UI hiển thị Vietnamese hint. Offline smoke test 6 path đều OK. Live SerpAPI test deferred cho owner (1 search/lần) |

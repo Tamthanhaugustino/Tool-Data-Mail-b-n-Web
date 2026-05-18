@@ -23,6 +23,10 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/session";
 import { mockDiscoveryProvider } from "@/lib/discovery/mock-provider";
+import {
+  SerpapiProviderError,
+  type SerpapiErrorCode,
+} from "@/lib/discovery/serpapi-provider";
 import type {
   DiscoveryProvider,
   DiscoveryProviderName,
@@ -178,7 +182,25 @@ export async function POST(req: Request) {
       headers: { "cache-control": "no-store" },
     });
   } catch (e) {
+    if (e instanceof SerpapiProviderError) {
+      const { status, error, message } = mapSerpapiError(e);
+      return jsonError(status, error, message, { provider: provider.name, code: e.code });
+    }
     const msg = e instanceof Error ? e.message : "unknown error";
     return jsonError(500, "internal", sanitize(msg), { provider: provider.name });
   }
+}
+
+const SERPAPI_ERROR_MAP: Record<SerpapiErrorCode, { status: number; error: string; message: string }> = {
+  missing_key:    { status: 503, error: "provider_unavailable", message: "SerpAPI chưa được cấu hình trên server (SERPAPI_API_KEY)." },
+  invalid_key:    { status: 502, error: "provider_invalid_key", message: "SerpAPI từ chối API key. Kiểm tra giá trị SERPAPI_API_KEY." },
+  rate_limited:   { status: 429, error: "provider_rate_limited", message: "SerpAPI báo hết quota hoặc bị rate limit. Thử lại sau hoặc nâng cấp gói." },
+  timeout:        { status: 504, error: "provider_timeout", message: "SerpAPI không phản hồi kịp 10s. Thử lại sau." },
+  network:        { status: 502, error: "provider_network", message: "Không kết nối được tới SerpAPI." },
+  parse:          { status: 502, error: "provider_parse", message: "SerpAPI trả về dữ liệu không hợp lệ." },
+  upstream:       { status: 502, error: "provider_upstream", message: "SerpAPI báo lỗi không xác định." },
+};
+
+function mapSerpapiError(e: SerpapiProviderError) {
+  return SERPAPI_ERROR_MAP[e.code] ?? SERPAPI_ERROR_MAP.upstream;
 }

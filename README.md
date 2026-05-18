@@ -21,13 +21,14 @@ Desktop app (logic gốc) phát triển riêng tại project **`b2b-lead-finder`
 | Supabase setup guide + health check route | **Done (Phase 06)** — xem [`docs/SUPABASE_SETUP.md`](./docs/SUPABASE_SETUP.md) |
 | Keyword Discovery backend (mock provider + API + UI wire) | **Done (Phase 07)** — xem [`docs/DISCOVERY.md`](./docs/DISCOVERY.md) |
 | SerpAPI real provider (quota-safe, server-only) | **Done (Phase 08A)** — `SERPAPI_API_KEY` + `DISCOVERY_PROVIDER` env-gated |
+| SerpAPI live smoke test + typed error UX | **Done (Phase 08B)** — 6 mã code → HTTP status + UI hint; offline smoke test ✓ |
 | Supabase Auth migration | Chưa (deferred) |
 | Hunter.io Domain Scan real call | Chưa (Phase 08B+) |
 | Hunter.io / SerpAPI integration | Chưa có (chỉ mock trên UI) |
 | Billing / payment | Chưa có |
 | Production deploy | Chưa có |
 
-**Phase hiện tại:** [Phase 08A — SerpAPI real provider (quota-safe)](./docs/ROADMAP.md#phase-08a--serpapi-real-provider-quota-safe--current)
+**Phase hiện tại:** [Phase 08B — SerpAPI live smoke test + UX polish](./docs/ROADMAP.md#phase-08b--serpapi-live-smoke-test--provider-ux-polish--current)
 
 Chi tiết lộ trình: [`docs/ROADMAP.md`](./docs/ROADMAP.md)
 
@@ -179,8 +180,9 @@ tool-data-mail-web/
 | 05 | Supabase client wiring + auth migration prep | **Done** (browser/server/admin clients + health, env-gated) |
 | 06 | Supabase project setup + health check | **Done** (setup guide + `/api/health/supabase`) |
 | 07 | Keyword Discovery backend foundation | **Done** (mock provider + `/api/discovery/keyword` + wired `/discover`) |
-| 08A | SerpAPI real provider (quota-safe) | **Current** (server-only fetch, env-gated, dynamic import) |
-| 08B | Domain Scan backend foundation *or* Supabase Auth migration | Planned |
+| 08A | SerpAPI real provider (quota-safe) | **Done** (server-only fetch, env-gated, dynamic import) |
+| 08B | SerpAPI live smoke test + typed error UX | **Current** (6 mã code → HTTP status + UI hint) |
+| 08C | Domain Scan backend foundation *or* Supabase Auth migration | Planned |
 | 06 | Domain Scan job system | Planned |
 | 07 | Results, Saved Leads, Export | Planned |
 | 08 | Billing / subscription / credit limits | Planned |

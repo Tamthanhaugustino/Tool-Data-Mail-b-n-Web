@@ -25,6 +25,32 @@ import "server-only";
 
 import type { DiscoveryProvider, DiscoveryResultItem } from "./types";
 
+/**
+ * Failure modes the SerpAPI provider can produce. The API route maps
+ * each code to a sensible HTTP status + user-facing message instead of
+ * letting raw upstream errors leak.
+ */
+export type SerpapiErrorCode =
+  | "missing_key"      // SERPAPI_API_KEY env not set
+  | "invalid_key"      // Upstream returned 401/403
+  | "rate_limited"     // Upstream returned 429
+  | "timeout"          // AbortController fired
+  | "network"          // fetch threw (DNS/TLS/etc)
+  | "parse"            // Non-JSON or unexpected payload
+  | "upstream";        // Other non-2xx HTTP from SerpAPI
+
+export class SerpapiProviderError extends Error {
+  readonly code: SerpapiErrorCode;
+  readonly upstreamStatus?: number;
+
+  constructor(code: SerpapiErrorCode, message: string, upstreamStatus?: number) {
+    super(message);
+    this.name = "SerpapiProviderError";
+    this.code = code;
+    this.upstreamStatus = upstreamStatus;
+  }
+}
+
 const SERPAPI_ENDPOINT = "https://serpapi.com/search.json";
 const TIMEOUT_MS = 10_000;
 
@@ -123,7 +149,7 @@ export const serpapiDiscoveryProvider: DiscoveryProvider = {
   async run({ keyword, country, limit }) {
     const apiKey = process.env.SERPAPI_API_KEY;
     if (!apiKey) {
-      throw new Error("SERPAPI_API_KEY is not configured");
+      throw new SerpapiProviderError("missing_key", "SERPAPI_API_KEY is not configured");
     }
 
     const url = buildUrl(keyword, country, limit, apiKey);
@@ -140,9 +166,12 @@ export const serpapiDiscoveryProvider: DiscoveryProvider = {
     } catch (e) {
       clearTimeout(timer);
       if (e instanceof Error && e.name === "AbortError") {
-        throw new Error("SerpAPI request timed out");
+        throw new SerpapiProviderError("timeout", "SerpAPI request timed out");
       }
-      throw new Error(`SerpAPI network error: ${scrubMessage(e instanceof Error ? e.message : "unknown")}`);
+      throw new SerpapiProviderError(
+        "network",
+        `SerpAPI network error: ${scrubMessage(e instanceof Error ? e.message : "unknown")}`,
+      );
     }
     clearTimeout(timer);
 
@@ -153,18 +182,34 @@ export const serpapiDiscoveryProvider: DiscoveryProvider = {
       } catch {
         // ignore
       }
-      throw new Error(`SerpAPI HTTP ${res.status}: ${scrubMessage(detail || res.statusText)}`);
+      const scrubbed = scrubMessage(detail || res.statusText);
+      if (res.status === 401 || res.status === 403) {
+        throw new SerpapiProviderError("invalid_key", `SerpAPI rejected the API key (HTTP ${res.status})`, res.status);
+      }
+      if (res.status === 429) {
+        throw new SerpapiProviderError("rate_limited", "SerpAPI quota exhausted or rate limited", res.status);
+      }
+      throw new SerpapiProviderError("upstream", `SerpAPI HTTP ${res.status}: ${scrubbed}`, res.status);
     }
 
     let payload: SerpApiResponse;
     try {
       payload = (await res.json()) as SerpApiResponse;
     } catch {
-      throw new Error("SerpAPI returned non-JSON response");
+      throw new SerpapiProviderError("parse", "SerpAPI returned non-JSON response");
     }
 
     if (payload.error) {
-      throw new Error(`SerpAPI error: ${scrubMessage(String(payload.error))}`);
+      // SerpAPI returns 200 with `error` field for some auth/quota issues.
+      const msg = String(payload.error);
+      const lower = msg.toLowerCase();
+      if (lower.includes("invalid api key") || lower.includes("missing api key") || lower.includes("api key")) {
+        throw new SerpapiProviderError("invalid_key", "SerpAPI rejected the API key");
+      }
+      if (lower.includes("run out of searches") || lower.includes("plan") || lower.includes("rate")) {
+        throw new SerpapiProviderError("rate_limited", "SerpAPI quota exhausted or rate limited");
+      }
+      throw new SerpapiProviderError("upstream", `SerpAPI error: ${scrubMessage(msg)}`);
     }
 
     const organic = payload.organic_results ?? [];

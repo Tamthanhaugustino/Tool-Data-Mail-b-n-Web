@@ -1,6 +1,6 @@
-# Keyword Discovery — Phase 07 + 08A
+# Keyword Discovery — Phase 07 + 08A + 08B
 
-> Trạng thái: **mock + SerpAPI** providers. API route + provider interface + UI wiring đã có. **Không** gọi Hunter, **không** ghi DB (chờ Supabase Auth migration).
+> Trạng thái: **mock + SerpAPI** providers, đã smoke test offline 6 path (xem §10). Error codes mapped tới HTTP status có ý nghĩa + UI hint friendly. **Không** gọi Hunter, **không** ghi DB (chờ Supabase Auth migration).
 >
 > | Provider | Phase | Env | Quota |
 > |---|---|---|---|
@@ -96,16 +96,26 @@ Route nằm dưới `/api/*` nên middleware Phase 03 **không** chạy. Route c
 }
 ```
 
-### Error responses
+### Error responses (Phase 08B mapping)
 
-| Status | Body |
-|---|---|
-| 400 | `{ error: "invalid_input", message: "<sanitized>" }` |
-| 401 | `{ error: "unauthorized" }` |
-| 503 | `{ error: "provider_unavailable", provider: "serpapi", message }` |
-| 500 | `{ error: "internal", message: "<sanitized>", provider? }` |
+Provider lỗi → `SerpapiProviderError` với `code` → route map sang HTTP status + Vietnamese message:
 
-Error sanitize: strip newline, mask `api_key=...` → `api_key=[redacted]`, mask URL → `[url]`, mask JWT-shaped strings → `[jwt]`, cắt 200 ký tự. `cache-control: no-store` luôn được set. SerpAPI request body chứa `api_key` trong query string — sanitize đảm bảo không lộ key trong error message tới client.
+| Status | `error` (machine) | `code` (UI hint key) | Khi nào xảy ra |
+|---|---|---|---|
+| 400 | `invalid_input` | — | keyword/country/limit/provider sai format |
+| 401 | `unauthorized` | — | Không có session cookie |
+| 429 | `provider_rate_limited` | `provider_rate_limited` | SerpAPI 429 hoặc payload báo hết quota |
+| 502 | `provider_invalid_key` | `provider_invalid_key` | SerpAPI 401/403 hoặc payload "invalid api key" |
+| 502 | `provider_network` | `provider_network` | fetch throws (DNS/TLS) |
+| 502 | `provider_parse` | `provider_parse` | Non-JSON từ SerpAPI |
+| 502 | `provider_upstream` | `provider_upstream` | Other 5xx từ SerpAPI |
+| 503 | `provider_unavailable` | `provider_unavailable` | SerpAPI selected nhưng thiếu `SERPAPI_API_KEY` |
+| 504 | `provider_timeout` | `provider_timeout` | AbortController 10s fires |
+| 500 | `internal` | — | Bug ngoài tầm các case trên |
+
+UI (`/discover`) đọc field `error` của response và lookup `ERROR_HINTS[error]` trong [`discover-content.tsx`](../src/app/discover/discover-content.tsx) để hiện thêm 1 dòng gợi ý cách khắc phục (ví dụ: "Set SERPAPI_API_KEY trong .env.local rồi restart").
+
+Error sanitize layer 2 lớp: provider scrub `api_key=...` + URL trước khi throw; route scrub thêm lần nữa + mask JWT + cắt 200 ký tự. SerpAPI request body chứa `api_key` trong query string — đảm bảo không lộ key trong error message tới client.
 
 ### Persistence
 
@@ -182,7 +192,65 @@ Phase 09+ sẽ chuyển từ env-key sang **user-scoped key** trong `user_api_ke
 - Resolution thêm bước "lookup `user_api_keys` của workspace hiện tại".
 - Phase 08A code chỉ cần refactor — KHÔNG cần đổi `DiscoveryProvider` contract.
 
-## 8. Cái KHÔNG làm ở Phase 08A
+## 7b. Bật SerpAPI cho live test (Phase 08B)
+
+Lưu ý quota-safe: mỗi lần bấm "Tìm website" với provider SerpAPI **= 1 SerpAPI search**. Gói free là 100/tháng. Đừng bấm spam.
+
+### Bước 1 — Cấu hình `.env.local`
+
+```bash
+# .env.local — KHÔNG commit. File đã trong .gitignore từ Phase 03.
+AUTH_SECRET=<ít nhất 16 ký tự, sinh bằng: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))">
+DISCOVERY_PROVIDER=serpapi
+SERPAPI_API_KEY=<copy từ serpapi.com → Your Account → API Key>
+```
+
+### Bước 2 — Restart dev server
+
+```bash
+# Stop dev server đang chạy (Ctrl+C), rồi:
+npm run dev
+```
+
+Next.js chỉ đọc env khi boot — `.env.local` thay đổi không hot-reload.
+
+### Bước 3 — Smoke test qua UI
+
+1. Mở http://localhost:3000/login → đăng nhập demo (`trang.nguyen@vietsoftware.com.vn` / `demo123`).
+2. Vào `/discover`.
+3. Chọn Provider = **SerpAPI (quota)** trong dropdown.
+4. Cảnh báo vàng xuất hiện: "SerpAPI dùng quota thật. Server chỉ chạy khi đã cấu hình `SERPAPI_API_KEY`."
+5. Keyword: `marketing agency`, Quốc gia: Việt Nam, bấm "Tìm website".
+6. Kết quả mong đợi: bảng hiển thị ~10 domain thật (không phải `*.mock`), badge `provider: serpapi` + `durationMs: ~500–2000ms`.
+
+### Smoke test bằng curl (advanced)
+
+Cần session cookie hợp lệ. Cách lấy:
+
+```bash
+# Login qua browser dev tools, copy cookie tdm_session=...
+TOKEN="<paste cookie value>"
+
+curl -sS -X POST http://localhost:3000/api/discovery/keyword \
+  -H "content-type: application/json" \
+  -H "cookie: tdm_session=$TOKEN" \
+  -d '{"keyword":"marketing agency","country":"vn","provider":"serpapi","limit":10}'
+```
+
+### Troubleshooting
+
+| Triệu chứng | Nguyên nhân | Cách xử lý |
+|---|---|---|
+| `503 provider_unavailable` | Thiếu `SERPAPI_API_KEY` hoặc chưa restart server sau khi sửa `.env.local` | Restart `npm run dev` |
+| `502 provider_invalid_key` | Key sai/đã reset/ chưa active | Lấy key mới ở serpapi.com → Your Account |
+| `429 provider_rate_limited` | Hết quota tháng (free tier 100), hoặc bị rate limit ngắn hạn | Đợi reset, hoặc nâng cấp gói |
+| `504 provider_timeout` | Mạng tới `serpapi.com` chậm/bị block | Thử lại, hoặc đổi mạng |
+| `502 provider_network` | Server không gọi được fetch | Firewall/DNS issue trên máy chạy server |
+| `502 provider_upstream` | SerpAPI 5xx | Check status.serpapi.com |
+
+UI hiện hint Vietnamese cho mỗi mã code (xem `ERROR_HINTS` trong `discover-content.tsx`).
+
+## 8. Cái KHÔNG làm ở Phase 08A/08B
 
 - Không gọi Hunter / Hunter Domain Search (đó là việc của Domain Scan ở Phase 08B+).
 - Không ghi `discovery_runs` / `scan_results` vào DB (chờ Supabase Auth migration để có `auth.users` row hợp lệ).
@@ -192,3 +260,18 @@ Phase 09+ sẽ chuyển từ env-key sang **user-scoped key** trong `user_api_ke
 - Không multi-page / pagination — 1 request / 1 run.
 - Không lưu lịch sử run vào `/history` (data còn in-memory ở client).
 - Không gọi SerpAPI từ unit/integration test ở repo này.
+
+## 10. Smoke test record (Phase 08B, 2026-05-18)
+
+Test offline (mock + missing-key paths), không tiêu quota SerpAPI nào.
+
+| # | Test | Method | Expected | Actual |
+|---|---|---|---|---|
+| 1 | No session cookie | `POST /api/discovery/keyword` no cookie | 401 `unauthorized` | ✓ HTTP 401 `{"error":"unauthorized"}` |
+| 2 | Mock provider happy path | `provider:"mock"`, `limit:5` | 200 với 5 results, source="mock" | ✓ 5 results, `durationMs:0`, snippet ghi "mock provider, không gọi SerpAPI" |
+| 3 | SerpAPI without `SERPAPI_API_KEY` | `provider:"serpapi"` | 503 `provider_unavailable`, không tiêu quota | ✓ HTTP 503 với message rõ + `provider:"serpapi"` |
+| 4 | Invalid provider name | `provider:"hacker"` | 400 `invalid_input` | ✓ "provider must be one of: mock, serpapi" |
+| 5 | Limit beyond cap | `provider:"mock"`, `limit:999` | 400 | ✓ "limit must be 1..50 for provider mock" |
+| 6 | Empty keyword | `keyword:""` | 400 | ✓ "keyword length must be 1..200" |
+
+**Live SerpAPI test deferred** — repo này không có `SERPAPI_API_KEY` thật. Owner thực hiện theo §7b khi sẵn sàng (chi phí: 1 search / lần bấm).
