@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2, Search } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
 import { ResultsTable } from "@/components/shared/results-table";
@@ -17,6 +18,7 @@ import {
 } from "@/components/ui/select";
 import type { ScanResultRow } from "@/lib/mock-data";
 import type { DiscoveryResponse, DiscoveryResultItem } from "@/lib/discovery";
+import { buildScanHref, uniqueDomainsFromRows } from "@/lib/discovery";
 
 function statusForTable(s: DiscoveryResultItem["status"]): ScanResultRow["status"] {
   if (s === "verified") return "verified";
@@ -38,6 +40,7 @@ function mapToRows(resp: DiscoveryResponse): ScanResultRow[] {
 }
 
 export function DiscoverContent() {
+  const router = useRouter();
   const [keyword, setKeyword] = useState("phần mềm ERP doanh nghiệp");
   const [country, setCountry] = useState("vn");
   const [loading, setLoading] = useState(false);
@@ -48,6 +51,14 @@ export function DiscoverContent() {
   const [durationMs, setDurationMs] = useState<number | null>(null);
 
   const trimmed = keyword.trim();
+
+  const transferDomains = useMemo(() => uniqueDomainsFromRows(rows), [rows]);
+  const scanHref = useMemo(() => buildScanHref(transferDomains), [transferDomains]);
+
+  const goToDomainScan = () => {
+    if (!scanHref) return;
+    router.push(scanHref);
+  };
 
   const runDiscover = async () => {
     if (!trimmed) return;
@@ -145,8 +156,19 @@ export function DiscoverContent() {
       )}
 
       {hasRun && rows.length > 0 && !loading && (
-        <div className="mt-4 flex gap-2">
-          <Button>Chuyển sang Domain Scan</Button>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <Button onClick={goToDomainScan} disabled={transferDomains.length === 0}>
+            Chuyển sang Domain Scan
+          </Button>
+          {transferDomains.length === 0 ? (
+            <span className="text-sm text-slate-500">
+              Không có domain hợp lệ để chuyển sang.
+            </span>
+          ) : (
+            <span className="text-sm text-slate-500">
+              Sẽ chuyển <b>{transferDomains.length}</b> domain sang Domain Scan.
+            </span>
+          )}
         </div>
       )}
     </>

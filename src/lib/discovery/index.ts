@@ -13,6 +13,12 @@ export function getDiscoveryProvider(): DiscoveryProvider {
   return mockDiscoveryProvider;
 }
 
+export {
+  uniqueDomainsFromRows,
+  buildScanHref,
+  parseDomainsQueryParam,
+} from "./scan-transfer";
+
 export type {
   DiscoveryProvider,
   DiscoveryProviderName,

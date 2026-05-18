@@ -16,9 +16,18 @@ import { cn } from "@/lib/utils";
 const STEPS = ["Input", "Preview", "Scanning", "Results"] as const;
 type Step = (typeof STEPS)[number];
 
-export function DomainScanWizard() {
+type DomainScanWizardProps = {
+  /** Mỗi dòng một domain — thường từ ?domains= trên /scan sau Keyword Discovery. */
+  initialDomains?: string;
+  fromDiscovery?: boolean;
+};
+
+export function DomainScanWizard({
+  initialDomains,
+  fromDiscovery = false,
+}: DomainScanWizardProps) {
   const [step, setStep] = useState<Step>("Input");
-  const [domains, setDomains] = useState(DEFAULT_DOMAINS);
+  const [domains, setDomains] = useState(initialDomains ?? DEFAULT_DOMAINS);
   const [limit, setLimit] = useState(50);
   const [progress, setProgress] = useState(0);
   const [verifiedOnly, setVerifiedOnly] = useState(true);
@@ -52,6 +61,14 @@ export function DomainScanWizard() {
 
   return (
     <div className="space-y-6">
+      {fromDiscovery && domainList.length > 0 && (
+        <Alert>
+          <AlertDescription>
+            Đã nhận <b>{domainList.length}</b> domain từ Keyword Discovery. Kiểm tra danh sách
+            bên dưới rồi tiếp tục Preview.
+          </AlertDescription>
+        </Alert>
+      )}
       <nav className="flex flex-wrap items-center gap-2 text-sm">
         {STEPS.map((s, i) => (
           <span key={s} className="flex items-center gap-2">
