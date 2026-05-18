@@ -1,0 +1,204 @@
+<section class="doc-section" id="responsive">
+  <div class="sec-eyebrow">09 · Pattern</div>
+  <h2>Responsive behavior</h2>
+  <p class="sec-lede">
+    Web app desktop-first (tool sales / marketing chủ yếu dùng máy tính), nhưng phải dùng được
+    trên tablet & mobile để xem Saved Leads, check notification, export khi đi đường.
+  </p>
+
+  <h3>Breakpoints</h3>
+  <div class="bp-grid">
+    <div class="bp-card">
+      <h5>📱 Mobile</h5>
+      <div class="range">&lt; 640px</div>
+      <ul>
+        <li>Sidebar → drawer slide từ trái (button menu trên topbar)</li>
+        <li>Topbar: chỉ logo + menu + avatar (ẩn search global; thay bằng icon search → mở fullscreen overlay)</li>
+        <li>Table → card list (mỗi lead = 1 card stacked)</li>
+        <li>Stat card: 1 cột, full width</li>
+        <li>Quick action: 2x2 grid</li>
+        <li>Filter sidebar → bottom sheet drawer</li>
+      </ul>
+    </div>
+    <div class="bp-card">
+      <h5>📱 Tablet</h5>
+      <div class="range">640 – 1023px</div>
+      <ul>
+        <li>Sidebar rail (chỉ icon, width 64px). Click → bung ra 240px overlay</li>
+        <li>Table giữ nguyên nhưng có horizontal scroll, sticky cột email</li>
+        <li>Filter sidebar collapse mặc định (button "Filter")</li>
+        <li>Stat card: 2x2 grid</li>
+        <li>Domain Scan: form Input / Options stack thành 2 row</li>
+      </ul>
+    </div>
+    <div class="bp-card">
+      <h5>💻 Desktop</h5>
+      <div class="range">1024 – 1439px</div>
+      <ul>
+        <li>Sidebar full 240px, topbar 60px (mặc định)</li>
+        <li>Main max-width: container đầy</li>
+        <li>Stat card: 4 cột</li>
+        <li>Filter sidebar mở mặc định (240px)</li>
+        <li>Table: tất cả cột hiển thị</li>
+      </ul>
+    </div>
+    <div class="bp-card">
+      <h5>🖥 Large</h5>
+      <div class="range">≥ 1440px</div>
+      <ul>
+        <li>Main max-width 1440px, căn giữa (white-space hai bên)</li>
+        <li>Dashboard 2 cột grid 1.05fr / 1fr cho setup status + activity</li>
+        <li>Cho phép Drawer chi tiết lead width 520px (rộng hơn mặc định 480)</li>
+        <li>Khả năng split-view: Results bên trái + Lead detail mở trực tiếp bên phải</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Mobile previews — 3 màn quan trọng nhất</h3>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:start;margin:18px 0">
+
+    <!-- Mobile 1: Dashboard -->
+    <div>
+      <div class="mobile-frame">
+        <div class="notch"><span class="mono" style="color:var(--m-ink)">9:41</span><span style="display:flex;gap:5px;align-items:center"><span style="width:16px;height:8px;border:1px solid var(--m-ink);border-radius:2px;position:relative"><span style="position:absolute;inset:1px 30% 1px 1px;background:var(--m-ink);border-radius:1px"></span></span></span></div>
+        <div class="screen-area">
+          <div class="mock">
+            <div style="background:#fff;border-bottom:1px solid var(--m-rule);padding:10px 14px;display:flex;align-items:center;gap:10px">
+              <svg width="20" height="20" style="color:var(--m-ink-2)"><use href="#i-menu"/></svg>
+              <div style="display:flex;align-items:center;gap:8px"><div class="brand-mark" style="width:24px;height:24px;font-size:11px">TM</div><b style="font-size:13px">Tool Data Mail</b></div>
+              <div style="margin-left:auto;display:flex;gap:6px"><span class="plan-pill" style="font-size:9.5px;padding:2px 7px">PRO</span><div class="avatar" style="width:26px;height:26px;font-size:10px">TN</div></div>
+            </div>
+            <div style="padding:14px;display:flex;flex-direction:column;gap:10px">
+              <div><h1 style="font-size:18px;margin:0">Chào Trang 👋</h1><p style="font-size:11.5px;color:var(--m-ink-3);margin:2px 0 0">18 / 05 · workspace OK</p></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <div class="stat" style="padding:12px"><div class="stat-label" style="font-size:11px">Scan tháng</div><div class="stat-value" style="font-size:20px">42</div></div>
+                <div class="stat stat--teal" style="padding:12px"><div class="stat-label" style="font-size:11px">Email</div><div class="stat-value" style="font-size:20px">2.840</div></div>
+                <div class="stat stat--violet" style="padding:12px"><div class="stat-label" style="font-size:11px">Lead lưu</div><div class="stat-value" style="font-size:20px">348</div></div>
+                <div class="stat stat--amber" style="padding:12px"><div class="stat-label" style="font-size:11px">Hunter</div><div class="stat-value" style="font-size:20px">320</div></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <div class="action-card" style="padding:12px">
+                  <div class="icon-tile" style="width:30px;height:30px"><svg width="14" height="14"><use href="#i-target"/></svg></div>
+                  <h4 style="font-size:12.5px">Keyword</h4>
+                </div>
+                <div class="action-card action--teal" style="padding:12px">
+                  <div class="icon-tile" style="width:30px;height:30px"><svg width="14" height="14"><use href="#i-mail-search"/></svg></div>
+                  <h4 style="font-size:12.5px">Domain Scan</h4>
+                </div>
+                <div class="action-card action--violet" style="padding:12px">
+                  <div class="icon-tile" style="width:30px;height:30px"><svg width="14" height="14"><use href="#i-bookmark"/></svg></div>
+                  <h4 style="font-size:12.5px">Saved Leads</h4>
+                </div>
+                <div class="action-card action--amber" style="padding:12px">
+                  <div class="icon-tile" style="width:30px;height:30px"><svg width="14" height="14"><use href="#i-download"/></svg></div>
+                  <h4 style="font-size:12.5px">Export</h4>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;font-size:12px;color:var(--doc-ink-3);margin-top:8px">Dashboard · stack 2 cột</div>
+    </div>
+
+    <!-- Mobile 2: Saved Leads as cards -->
+    <div>
+      <div class="mobile-frame">
+        <div class="notch"><span class="mono" style="color:var(--m-ink)">9:41</span><span></span></div>
+        <div class="screen-area">
+          <div class="mock">
+            <div style="background:#fff;border-bottom:1px solid var(--m-rule);padding:10px 14px;display:flex;align-items:center;gap:8px">
+              <svg width="20" height="20" style="color:var(--m-ink-2)"><use href="#i-chev-left"/></svg>
+              <b style="font-size:14px;flex:1">Saved Leads</b>
+              <svg width="18" height="18" style="color:var(--m-ink-3)"><use href="#i-filter"/></svg>
+              <svg width="18" height="18" style="color:var(--m-ink-3)"><use href="#i-search"/></svg>
+            </div>
+            <div style="padding:8px 14px 4px;display:flex;gap:6px;overflow:hidden">
+              <span class="badge badge--info" style="padding:4px 10px;flex-shrink:0">Tất cả 348</span>
+              <span class="badge badge--neutral" style="padding:4px 10px;flex-shrink:0">New</span>
+              <span class="badge badge--neutral" style="padding:4px 10px;flex-shrink:0">Contacted</span>
+            </div>
+            <div style="padding:8px 14px;display:flex;flex-direction:column;gap:8px">
+              <div style="padding:12px;background:#fff;border:1px solid var(--m-rule);border-radius:10px">
+                <div style="display:flex;gap:10px;align-items:center;margin-bottom:6px"><div class="row-comp"><div class="logo" style="background:linear-gradient(135deg,#2563EB,#1D4ED8);width:32px;height:32px;border-radius:8px">VS</div><div class="meta"><div class="name" style="font-size:13px">Trang Nguyễn</div><div class="sub mono" style="font-size:10.5px">trang.nguyen<span class="at">&#64;</span>vietsoftware.com.vn</div></div></div></div>
+                <div style="font-size:11.5px;color:var(--m-ink-3);margin-bottom:6px">VietSoftware · Marketing Manager</div>
+                <div style="display:flex;justify-content:space-between;align-items:center"><span class="badge" style="background:#FFFBEB;color:#92400E;border-color:#FDE68A;font-size:10.5px"><span class="d"></span>Interested</span><div style="display:flex;gap:4px"><span class="tagpill tag-blue" style="font-size:10px">Hot</span><span class="tagpill tag-violet" style="font-size:10px">DM</span></div></div>
+              </div>
+              <div style="padding:12px;background:#fff;border:1px solid var(--m-rule);border-radius:10px">
+                <div style="display:flex;gap:10px;align-items:center;margin-bottom:6px"><div class="row-comp"><div class="logo" style="background:linear-gradient(135deg,#16A34A,#15803D);width:32px;height:32px;border-radius:8px">RG</div><div class="meta"><div class="name" style="font-size:13px">Lê Văn Hùng</div><div class="sub mono" style="font-size:10.5px">ceo<span class="at">&#64;</span>realgroup.vn</div></div></div></div>
+                <div style="font-size:11.5px;color:var(--m-ink-3);margin-bottom:6px">Real Group Marketing · CEO</div>
+                <div style="display:flex;justify-content:space-between;align-items:center"><span class="badge badge--info" style="font-size:10.5px"><span class="d"></span>Contacted</span><div style="display:flex;gap:4px"><span class="tagpill tag-blue" style="font-size:10px">Hot</span></div></div>
+              </div>
+              <div style="padding:12px;background:#fff;border:1px solid var(--m-rule);border-radius:10px">
+                <div style="display:flex;gap:10px;align-items:center;margin-bottom:6px"><div class="row-comp"><div class="logo" style="background:linear-gradient(135deg,#7C3AED,#6D28D9);width:32px;height:32px;border-radius:8px">GH</div><div class="meta"><div class="name" style="font-size:13px">Lê Minh Anh</div><div class="sub mono" style="font-size:10.5px">hr<span class="at">&#64;</span>greenhouse.vn</div></div></div></div>
+                <div style="font-size:11.5px;color:var(--m-ink-3);margin-bottom:6px">Green House · HR Director</div>
+                <div style="display:flex;justify-content:space-between;align-items:center"><span class="badge badge--ok" style="font-size:10.5px"><span class="d"></span>Customer</span><div style="display:flex;gap:4px"><span class="tagpill tag-teal" style="font-size:10px">SaaS</span></div></div>
+              </div>
+            </div>
+            <div style="position:relative;height:60px"></div>
+            <div style="position:absolute;bottom:24px;left:50%;transform:translateX(-50%);background:var(--m-primary);color:#fff;padding:10px 18px;border-radius:999px;font-weight:600;font-size:13px;box-shadow:0 8px 20px rgba(37,99,235,0.4);display:flex;align-items:center;gap:6px"><svg width="14" height="14"><use href="#i-download"/></svg>Export</div>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;font-size:12px;color:var(--doc-ink-3);margin-top:8px">Saved Leads · card list + FAB Export</div>
+    </div>
+
+    <!-- Mobile 3: Domain Scan progress -->
+    <div>
+      <div class="mobile-frame">
+        <div class="notch"><span class="mono" style="color:var(--m-ink)">9:41</span><span></span></div>
+        <div class="screen-area">
+          <div class="mock">
+            <div style="background:#fff;border-bottom:1px solid var(--m-rule);padding:10px 14px;display:flex;align-items:center;gap:8px">
+              <svg width="20" height="20" style="color:var(--m-ink-2)"><use href="#i-chev-left"/></svg>
+              <b style="font-size:14px;flex:1">Domain Scan</b>
+              <span class="badge badge--info" style="font-size:10px">Run #042</span>
+            </div>
+            <div style="padding:14px">
+              <div class="stepper" style="font-size:11px;margin-bottom:14px;justify-content:center">
+                <div class="step is-done"><div class="n" style="width:18px;height:18px;font-size:10px">✓</div></div>
+                <span class="arr"><svg width="11" height="11"><use href="#i-chev-right"/></svg></span>
+                <div class="step is-done"><div class="n" style="width:18px;height:18px;font-size:10px">✓</div></div>
+                <span class="arr"><svg width="11" height="11"><use href="#i-chev-right"/></svg></span>
+                <div class="step is-active"><div class="n" style="width:18px;height:18px;font-size:10px">3</div>Scanning</div>
+                <span class="arr"><svg width="11" height="11"><use href="#i-chev-right"/></svg></span>
+                <div class="step"><div class="n" style="width:18px;height:18px;font-size:10px">4</div></div>
+              </div>
+              <h2 style="font-size:16px;margin:0 0 4px">Đang scan 28 domain…</h2>
+              <p style="font-size:11.5px;color:var(--m-ink-3);margin:0 0 14px">Bạn có thể đóng app — sẽ nhận notification khi xong.</p>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+                <div style="padding:10px;background:#fff;border:1px solid var(--m-rule);border-radius:8px"><div style="font-size:10.5px;color:var(--m-ink-3);text-transform:uppercase;letter-spacing:0.05em">Đã xong</div><div style="font-size:18px;font-weight:600;color:var(--m-primary)">17 / 28</div></div>
+                <div style="padding:10px;background:#fff;border:1px solid var(--m-rule);border-radius:8px"><div style="font-size:10.5px;color:var(--m-ink-3);text-transform:uppercase;letter-spacing:0.05em">Email</div><div style="font-size:18px;font-weight:600;color:var(--m-success)">72</div></div>
+              </div>
+              <div class="progress" style="height:8px"><i style="width:61%"></i></div>
+              <div style="font-size:11px;color:var(--m-ink-3);margin-top:4px;text-align:right" class="mono">61% · còn ~22s</div>
+
+              <div class="scan-log" style="margin-top:14px;font-size:10.5px;line-height:1.6;padding:10px;max-height:140px">
+                <div><span class="ts">09:34:22</span><span class="info">→</span> Bắt đầu scan 28 domain</div>
+                <div><span class="ts">09:34:23</span><span class="ok">✓</span> vietsoftware.com.vn · 12 email</div>
+                <div><span class="ts">09:34:24</span><span class="ok">✓</span> realgroup.vn · 5 email</div>
+                <div><span class="ts">09:34:25</span><span class="warn">!</span> primeland.com.vn · no MX</div>
+                <div><span class="ts">09:34:27</span><span class="ok">✓</span> greenhouse.vn · 8 email</div>
+                <div><span class="ts">09:34:30</span><span class="info">→</span> Đang quét vietland.com.vn…</div>
+              </div>
+
+              <button class="btn btn-danger btn-sm btn-block" style="margin-top:14px">Hủy scan</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;font-size:12px;color:var(--doc-ink-3);margin-top:8px">Domain Scan · realtime progress</div>
+    </div>
+  </div>
+
+  <h3>Patterns đáng chú ý</h3>
+  <ul>
+    <li><b>Table → Card list</b> trên mobile. Mỗi card show 3 dòng: tên + email · công ty + chức vụ · status + tag. Tap → full detail.</li>
+    <li><b>Floating Action Button (FAB)</b> cho action chính ở mobile (Export, Save…), pinned bottom-center.</li>
+    <li><b>Sticky email column</b> khi horizontal scroll trên tablet — email là kết nối chính.</li>
+    <li><b>Bottom sheet</b> thay modal trên mobile cho Filter, Export, Lead detail.</li>
+    <li><b>Topbar 48px</b> trên mobile (thay 60px desktop), tăng diện tích nội dung.</li>
+    <li><b>Touch target ≥ 44px</b> cho mọi button, badge, row action.</li>
+  </ul>
+</section>

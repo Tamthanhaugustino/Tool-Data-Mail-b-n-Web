@@ -1,0 +1,139 @@
+<section class="doc-section" id="copy">
+  <div class="sec-eyebrow">10 · Pattern</div>
+  <h2>UI copy (Tiếng Việt)</h2>
+  <p class="sec-lede">
+    Tone: <i>thân thiện, gọn, không kỹ thuật</i>. Bảng copy reference dưới đây dành cho
+    FE / Cursor copy thẳng vào i18n file. Mọi câu nên đọc được như nói với một sales đang vội.
+  </p>
+
+  <h3>Page titles & subtitles</h3>
+  <table class="copy-table">
+    <thead><tr><th>Key</th><th>Tiếng Việt</th><th>Context</th></tr></thead>
+    <tbody>
+      <tr><td>login.title</td><td class="viet">Đăng nhập</td><td class="context">Title của login card</td></tr>
+      <tr><td>login.hero</td><td class="viet">Tìm email doanh nghiệp nhanh hơn, có tổ chức hơn.</td><td class="context">Headline panel trái</td></tr>
+      <tr><td>dashboard.greeting</td><td class="viet">Chào {name} 👋</td><td class="context">Dùng tên thật, fallback "Chào bạn"</td></tr>
+      <tr><td>dashboard.sub</td><td class="viet">Hôm nay là {weekday}, {date} · workspace của bạn đang ổn.</td><td class="context">Sub dưới greeting</td></tr>
+      <tr><td>discover.title</td><td class="viet">Keyword Discovery</td><td class="context">Page title</td></tr>
+      <tr><td>discover.sub</td><td class="viet">Tìm website công ty từ keyword và quốc gia. Mỗi search tiêu tốn 1 request SerpAPI.</td><td class="context">Page sub — luôn nhắc về quota</td></tr>
+      <tr><td>scan.title</td><td class="viet">Domain Scan</td><td class="context">Page title</td></tr>
+      <tr><td>scan.sub</td><td class="viet">Nhập danh sách domain để tìm email liên hệ. Hunter.io sẽ quét từng domain.</td><td class="context">Page sub</td></tr>
+      <tr><td>leads.title</td><td class="viet">Saved Leads</td><td class="context">Page title</td></tr>
+      <tr><td>leads.sub</td><td class="viet">Lưu những lead tốt để xuất file hoặc chăm sóc sau. {n} lead · {m} tag.</td><td class="context">Mini-CRM</td></tr>
+      <tr><td>history.title</td><td class="viet">Lịch sử scan</td><td class="context">Page title</td></tr>
+      <tr><td>settings.title</td><td class="viet">Settings</td><td class="context">Page title — không dịch "Settings"</td></tr>
+      <tr><td>billing.title</td><td class="viet">Subscription</td><td class="context">Page title</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Buttons</h3>
+  <table class="copy-table">
+    <thead><tr><th>Key</th><th>Tiếng Việt</th><th>Context</th></tr></thead>
+    <tbody>
+      <tr><td>btn.login</td><td class="viet">Đăng nhập</td><td class="context"></td></tr>
+      <tr><td>btn.findWebsites</td><td class="viet">Find websites</td><td class="context">Giữ tiếng Anh — quen với SaaS user. Hoặc "Tìm website" nếu muốn full VN.</td></tr>
+      <tr><td>btn.previewScan</td><td class="viet">Preview trước khi scan</td><td class="context">UX rule #3</td></tr>
+      <tr><td>btn.startScan</td><td class="viet">Bắt đầu scan {n} domain</td><td class="context">Có số để xác nhận scope</td></tr>
+      <tr><td>btn.cancelScan</td><td class="viet">Hủy scan</td><td class="context">Danger</td></tr>
+      <tr><td>btn.saveLead</td><td class="viet">Lưu lead</td><td class="context"></td></tr>
+      <tr><td>btn.saveAllLeads</td><td class="viet">Lưu tất cả lead</td><td class="context"></td></tr>
+      <tr><td>btn.bestB2B</td><td class="viet">Best B2B Leads</td><td class="context">Giữ tiếng Anh, primary CTA ở Results</td></tr>
+      <tr><td>btn.export</td><td class="viet">Export</td><td class="context">Hoặc "Xuất file" nếu cần full VN</td></tr>
+      <tr><td>btn.download</td><td class="viet">Tải xuống · {n} lead</td><td class="context">Modal export</td></tr>
+      <tr><td>btn.testConnection</td><td class="viet">Test connection</td><td class="context">Settings API</td></tr>
+      <tr><td>btn.saveAndTest</td><td class="viet">Lưu &amp; Test</td><td class="context">Settings save</td></tr>
+      <tr><td>btn.tryAgain</td><td class="viet">Thử lại</td><td class="context">Error state</td></tr>
+      <tr><td>btn.retryFailed</td><td class="viet">Quét lại các domain lỗi</td><td class="context">Partial fail</td></tr>
+      <tr><td>btn.changeStatus</td><td class="viet">Đổi status</td><td class="context">Saved Leads bulk</td></tr>
+      <tr><td>btn.addTag</td><td class="viet">Thêm tag</td><td class="context"></td></tr>
+      <tr><td>btn.unsave</td><td class="viet">Bỏ lưu</td><td class="context">Danger, soft-delete</td></tr>
+      <tr><td>btn.openResults</td><td class="viet">Mở Results</td><td class="context">History action</td></tr>
+      <tr><td>btn.runAgain</td><td class="viet">Chạy lại</td><td class="context">History · scan thất bại</td></tr>
+      <tr><td>btn.upgrade</td><td class="viet">Nâng cấp</td><td class="context">Plan</td></tr>
+      <tr><td>btn.downgrade</td><td class="viet">Hạ xuống</td><td class="context">Plan</td></tr>
+      <tr><td>btn.contactAdmin</td><td class="viet">Liên hệ admin</td><td class="context">Manual activation</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Alerts &amp; warnings</h3>
+  <table class="copy-table">
+    <thead><tr><th>Key</th><th>Tiếng Việt</th><th>Context</th></tr></thead>
+    <tbody>
+      <tr><td>alert.needHunter</td><td class="viet">Bạn cần thêm Hunter.io API Key để quét email.</td><td class="context">Dashboard banner khi thiếu key</td></tr>
+      <tr><td>alert.needSerp</td><td class="viet">Keyword Discovery cần SerpAPI Key. Vui lòng thêm trong Settings.</td><td class="context">Discovery page</td></tr>
+      <tr><td>alert.highLimit</td><td class="viet">Giới hạn cao có thể tốn nhiều request Hunter.io hơn.</td><td class="context">Preview step warning</td></tr>
+      <tr><td>alert.quotaSoon</td><td class="viet">Hunter.io còn {n} request. Hãy kiểm tra quota trước khi scan số lượng lớn.</td><td class="context">Nhắc quota gần hết</td></tr>
+      <tr><td>alert.quotaEmpty</td><td class="viet">Hunter.io đã hết quota tháng. Reset {date}.</td><td class="context">Error full</td></tr>
+      <tr><td>alert.keyInvalid</td><td class="viet">API key không hợp lệ. Kiểm tra lại tại {provider}.</td><td class="context">Settings test fail</td></tr>
+      <tr><td>alert.scanCancelled</td><td class="viet">Đã hủy scan. {n} domain đã quét xong vẫn nằm trong Results.</td><td class="context">Sau khi cancel</td></tr>
+      <tr><td>alert.sessionExpired</td><td class="viet">Phiên đăng nhập đã hết hạn. Đăng nhập lại để tiếp tục.</td><td class="context">Modal interrupt</td></tr>
+      <tr><td>alert.networkSlow</td><td class="viet">Mạng đang chập chờn. Một số thay đổi chưa lưu được — sẽ tự thử lại khi có mạng.</td><td class="context">Offline tolerance</td></tr>
+      <tr><td>alert.planExpired</td><td class="viet">Plan {plan} đã hết hạn ngày {date}. Nâng cấp để tiếp tục scan.</td><td class="context">Plan expired banner</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Empty &amp; success states</h3>
+  <table class="copy-table">
+    <thead><tr><th>Key</th><th>Tiếng Việt</th><th>Context</th></tr></thead>
+    <tbody>
+      <tr><td>empty.results</td><td class="viet">Chưa có kết quả. Hãy bắt đầu bằng Keyword Discovery hoặc Domain Scan.</td><td class="context">Results page</td></tr>
+      <tr><td>empty.leads</td><td class="viet">Chưa lưu lead nào. Sau khi scan, tick vào lead tốt và bấm "Lưu lead" để chăm sóc sau.</td><td class="context">Saved Leads</td></tr>
+      <tr><td>empty.history</td><td class="viet">Chưa có lịch sử scan nào.</td><td class="context">History</td></tr>
+      <tr><td>empty.discover</td><td class="viet">Nhập keyword và quốc gia để tìm website công ty phù hợp.</td><td class="context">Discovery</td></tr>
+      <tr><td>empty.scanInput</td><td class="viet">Bắt đầu bằng cách dán domain. Hoặc upload file CSV.</td><td class="context">Domain Scan input</td></tr>
+      <tr><td>empty.filter</td><td class="viet">Không có lead nào khớp filter. Bạn có thể thử bớt filter.</td><td class="context">Filter empty</td></tr>
+      <tr><td>loading.scan</td><td class="viet">Đang quét {domain}…</td><td class="context">Scan log</td></tr>
+      <tr><td>loading.discover</td><td class="viet">Đang tìm website phù hợp…</td><td class="context">Discovery loading</td></tr>
+      <tr><td>toast.saved</td><td class="viet">Đã lưu {n} lead vào Saved Leads.</td><td class="context">Sau bulk save</td></tr>
+      <tr><td>toast.exported</td><td class="viet">File CSV đã sẵn sàng. {filename}</td><td class="context">After export</td></tr>
+      <tr><td>toast.connected</td><td class="viet">Đã kết nối {provider}.</td><td class="context">Sau test OK</td></tr>
+      <tr><td>toast.copied</td><td class="viet">Đã copy email.</td><td class="context">Quick action</td></tr>
+    </tbody>
+  </table>
+
+  <h3>API key explainers</h3>
+  <table class="copy-table">
+    <thead><tr><th>Key</th><th>Tiếng Việt</th><th>Context</th></tr></thead>
+    <tbody>
+      <tr><td>key.hunter.purpose</td><td class="viet">Hunter.io: dùng để tìm email từ domain. Mỗi domain quét sẽ tiêu tốn ~1 request.</td><td class="context">Settings · Hunter card</td></tr>
+      <tr><td>key.serp.purpose</td><td class="viet">SerpAPI: dùng để tìm website công ty từ keyword. Mỗi search tiêu tốn 1 request.</td><td class="context">Settings · SerpAPI card</td></tr>
+      <tr><td>key.security</td><td class="viet">API key được lưu bảo mật (mã hoá AES-256). Không chia sẻ key cho người khác — kẻ xấu có thể tiêu hết quota của bạn.</td><td class="context">Security note</td></tr>
+      <tr><td>key.whenNeeded.serp</td><td class="viet">Khi nào cần SerpAPI? Khi bạn muốn tìm website từ keyword. Nếu đã có sẵn domain, chỉ cần Hunter.io.</td><td class="context">Help inside Settings</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Confirmation dialogs</h3>
+  <table class="copy-table">
+    <thead><tr><th>Key</th><th>Tiếng Việt</th><th>Context</th></tr></thead>
+    <tbody>
+      <tr><td>confirm.startScan.title</td><td class="viet">Xác nhận bắt đầu scan</td><td class="context">Modal title</td></tr>
+      <tr><td>confirm.startScan.body</td><td class="viet">{n} domain · ước tính ~{r} Hunter request. Sau scan còn lại: {left} / {total}.</td><td class="context">Confirm body</td></tr>
+      <tr><td>confirm.cancelScan</td><td class="viet">Hủy scan sẽ giữ lại {n} domain đã quét xong. Bạn có thể xem ở Results.</td><td class="context">Cancel scan modal</td></tr>
+      <tr><td>confirm.deleteLeads</td><td class="viet">Bỏ lưu {n} lead? Hành động này không thể hoàn tác.</td><td class="context">Bulk unsave</td></tr>
+      <tr><td>confirm.changeKey</td><td class="viet">Đổi API key sẽ ngắt mọi scan đang chạy. Tiếp tục?</td><td class="context">Settings change</td></tr>
+      <tr><td>confirm.deleteScan</td><td class="viet">Xoá run này khỏi History? Kết quả &amp; lead đã lưu vẫn được giữ.</td><td class="context">History delete</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Tooltip / help text</h3>
+  <table class="copy-table">
+    <thead><tr><th>Key</th><th>Tiếng Việt</th><th>Context</th></tr></thead>
+    <tbody>
+      <tr><td>tip.confidence</td><td class="viet">Điểm tin cậy email do Hunter.io đưa ra. ≥80% là verified, có thể gửi cold email an toàn.</td><td class="context">Hover trên cột Confidence</td></tr>
+      <tr><td>tip.acceptAll</td><td class="viet">Server nhận mọi email (catch-all). Email vẫn có thể tới được nhưng không chắc chắn.</td><td class="context">Hover trên badge Accept all</td></tr>
+      <tr><td>tip.preset</td><td class="viet">Filter mặc định cho lead chất lượng cao: verified · senior trở lên · có tên · có chức vụ.</td><td class="context">Hover Best B2B Leads</td></tr>
+      <tr><td>tip.kbdSearch</td><td class="viet">Tìm xuyên Results, Saved Leads, History. Phím tắt: ⌘ K</td><td class="context">Hover search topbar</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Hard nos</h3>
+  <ul>
+    <li>❌ Không dùng "Oops!", "Whoops!", "Uh oh!" — viết thẳng vấn đề.</li>
+    <li>❌ Không dùng "API rate limited" — dịch "Hunter.io tạm hạn chế tốc độ. Thử lại sau 1 phút."</li>
+    <li>❌ Không dùng "successfully" — kể chuyện đã xong: "Đã lưu", "Đã xuất file" — không cần thêm "thành công".</li>
+    <li>❌ Không "404 Not Found" / "500 Server Error" trần — luôn có icon + headline thân thiện + mã lỗi nhỏ phụ.</li>
+    <li>✅ Dùng dấu chấm cuối câu trong alert/empty state.</li>
+    <li>✅ Số nguyên dùng dấu chấm phân tách hàng nghìn: <code>2.840</code> (kiểu VN).</li>
+    <li>✅ Tiền tệ: <code>890.000₫</code> hoặc <code>890k</code> trong UI, đầy đủ trong invoice.</li>
+  </ul>
+</section>

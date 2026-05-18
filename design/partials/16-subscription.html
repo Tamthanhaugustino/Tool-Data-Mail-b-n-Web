@@ -1,0 +1,195 @@
+<section class="doc-section" id="subscription">
+  <div class="sec-eyebrow">07.10 · Account</div>
+  <h2>Subscription · License</h2>
+  <p class="sec-lede">
+    Quản lý gói. Khác desktop ở chỗ <b>không có Machine ID offline</b> — thay bằng plan-based
+    subscription. Vì chưa làm payment online, vẫn cho fallback <b>manual activation</b>
+    (liên hệ admin) ngay trên page.
+  </p>
+
+  <div class="frame">
+    <div class="frame__bar">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <div class="url"><svg width="10" height="10"><use href="#i-lock"/></svg> app.tooldatamail.com / billing</div>
+      <div class="tag">Subscription · 1280 × 880</div>
+    </div>
+    <div class="frame__body">
+      <div class="mock">
+        <div class="mock-app">
+          <aside class="m-side">
+            <div class="brand"><div class="brand-mark">TM</div><div class="brand-text">Tool Data Mail<small>Web</small></div></div>
+            <h6>Workspace</h6>
+            <div class="m-nav"><svg class="ic"><use href="#i-home"/></svg>Dashboard</div>
+            <div class="m-nav"><svg class="ic"><use href="#i-target"/></svg>Keyword Discovery</div>
+            <div class="m-nav"><svg class="ic"><use href="#i-mail-search"/></svg>Domain Scan</div>
+            <div class="m-nav"><svg class="ic"><use href="#i-table"/></svg>Results<span class="badge">12</span></div>
+            <div class="m-nav"><svg class="ic"><use href="#i-bookmark"/></svg>Saved Leads<span class="badge">348</span></div>
+            <div class="m-nav"><svg class="ic"><use href="#i-history"/></svg>Scan History</div>
+            <h6>Account</h6>
+            <div class="m-nav"><svg class="ic"><use href="#i-settings"/></svg>Settings</div>
+            <div class="m-nav is-active"><svg class="ic"><use href="#i-credit-card"/></svg>Subscription</div>
+            <div class="m-nav"><svg class="ic"><use href="#i-help"/></svg>Help</div>
+            <div class="quota-card"><div class="lbl"><span>Hunter.io</span><span class="mono">388 / 500</span></div><div class="num">Còn 112 request</div><div class="bar"><i style="width:77%"></i></div></div>
+          </aside>
+
+          <div>
+            <div class="m-top">
+              <div class="crumbs"><span>Account</span><span class="sep">/</span><b>Subscription</b></div>
+              <div class="search"><svg width="14" height="14"><use href="#i-search"/></svg>Tìm email, domain, công ty…</div>
+              <div class="right"><span class="plan-pill">PRO</span><span class="api-status"><span class="dot"></span>API OK</span><button class="icon-btn"><svg width="18" height="18"><use href="#i-bell"/></svg></button><div class="avatar">TN</div></div>
+            </div>
+
+            <div class="m-main">
+              <div class="page-head">
+                <div><h1 class="page-title">Subscription</h1><p class="page-sub">Quản lý gói sử dụng & xem mức tiêu thụ.</p></div>
+                <div class="actions">
+                  <button class="btn">Hoá đơn</button>
+                </div>
+              </div>
+
+              <!-- Current plan strip -->
+              <div class="card" style="margin-bottom:18px;background:linear-gradient(135deg,#1E3A8A 0%,#2563EB 100%);border:none;color:#fff;overflow:hidden;position:relative">
+                <div style="position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,0.15),transparent 70%);pointer-events:none"></div>
+                <div class="card-body" style="padding:24px 28px;display:flex;justify-content:space-between;align-items:center;gap:24px">
+                  <div>
+                    <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;opacity:0.7;font-weight:600;margin-bottom:6px">Gói hiện tại</div>
+                    <div style="font-size:28px;font-weight:600;letter-spacing:-0.02em">Pro · monthly</div>
+                    <div style="opacity:0.8;font-size:13px;margin-top:6px">Đang hoạt động · gia hạn ngày <b style="color:#fff">12 / 06 / 2026</b> · 25 ngày nữa</div>
+                  </div>
+                  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;text-align:right">
+                    <div><div style="font-size:11px;opacity:0.7;text-transform:uppercase;letter-spacing:0.1em">Scan tháng này</div><div style="font-size:22px;font-weight:600;margin-top:4px">42 <span style="font-size:13px;opacity:0.7">/ 100</span></div></div>
+                    <div><div style="font-size:11px;opacity:0.7;text-transform:uppercase;letter-spacing:0.1em">Lead lưu</div><div style="font-size:22px;font-weight:600;margin-top:4px">348 <span style="font-size:13px;opacity:0.7">/ 5.000</span></div></div>
+                    <div><div style="font-size:11px;opacity:0.7;text-transform:uppercase;letter-spacing:0.1em">Export</div><div style="font-size:22px;font-weight:600;margin-top:4px">14 <span style="font-size:13px;opacity:0.7">/ unlim.</span></div></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Plans -->
+              <h3 style="font-size:16px;margin:0 0 6px">Đổi gói</h3>
+              <p style="font-size:13.5px;color:var(--m-ink-3);margin:0 0 14px">Khi đổi gói, tháng còn lại được pro-rate. Liên hệ admin nếu cần custom invoice.</p>
+
+              <div class="plan-grid">
+                <div class="plan">
+                  <div class="plan-name">Trial</div>
+                  <div class="plan-price">0₫<small>/ 7 ngày</small></div>
+                  <ul>
+                    <li>10 lần scan</li>
+                    <li>Lưu tối đa 50 lead</li>
+                    <li>1 lần export</li>
+                    <li>Hỗ trợ qua email</li>
+                  </ul>
+                  <button class="btn btn-block" style="margin-top:auto">Trải nghiệm trước</button>
+                </div>
+                <div class="plan">
+                  <div class="plan-name">Basic</div>
+                  <div class="plan-price">390k<small>/ tháng</small></div>
+                  <ul>
+                    <li>30 scan / tháng</li>
+                    <li>Lưu 1.000 lead</li>
+                    <li>Export CSV / JSON</li>
+                    <li>1 workspace</li>
+                  </ul>
+                  <button class="btn btn-block" style="margin-top:auto">Hạ xuống</button>
+                </div>
+                <div class="plan is-current">
+                  <div style="display:flex;justify-content:space-between;align-items:center">
+                    <div class="plan-name" style="color:var(--m-primary)">Pro</div>
+                    <span class="badge badge--info">Đang dùng</span>
+                  </div>
+                  <div class="plan-price">890k<small>/ tháng</small></div>
+                  <ul>
+                    <li>100 scan / tháng</li>
+                    <li>Lưu 5.000 lead</li>
+                    <li>Best B2B export · custom column</li>
+                    <li>Preset filter không giới hạn</li>
+                    <li>Hỗ trợ ưu tiên</li>
+                  </ul>
+                  <button class="btn btn-primary btn-block is-disabled" style="margin-top:auto">Gói hiện tại</button>
+                </div>
+                <div class="plan">
+                  <div style="display:flex;justify-content:space-between;align-items:center">
+                    <div class="plan-name" style="color:#7C3AED">Agency</div>
+                    <span class="badge badge--violet">Tốt nhất</span>
+                  </div>
+                  <div class="plan-price">2.490k<small>/ tháng</small></div>
+                  <ul>
+                    <li>Scan không giới hạn (theo quota API)</li>
+                    <li>Lưu 50.000 lead</li>
+                    <li>5 workspace · 5 member</li>
+                    <li>API truy cập lead</li>
+                    <li>SLA &amp; dedicated support</li>
+                  </ul>
+                  <button class="btn btn-block" style="margin-top:auto;background:#7C3AED;color:#fff;border-color:#7C3AED">Nâng cấp</button>
+                </div>
+              </div>
+
+              <!-- Manual activation -->
+              <div class="card" style="margin-top:20px">
+                <div class="card-head">
+                  <h3>Kích hoạt thủ công</h3>
+                  <span class="badge badge--neutral">Cho khách doanh nghiệp</span>
+                </div>
+                <div class="card-body">
+                  <div class="g-2" style="grid-template-columns:1.5fr 1fr;align-items:start">
+                    <div>
+                      <p style="font-size:13.5px;color:var(--m-ink-2);margin:0 0 12px">Nếu bạn đã thanh toán chuyển khoản hoặc cần plan tuỳ chỉnh, liên hệ admin để được kích hoạt thủ công. Sau khi xác nhận, plan của bạn sẽ tự động cập nhật.</p>
+                      <div class="field">
+                        <label>Mã kích hoạt (nếu có)</label>
+                        <div class="input-group">
+                          <span class="prefix"><svg width="14" height="14"><use href="#i-key"/></svg></span>
+                          <input class="input is-mono" placeholder="TDM-XXXX-XXXX-XXXX"/>
+                        </div>
+                      </div>
+                      <button class="btn btn-primary"><svg class="ic"><use href="#i-check"/></svg>Kích hoạt</button>
+                      <a href="#" style="margin-left:8px;font-size:13px;color:var(--m-primary)">Liên hệ admin →</a>
+                    </div>
+                    <div style="padding:16px;background:var(--m-surface-2);border:1px solid var(--m-rule);border-radius:10px">
+                      <h5 style="margin:0 0 8px;font-size:13.5px;font-weight:600">Liên hệ</h5>
+                      <div style="font-size:13px;color:var(--m-ink-2);line-height:1.7">
+                        Email: <a style="color:var(--m-primary)">admin<span class="at">&#64;</span>tooldatamail.com</a><br>
+                        Zalo / Phone: <b>0933 123 456</b><br>
+                        Hỗ trợ T2–T7 · 9:00–18:00 GMT+7
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Invoice history -->
+              <div class="card" style="margin-top:18px">
+                <div class="card-head">
+                  <h3>Hoá đơn gần đây</h3>
+                  <a href="#" style="font-size:12.5px;color:var(--m-primary)">Xem tất cả →</a>
+                </div>
+                <table class="table" style="border-radius:0">
+                  <thead><tr><th>Hoá đơn</th><th>Mô tả</th><th>Số tiền</th><th>Trạng thái</th><th>Ngày</th><th></th></tr></thead>
+                  <tbody>
+                    <tr><td class="num">INV-2026-05</td><td>Pro · monthly · May 2026</td><td><b>890.000₫</b></td><td><span class="badge badge--ok"><span class="d"></span>Đã thanh toán</span></td><td><span class="mono text-xs">12 / 05</span></td><td class="actions"><button class="btn btn-sm">PDF</button></td></tr>
+                    <tr><td class="num">INV-2026-04</td><td>Pro · monthly · April 2026</td><td><b>890.000₫</b></td><td><span class="badge badge--ok"><span class="d"></span>Đã thanh toán</span></td><td><span class="mono text-xs">12 / 04</span></td><td class="actions"><button class="btn btn-sm">PDF</button></td></tr>
+                    <tr><td class="num">INV-2026-03</td><td>Basic → Pro · upgrade pro-rate</td><td><b>420.000₫</b></td><td><span class="badge badge--ok"><span class="d"></span>Đã thanh toán</span></td><td><span class="mono text-xs">25 / 03</span></td><td class="actions"><button class="btn btn-sm">PDF</button></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="frame__caption"><b>SCREEN 10/11</b> Subscription · Path: <code>/billing</code></div>
+
+  <div class="annot-list">
+    <div class="pin">1</div><div class="body"><b>Banner gradient xanh đậm</b> — show plan hiện tại + 3 usage stat. Differentiated visually khỏi card thường để tạo hierarchy.</div>
+    <div class="pin">2</div><div class="body"><b>4 plan card</b> ngang. Plan hiện tại có border primary + shadow ring + badge "Đang dùng". Agency có badge "Tốt nhất" tím để thúc đẩy upgrade.</div>
+    <div class="pin">3</div><div class="body"><b>Price tiếng Việt</b> — "890k / tháng" cho ngắn gọn, full "890.000₫" trong invoice. Trial 7 ngày miễn phí.</div>
+    <div class="pin">4</div><div class="body"><b>Manual activation card</b> — required cho phase chưa có payment online. Input nhận mã <code>TDM-XXXX-XXXX-XXXX</code> do admin cấp. Đi kèm thông tin liên hệ admin rõ.</div>
+    <div class="pin">5</div><div class="body"><b>Invoice history</b> — list 3 cái gần nhất + link "Xem tất cả" → /billing/invoices. Mỗi row có button PDF download.</div>
+  </div>
+
+  <h3>States khác</h3>
+  <ul>
+    <li><b>Trial</b> — banner màu cam ấm thay vì xanh. Countdown "Còn 3 ngày trial. Nâng cấp ngay →".</li>
+    <li><b>Plan hết hạn</b> — banner đỏ trên toàn app. Khoá tạo scan mới, vẫn cho xem Saved Leads + Export. Giải thích rõ: <i>"Plan Pro của bạn đã hết hạn 17 / 05. Nâng cấp để tiếp tục scan."</i></li>
+    <li><b>Đang grace period (3 ngày)</b> — banner vàng cảnh báo, vẫn hoạt động bình thường.</li>
+  </ul>
+</section>

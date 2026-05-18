@@ -1,0 +1,151 @@
+<section class="doc-section" id="dev">
+  <div class="sec-eyebrow">11 · Handoff</div>
+  <h2>Developer handoff notes</h2>
+  <p class="sec-lede">
+    Notes dành cho Cursor / FE engineer triển khai. Đọc kèm với từng screen.
+    Stack giả định: <b>Vite + React 18 + TypeScript</b> · UI: <b>shadcn/ui + Tailwind</b> ·
+    state: <b>TanStack Query</b> · routing: <b>React Router</b> hoặc <b>Next.js App Router</b>.
+  </p>
+
+  <h3>Stack &amp; conventions</h3>
+  <ol class="dev-list">
+    <li><span class="num">1</span><div><b>UI primitives</b> — chuyển từng component ở § 6 sang shadcn/ui equivalent: Button, Input, Select, Switch, Checkbox, Badge, Tabs, Tooltip, Dialog, Sheet (Drawer), Sonner (Toast), Skeleton. Override token theo § 2 (chỉnh <code>tailwind.config.ts</code> + <code>globals.css</code>).</div></li>
+    <li><span class="num">2</span><div><b>Iconography</b> — <code>npm i lucide-react</code>. Default <code>strokeWidth={2}</code> · size 18 trong nav, 16 trong button, 14 trong cell.</div></li>
+    <li><span class="num">3</span><div><b>Font</b> — Geist + Geist Mono từ Google Fonts. Preload bằng <code>next/font</code> hoặc <code>&lt;link rel="preconnect"&gt;</code>.</div></li>
+    <li><span class="num">4</span><div><b>Data fetching</b> — TanStack Query với <code>staleTime: 30s</code> cho list, <code>refetchOnWindowFocus: true</code> cho quota stat. Long-running scan dùng <b>SSE / WebSocket</b> hoặc poll <code>/api/runs/:id/progress</code> mỗi 1s.</div></li>
+    <li><span class="num">5</span><div><b>Form</b> — react-hook-form + zod. Validate domain regex client-side TRƯỚC khi gửi Preview (xem § 3.5).</div></li>
+    <li><span class="num">6</span><div><b>i18n</b> — react-i18next ngay từ đầu, dù chỉ có VN. Mọi copy ở § 10 đi vào <code>vi.json</code>.</div></li>
+  </ol>
+
+  <h3>Routing &amp; route guards</h3>
+  <table class="token-table">
+    <thead><tr><th>Path</th><th>Page</th><th>Guard</th></tr></thead>
+    <tbody>
+      <tr><td>/login · /forgot · /reset/:token</td><td style="font-family:inherit;font-size:13px">Login flow</td><td class="val">public</td></tr>
+      <tr><td>/dashboard</td><td style="font-family:inherit;font-size:13px">Dashboard</td><td class="val">auth</td></tr>
+      <tr><td>/discover</td><td style="font-family:inherit;font-size:13px">Keyword Discovery</td><td class="val">auth + plan-active</td></tr>
+      <tr><td>/scan · /scan/preview · /scan/running/:runId</td><td style="font-family:inherit;font-size:13px">Domain Scan 4 steps</td><td class="val">auth + plan-active + hunter-key</td></tr>
+      <tr><td>/results/:runId</td><td style="font-family:inherit;font-size:13px">Results Table</td><td class="val">auth + run owner</td></tr>
+      <tr><td>/leads</td><td style="font-family:inherit;font-size:13px">Saved Leads</td><td class="val">auth</td></tr>
+      <tr><td>/history · /history/:runId</td><td style="font-family:inherit;font-size:13px">Scan History</td><td class="val">auth</td></tr>
+      <tr><td>/settings/api · /settings/account · /settings/password · /settings/notifications · /settings/security</td><td style="font-family:inherit;font-size:13px">Settings tabs</td><td class="val">auth</td></tr>
+      <tr><td>/billing · /billing/invoices · /billing/:invoiceId</td><td style="font-family:inherit;font-size:13px">Subscription</td><td class="val">auth</td></tr>
+      <tr><td>/admin/users · /admin/usage · /admin/scans · /admin/audit · /admin/settings</td><td style="font-family:inherit;font-size:13px">Admin panel</td><td class="val">role=admin</td></tr>
+    </tbody>
+  </table>
+
+  <h3>API endpoints (đề xuất)</h3>
+  <table class="token-table">
+    <thead><tr><th>Method · Path</th><th>Mô tả</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>POST /api/auth/login</td><td style="font-family:inherit;font-size:13px">Email + password → token</td><td class="val">JWT 24h + refresh 30d</td></tr>
+      <tr><td>POST /api/auth/forgot</td><td style="font-family:inherit;font-size:13px">Gửi email reset</td><td class="val">rate-limit 1/min</td></tr>
+      <tr><td>GET /api/me</td><td style="font-family:inherit;font-size:13px">User + workspace + plan</td><td class="val">cache 5m</td></tr>
+      <tr><td>GET · PUT /api/settings/keys/hunter</td><td style="font-family:inherit;font-size:13px">CRUD Hunter key</td><td class="val">return masked</td></tr>
+      <tr><td>POST /api/settings/keys/hunter/test</td><td style="font-family:inherit;font-size:13px">Test key</td><td class="val">200 OK + quota</td></tr>
+      <tr><td>POST /api/discover</td><td style="font-family:inherit;font-size:13px">Keyword + country → website list</td><td class="val">sync · ~1s</td></tr>
+      <tr><td>POST /api/scan/preview</td><td style="font-family:inherit;font-size:13px">Validate domains, return estimate</td><td class="val">sync · không tốn quota</td></tr>
+      <tr><td>POST /api/scan/start</td><td style="font-family:inherit;font-size:13px">Tạo run, return runId</td><td class="val">async, background job</td></tr>
+      <tr><td>GET /api/runs/:id</td><td style="font-family:inherit;font-size:13px">Run status + progress</td><td class="val">poll 1s while running</td></tr>
+      <tr><td>GET /api/runs/:id/stream</td><td style="font-family:inherit;font-size:13px">SSE log live</td><td class="val">optional · nicer UX</td></tr>
+      <tr><td>POST /api/runs/:id/cancel</td><td style="font-family:inherit;font-size:13px">Hủy run</td><td class="val">soft cancel</td></tr>
+      <tr><td>GET /api/runs/:id/results</td><td style="font-family:inherit;font-size:13px">Paginated results với filter/sort</td><td class="val">query params</td></tr>
+      <tr><td>POST /api/leads</td><td style="font-family:inherit;font-size:13px">Save lead(s) — bulk</td><td class="val">array body</td></tr>
+      <tr><td>GET · PATCH · DELETE /api/leads/:id</td><td style="font-family:inherit;font-size:13px">CRUD lead</td><td class="val">edit status, tag, note</td></tr>
+      <tr><td>GET /api/leads</td><td style="font-family:inherit;font-size:13px">List with filter</td><td class="val">pagination</td></tr>
+      <tr><td>POST /api/leads/export</td><td style="font-family:inherit;font-size:13px">Generate CSV/JSON</td><td class="val">return download URL · expire 1h</td></tr>
+      <tr><td>GET /api/history</td><td style="font-family:inherit;font-size:13px">All runs</td><td class="val"></td></tr>
+      <tr><td>GET /api/billing</td><td style="font-family:inherit;font-size:13px">Plan + usage + invoices</td><td class="val"></td></tr>
+      <tr><td>POST /api/billing/activate</td><td style="font-family:inherit;font-size:13px">Manual activation code</td><td class="val">validate TDM-XXXX-XXXX</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Data shapes (rút gọn)</h3>
+  <pre style="background:#0F172A;color:#E2E8F0;padding:18px 20px;border-radius:10px;font-family:Geist Mono,monospace;font-size:12.5px;line-height:1.6;overflow-x:auto;margin:12px 0 24px"><code>type Lead = {
+  id: string;
+  email: string;
+  firstName?: string; lastName?: string; fullName?: string;
+  position?: string; department?: string; seniority?: 'junior' | 'mid' | 'senior' | 'c-level';
+  company: string; domain: string;
+  confidence: number;             // 0–100
+  status: 'verified' | 'accept_all' | 'invalid' | 'webmail';
+  sources: string[];              // e.g. ['website-team', 'linkedin']
+  // CRM fields (chỉ có khi đã saved)
+  saved?: {
+    leadStatus: 'new' | 'contacted' | 'interested' | 'customer' | 'not_relevant';
+    tags: string[]; note: string;
+    savedAt: ISODate; updatedAt: ISODate;
+  };
+  runId: string;                  // run nào tìm ra
+};
+
+type ScanRun = {
+  id: string;                     // 'r-2026-05-18-042'
+  type: 'keyword' | 'domain';
+  status: 'queued' | 'running' | 'done' | 'failed' | 'cancelled';
+  input: { keyword?: string; country?: string; domains?: string[]; limit?: number };
+  options: { verifiedOnly: boolean; skipCatchAll: boolean; skipWebmail: boolean };
+  stats: { total: number; done: number; emailsFound: number; errors: number; apiUsed: number };
+  startedAt: ISODate; finishedAt?: ISODate;
+  error?: { code: string; message: string };
+};</code></pre>
+
+  <h3>Realtime scan progress</h3>
+  <ol class="dev-list">
+    <li><span class="num">1</span><div><b>Khi user bấm "Bắt đầu scan"</b>: <code>POST /api/scan/start</code> trả về <code>runId</code> ngay (job background).</div></li>
+    <li><span class="num">2</span><div><b>Redirect</b> sang <code>/scan/running/:runId</code>.</div></li>
+    <li><span class="num">3</span><div><b>Subscribe progress</b>: <code>GET /api/runs/:id/stream</code> (SSE) lý tưởng. Fallback poll <code>GET /api/runs/:id</code> mỗi 1s. Mỗi event: <code>&#123; done, total, emailsFound, errors, latestDomain, status &#125;</code>.</div></li>
+    <li><span class="num">4</span><div><b>Khi <code>status === 'done'</code></b>: hiện toast "Scan xong: {n} email" + tự redirect <code>/results/:runId</code> sau 2s (hoặc click "Xem kết quả →" ngay).</div></li>
+    <li><span class="num">5</span><div><b>Khi user đóng tab</b>: backend vẫn chạy; notification gửi qua email + cập nhật bell icon khi user quay lại.</div></li>
+  </ol>
+
+  <h3>Performance &amp; UX guardrails</h3>
+  <ul>
+    <li>Bảng Results / Saved Leads dùng <b>virtualization</b> khi &gt; 200 row (TanStack Virtual).</li>
+    <li>Filter sidebar update count chỉ thay đổi sau debounce 200ms khi user gõ vào tìm kiếm.</li>
+    <li>Export CSV: backend stream để không OOM với 5.000+ lead. UI hiển thị progress nếu &gt; 3s.</li>
+    <li>Mobile data table → switch sang card list ở &lt; 640px (xem § 9). Không cố gắng squeeze table desktop.</li>
+    <li>Mọi action có thể tốn quota (Find websites, Start scan, Test connection) <b>không bao giờ</b> gọi API chỉ vì user click vu vơ — luôn có user gesture rõ ràng.</li>
+    <li>Optimistic UI cho: Save lead, Đổi status, Đổi tag, Edit note. Toast confirm khi server xong; rollback nếu fail.</li>
+  </ul>
+
+  <h3>Accessibility</h3>
+  <ul>
+    <li>Mọi icon-only button có <code>aria-label</code> tiếng Việt.</li>
+    <li>Color contrast: kiểm tra confidence badge dưới mức 50% phải đủ AA (test với plugin).</li>
+    <li>Keyboard nav cho table: <kbd>↑↓</kbd> chuyển row, <kbd>Space</kbd> tick, <kbd>⌘ A</kbd> chọn tất cả page hiện tại, <kbd>⌘ E</kbd> export.</li>
+    <li>Focus ring 2px solid <code>primary-600</code> với offset 2px — không tắt outline.</li>
+    <li>Modal có focus trap, Esc đóng, return focus về trigger.</li>
+  </ul>
+
+  <h3>Security &amp; storage</h3>
+  <ul>
+    <li>API key (Hunter, SerpAPI) <b>mã hoá AES-256</b> trước khi vào DB. Decrypt chỉ ở request time để gọi API thứ ba.</li>
+    <li>Không bao giờ trả key thật về frontend — chỉ mask <code>•••a3d2</code>.</li>
+    <li>JWT lưu <code>httpOnly</code> cookie, không localStorage.</li>
+    <li>CSRF token cho mọi mutation.</li>
+    <li>Rate limit: login 5/min, forgot 1/min, scan start 10/h, export 30/h.</li>
+    <li>Audit log mọi admin action vào table <code>audit_log</code> (ai, làm gì, lên user nào, lúc nào, IP).</li>
+  </ul>
+
+  <h3>Phase rollout (đề xuất)</h3>
+  <ol class="dev-list">
+    <li><span class="num">P1</span><div><b>MVP · 3–4 tuần</b>. Login, Dashboard, Settings · API Keys, Domain Scan (4 steps), Results, Saved Leads, Export, History. Tiếng Việt + desktop only.</div></li>
+    <li><span class="num">P2</span><div><b>2 tuần</b>. Keyword Discovery, Subscription page (manual activation), Notifications email, Admin Users.</div></li>
+    <li><span class="num">P3</span><div><b>2 tuần</b>. Mobile responsive, drawer/sheet, virtualization, optimistic UI, SSE live scan.</div></li>
+    <li><span class="num">P4</span><div><b>Sau đó</b>. Payment online (Stripe / VNPay), API truy cập lead cho Agency plan, Email outreach module, team workspace.</div></li>
+  </ol>
+
+  <h3>Câu hỏi còn mở</h3>
+  <ul>
+    <li>Hunter.io rate limit chính xác bao nhiêu /sec? Cần biết để pace scan job.</li>
+    <li>Có muốn cho user upload <b>email template</b> cho cold outreach trong scope MVP không?</li>
+    <li>Plan Agency: có cần API key Hunter / SerpAPI <b>của Tool Data Mail</b> (charge user 1 mức gộp) hay user vẫn dùng key của họ?</li>
+    <li>Multi-language UI (thêm EN) bao giờ?</li>
+  </ul>
+
+  <div class="callout">
+    <span class="ico">→</span>
+    <div><b>Sẵn sàng cho Cursor.</b> Copy file này (Save as PDF từ menu) hoặc share link và bắt đầu lệnh: <i>"Implement <code>/dashboard</code> theo § 7.2 của design handoff, dùng shadcn/ui + Tailwind, token theo § 2."</i></div>
+  </div>
+</section>

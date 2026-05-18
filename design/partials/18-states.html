@@ -1,0 +1,190 @@
+<section class="doc-section" id="states">
+  <div class="sec-eyebrow">08 · Pattern</div>
+  <h2>Empty · Loading · Error states</h2>
+  <p class="sec-lede">
+    Mỗi page chính có 3 trạng thái non-happy phải design rõ. Đây là catalog reference —
+    Cursor implement theo pattern này cho mọi page.
+  </p>
+
+  <h3>Results Table — 3 states</h3>
+  <div class="state-grid">
+    <!-- Empty -->
+    <div class="state-card">
+      <div class="head empty">Empty</div>
+      <div class="body">
+        <div class="mock" style="background:transparent">
+          <div class="state-msg" style="padding:0">
+            <div class="ico-wrap"><svg width="22" height="22"><use href="#i-table"/></svg></div>
+            <h4>Chưa có kết quả</h4>
+            <p>Hãy bắt đầu bằng Keyword Discovery hoặc Domain Scan để tạo lead đầu tiên.</p>
+            <div style="display:flex;gap:8px;justify-content:center"><button class="btn btn-sm"><svg class="ic"><use href="#i-target"/></svg>Keyword</button><button class="btn btn-primary btn-sm"><svg class="ic"><use href="#i-mail-search"/></svg>Domain Scan</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Loading -->
+    <div class="state-card">
+      <div class="head loading">Loading</div>
+      <div class="body">
+        <div class="mock" style="background:transparent;width:100%">
+          <div class="skeleton skel-row" style="width:60%"></div>
+          <div class="skeleton skel-row" style="width:85%"></div>
+          <div class="skeleton skel-row" style="width:70%"></div>
+          <div class="skeleton skel-row" style="width:90%"></div>
+          <div class="skeleton skel-row" style="width:55%"></div>
+          <div class="skeleton skel-row" style="width:75%"></div>
+          <div style="display:flex;align-items:center;gap:8px;justify-content:center;margin-top:12px;color:var(--m-ink-3);font-size:12.5px"><svg width="14" height="14" style="animation:spin 1s linear infinite"><use href="#i-loader"/></svg>Đang tải kết quả…</div>
+        </div>
+      </div>
+    </div>
+    <!-- Error -->
+    <div class="state-card">
+      <div class="head error">Error</div>
+      <div class="body">
+        <div class="mock" style="background:transparent">
+          <div class="state-msg" style="padding:0">
+            <div class="ico-wrap" style="background:var(--m-danger-soft);color:var(--m-danger);border-color:#FECACA"><svg width="22" height="22"><use href="#i-alert"/></svg></div>
+            <h4>Không tải được kết quả</h4>
+            <p>Có lỗi từ máy chủ. Mã lỗi: <code>R-503</code>. Hãy thử lại sau ít phút.</p>
+            <button class="btn btn-sm">Thử lại</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Saved Leads — 3 states</h3>
+  <div class="state-grid">
+    <div class="state-card">
+      <div class="head empty">Empty</div>
+      <div class="body">
+        <div class="mock" style="background:transparent">
+          <div class="state-msg" style="padding:0">
+            <div class="ico-wrap"><svg width="22" height="22"><use href="#i-bookmark"/></svg></div>
+            <h4>Chưa lưu lead nào</h4>
+            <p>Sau khi scan, tick vào lead tốt và bấm "Lưu lead" để chăm sóc sau.</p>
+            <button class="btn btn-primary btn-sm"><svg class="ic"><use href="#i-mail-search"/></svg>Bắt đầu Domain Scan</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="state-card">
+      <div class="head loading">Filter rỗng</div>
+      <div class="body">
+        <div class="mock" style="background:transparent">
+          <div class="state-msg" style="padding:0">
+            <div class="ico-wrap"><svg width="22" height="22"><use href="#i-filter"/></svg></div>
+            <h4>Không có lead nào khớp filter</h4>
+            <p>Status: <b>Interested</b> · Tag: <b>SaaS</b> · Bạn có thể thử bớt filter.</p>
+            <button class="btn btn-sm">Xoá filter</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="state-card">
+      <div class="head error">Sync error</div>
+      <div class="body">
+        <div class="mock" style="background:transparent">
+          <div class="state-msg" style="padding:0">
+            <div class="ico-wrap" style="background:var(--m-warning-soft);color:var(--m-warning);border-color:#FDE68A"><svg width="22" height="22"><use href="#i-alert"/></svg></div>
+            <h4>Mạng đang chập chờn</h4>
+            <p>Một số thay đổi chưa lưu được. Sẽ tự thử lại khi có mạng.</p>
+            <button class="btn btn-sm">Thử lại ngay</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Domain Scan — 3 states</h3>
+  <div class="state-grid">
+    <div class="state-card">
+      <div class="head empty">Chưa có domain</div>
+      <div class="body">
+        <div class="mock" style="background:transparent">
+          <div class="state-msg" style="padding:0">
+            <div class="ico-wrap"><svg width="22" height="22"><use href="#i-mail-search"/></svg></div>
+            <h4>Bắt đầu bằng cách dán domain</h4>
+            <p>Hoặc upload file CSV có cột domain, hoặc thêm từ Keyword Discovery.</p>
+            <button class="btn btn-sm"><svg class="ic"><use href="#i-upload"/></svg>Upload CSV</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="state-card">
+      <div class="head loading">Scanning</div>
+      <div class="body">
+        <div class="mock" style="background:transparent;width:100%">
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--m-ink-2);margin-bottom:6px"><span>17 / 28 domain</span><span class="mono">61%</span></div>
+          <div class="progress" style="height:8px"><i style="width:61%"></i></div>
+          <div style="margin-top:14px;display:flex;gap:6px;align-items:center;justify-content:center;color:var(--m-ink-3);font-size:12.5px"><svg width="14" height="14" style="animation:spin 1s linear infinite"><use href="#i-loader"/></svg>Đang quét vietland.com.vn…</div>
+        </div>
+      </div>
+    </div>
+    <div class="state-card">
+      <div class="head error">Quota hết</div>
+      <div class="body">
+        <div class="mock" style="background:transparent">
+          <div class="state-msg" style="padding:0">
+            <div class="ico-wrap" style="background:var(--m-danger-soft);color:var(--m-danger);border-color:#FECACA"><svg width="22" height="22"><use href="#i-x"/></svg></div>
+            <h4>Hunter.io đã hết quota tháng</h4>
+            <p>Reset 01 / 06. Bạn có thể nâng plan Hunter hoặc đợi chu kỳ mới.</p>
+            <button class="btn btn-sm">Mở Hunter</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Settings · API Keys — 3 states</h3>
+  <div class="state-grid">
+    <div class="state-card">
+      <div class="head empty">Chưa cấu hình</div>
+      <div class="body">
+        <div class="mock" style="background:transparent">
+          <div class="state-msg" style="padding:0">
+            <div class="ico-wrap"><svg width="22" height="22"><use href="#i-key"/></svg></div>
+            <h4>Chưa có API key nào</h4>
+            <p>Bạn cần Hunter.io để scan email. SerpAPI là tuỳ chọn cho Keyword Discovery.</p>
+            <button class="btn btn-primary btn-sm"><svg class="ic"><use href="#i-plus"/></svg>Thêm Hunter.io key</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="state-card">
+      <div class="head loading">Đang test</div>
+      <div class="body">
+        <div class="mock" style="background:transparent">
+          <div class="state-msg" style="padding:0">
+            <div class="ico-wrap" style="background:var(--m-primary-soft);color:var(--m-primary);border-color:#BFDBFE"><svg width="22" height="22" style="animation:spin 1s linear infinite"><use href="#i-loader"/></svg></div>
+            <h4>Đang kiểm tra kết nối…</h4>
+            <p>Mất ~2 giây. Đang gọi 1 request rỗng tới Hunter.io / account.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="state-card">
+      <div class="head error">Key sai</div>
+      <div class="body">
+        <div class="mock" style="background:transparent">
+          <div class="state-msg" style="padding:0">
+            <div class="ico-wrap" style="background:var(--m-danger-soft);color:var(--m-danger);border-color:#FECACA"><svg width="22" height="22"><use href="#i-x"/></svg></div>
+            <h4>API key không hợp lệ</h4>
+            <p>Hunter.io trả về <code>401 Unauthorized</code>. Kiểm tra lại key tại hunter.io / api-keys.</p>
+            <button class="btn btn-sm">Mở Hunter.io</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+
+  <h3>Quy tắc chung</h3>
+  <div class="annot-list">
+    <div class="pin">1</div><div class="body"><b>Empty state ≠ rỗng</b>. Luôn có icon · headline 1 dòng · mô tả 1–2 dòng · 1 hoặc 2 CTA cụ thể. Không viết "No data available" — dùng văn bản hành động ("Bắt đầu bằng…", "Hãy thử…").</div>
+    <div class="pin">2</div><div class="body"><b>Loading state</b>. (a) Skeleton cho list/table (giữ layout). (b) Spinner inline cho action ngắn (test API, save). (c) Progress bar cho action dài có % rõ (scan). Không bao giờ là spinner toàn màn hình ≥ 1 giây.</div>
+    <div class="pin">3</div><div class="body"><b>Error state</b>. Luôn có (a) icon + headline thân thiện (không "Error occurred"), (b) mã lỗi nhỏ phía dưới cho support, (c) action retry. Không bao giờ là alert đỏ thuần không cách giải quyết.</div>
+    <div class="pin">4</div><div class="body"><b>Filter empty ≠ data empty</b>. Khi user filter ra rỗng, gợi ý cụ thể (xoá filter này) thay vì empty state chung của page.</div>
+  </div>
+</section>

@@ -1,0 +1,94 @@
+<section class="doc-section" id="login">
+  <div class="sec-eyebrow">07.1 · Public</div>
+  <h2>Đăng nhập</h2>
+  <p class="sec-lede">
+    Login là cửa vào duy nhất. Layout chia đôi: trái có illustration / preview dashboard,
+    phải là form đăng nhập. Không cho phép self-signup ở giai đoạn này — tài khoản được
+    cấp bởi admin (có thể tự phục vụ trong tương lai).
+  </p>
+
+  <div class="frame">
+    <div class="frame__bar">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <div class="url"><svg width="10" height="10"><use href="#i-lock"/></svg> app.tooldatamail.com / login</div>
+      <div class="tag">Login · 1280 × 760</div>
+    </div>
+    <div class="frame__body">
+      <div class="mock">
+        <div class="m-login">
+          <!-- LEFT: brand + preview -->
+          <div class="panel-left">
+            <div class="brand-row">
+              <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#2563EB,#1D4ED8);color:#fff;display:grid;place-items:center;font-weight:700;letter-spacing:-0.02em;box-shadow:0 2px 6px rgba(37,99,235,.35)">TM</div>
+              <b style="font-size:15px">Tool Data Mail</b>
+              <span style="margin-left:8px;padding:2px 8px;border-radius:999px;font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;background:#EFF6FF;color:#1E40AF;border:1px solid #BFDBFE;font-weight:600">Web</span>
+            </div>
+            <div>
+              <h2>Tìm email doanh nghiệp nhanh hơn, có tổ chức hơn.</h2>
+              <p>Từ keyword hoặc domain, tìm — lọc — lưu — xuất file CSV trong cùng một workspace. Không cần cài app.</p>
+            </div>
+            <div class="preview-card">
+              <div style="margin-top:30px;font-size:11.5px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--m-ink-3);margin-bottom:12px">Workspace preview · Saved leads</div>
+              <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--m-surface-2);border-radius:8px;margin-bottom:8px">
+                <div style="width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#10B981,#059669);color:#fff;display:grid;place-items:center;font-weight:600;font-size:11px">VS</div>
+                <div style="flex:1"><div style="font-size:12.5px;font-weight:600">trang.nguyen<span class="at">&#64;</span>vietsoftware.com.vn</div><div style="font-size:11px;color:var(--m-ink-3)">VietSoftware JSC · Marketing Manager</div></div>
+                <span class="conf is-high" style="margin-left:auto"><span class="bar"><i></i></span><span class="pct">95%</span></span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--m-surface-2);border-radius:8px;margin-bottom:8px">
+                <div style="width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#7C3AED,#6D28D9);color:#fff;display:grid;place-items:center;font-weight:600;font-size:11px">RG</div>
+                <div style="flex:1"><div style="font-size:12.5px;font-weight:600">contact<span class="at">&#64;</span>realgroup.vn</div><div style="font-size:11px;color:var(--m-ink-3)">Real Group Marketing · —</div></div>
+                <span class="conf is-mid" style="margin-left:auto"><span class="bar"><i></i></span><span class="pct">68%</span></span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--m-surface-2);border-radius:8px;margin-bottom:8px">
+                <div style="width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#F59E0B,#D97706);color:#fff;display:grid;place-items:center;font-weight:600;font-size:11px">GH</div>
+                <div style="flex:1"><div style="font-size:12.5px;font-weight:600">hr<span class="at">&#64;</span>greenhouse.vn</div><div style="font-size:11px;color:var(--m-ink-3)">Green House Co., Ltd · HR Director</div></div>
+                <span class="conf is-high" style="margin-left:auto"><span class="bar"><i></i></span><span class="pct">88%</span></span>
+              </div>
+              <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--m-rule);display:flex;justify-content:space-between;font-size:11.5px;color:var(--m-ink-3)">
+                <span>348 lead đã lưu</span><span>Export CSV · JSON</span>
+              </div>
+            </div>
+            <div style="font-size:11.5px;color:var(--m-ink-4)">© 2026 Tool Data Mail · v2.4</div>
+          </div>
+
+          <!-- RIGHT: form -->
+          <div class="panel-right">
+            <div class="login-card">
+              <h3>Đăng nhập</h3>
+              <p class="sub">Chào mừng quay lại. Nhập email & mật khẩu để vào workspace.</p>
+
+              <div class="field"><label>Email</label><input class="input" value="trang.nguyen<span class="at">&#64;</span>vietsoftware.com.vn"/></div>
+              <div class="field">
+                <div style="display:flex;justify-content:space-between;align-items:baseline"><label>Mật khẩu</label><a href="#" style="font-size:12px;color:var(--m-primary);text-decoration:none">Quên mật khẩu?</a></div>
+                <div class="input-group"><input class="input" type="password" value="••••••••••"/><span class="suffix" style="cursor:pointer"><svg width="14" height="14"><use href="#i-eye"/></svg></span></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;margin:8px 0 16px"><span class="checkbox is-checked"></span><span style="font-size:13px;color:var(--m-ink-2)">Ghi nhớ thiết bị này 30 ngày</span></div>
+              <button class="btn btn-primary btn-block btn-lg">Đăng nhập</button>
+
+              <div class="hr"><span>hoặc</span></div>
+              <button class="btn btn-block" style="background:#fff"><svg width="16" height="16" viewBox="0 0 48 48" style="margin-right:6px"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3a12 12 0 1 1-3.5-13.1l5.7-5.7A20 20 0 1 0 44 24a20 20 0 0 0-.4-3.9z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8A12 12 0 0 1 24 12c3 0 5.7 1.1 7.8 3l5.6-5.7A20 20 0 0 0 6.3 14.7z"/><path fill="#4CAF50" d="M24 44a20 20 0 0 0 13.5-5.2l-6.2-5.3A12 12 0 0 1 12.7 28l-6.5 5A20 20 0 0 0 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3a12 12 0 0 1-4.1 5.5l6.2 5.3C36.9 39.7 44 34 44 24c0-1.3-.1-2.6-.4-3.9z"/></svg>Tiếp tục với Google</button>
+
+              <div class="footnote">Dành cho khách hàng đã được cấp tài khoản. Chưa có?<br><a href="#" style="color:var(--m-primary);text-decoration:none">Liên hệ admin để được tạo tài khoản →</a></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="frame__caption"><b>SCREEN 1/11</b> Login · Public · Path: <code>/login</code></div>
+
+  <div class="annot-list">
+    <div class="pin">1</div><div class="body"><b>Trái — preview dashboard</b>. Mục đích: tạo cảm giác sản phẩm "có thật", show ngay điều khách sẽ thấy sau khi đăng nhập. Lead card có confidence badge để gợi giá trị cốt lõi. Trên mobile sẽ ẩn panel này.</div>
+    <div class="pin">2</div><div class="body"><b>Form đăng nhập gọn</b> — Email + password + remember. Không có Sign up vì account do admin cấp. Có Google OAuth dự phòng (có thể tắt bằng feature flag).</div>
+    <div class="pin">3</div><div class="body"><b>Quên mật khẩu</b> → trang <code>/forgot</code> (nhập email → check inbox → /reset/:token). Reuse layout login.</div>
+    <div class="pin">4</div><div class="body"><b>Footnote "Liên hệ admin"</b> — đường mailto hoặc form trợ giúp, vì chưa làm self-serve signup.</div>
+    <div class="pin">5</div><div class="body"><b>Error states</b>. (a) Sai mật khẩu → input password đỏ + alert đỏ trên đầu form "Email hoặc mật khẩu chưa đúng." (b) Tài khoản bị khoá → alert vàng "Tài khoản tạm khoá. Liên hệ admin." (c) Quá nhiều lần thử → captcha sau lần 5.</div>
+  </div>
+
+  <h3>Phụ thuộc</h3>
+  <ul>
+    <li>Forgot password page (<code>/forgot</code>) và Reset password (<code>/reset/:token</code>) — dùng cùng layout split này; phía phải chỉ đổi nội dung form.</li>
+    <li>Sau khi login thành công, redirect <code>/dashboard</code>. Nếu user có deep-link query <code>?return=/results/42</code> thì honor.</li>
+    <li>Refresh token tự gia hạn trong 30 ngày nếu user tick "Ghi nhớ thiết bị".</li>
+  </ul>
+</section>

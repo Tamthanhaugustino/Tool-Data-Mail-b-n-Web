@@ -1,0 +1,291 @@
+<section class="doc-section" id="domain-scan">
+  <div class="sec-eyebrow">07.5 · Find</div>
+  <h2>Domain Scan</h2>
+  <p class="sec-lede">
+    Flow nhiều bước rõ ràng: <b>Input → Preview → Scanning → Results</b>. Bước Preview là
+    <i>checkpoint bảo vệ quota</i> bắt buộc — user không thể "lỡ tay" bấm scan tốn nhiều request Hunter.io.
+  </p>
+
+  <!-- ===== STEP 1: Input ===== -->
+  <h3>Bước 1 / 4 · Input</h3>
+  <div class="frame">
+    <div class="frame__bar">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <div class="url"><svg width="10" height="10"><use href="#i-lock"/></svg> app.tooldatamail.com / scan</div>
+      <div class="tag">Domain Scan · Step 1 · 1280 × 760</div>
+    </div>
+    <div class="frame__body">
+      <div class="mock">
+        <div class="mock-app">
+          <aside class="m-side">
+            <div class="brand"><div class="brand-mark">TM</div><div class="brand-text">Tool Data Mail<small>Web</small></div></div>
+            <h6>Workspace</h6>
+            <div class="m-nav"><svg class="ic"><use href="#i-home"/></svg>Dashboard</div>
+            <div class="m-nav"><svg class="ic"><use href="#i-target"/></svg>Keyword Discovery</div>
+            <div class="m-nav is-active"><svg class="ic"><use href="#i-mail-search"/></svg>Domain Scan</div>
+            <div class="m-nav"><svg class="ic"><use href="#i-table"/></svg>Results<span class="badge">12</span></div>
+            <div class="m-nav"><svg class="ic"><use href="#i-bookmark"/></svg>Saved Leads<span class="badge">348</span></div>
+            <div class="m-nav"><svg class="ic"><use href="#i-history"/></svg>Scan History</div>
+            <h6>Account</h6>
+            <div class="m-nav"><svg class="ic"><use href="#i-settings"/></svg>Settings</div>
+            <div class="m-nav"><svg class="ic"><use href="#i-credit-card"/></svg>Subscription</div>
+            <div class="m-nav"><svg class="ic"><use href="#i-help"/></svg>Help</div>
+            <div class="quota-card"><div class="lbl"><span>Hunter.io</span><span class="mono">320 / 500</span></div><div class="num">Còn 180 request</div><div class="bar"><i style="width:64%"></i></div></div>
+          </aside>
+          <div>
+            <div class="m-top">
+              <div class="crumbs"><b>Domain Scan</b></div>
+              <div class="search"><svg width="14" height="14"><use href="#i-search"/></svg>Tìm email, domain, công ty…</div>
+              <div class="right"><span class="plan-pill">PRO</span><span class="api-status"><span class="dot"></span>API OK</span><button class="icon-btn"><svg width="18" height="18"><use href="#i-bell"/></svg></button><div class="avatar">TN</div></div>
+            </div>
+
+            <div class="m-main">
+              <div class="page-head">
+                <div><h1 class="page-title">Domain Scan</h1><p class="page-sub">Nhập danh sách domain để tìm email liên hệ. Hunter.io sẽ quét từng domain.</p></div>
+              </div>
+
+              <div class="stepper">
+                <div class="step is-active"><div class="n">1</div>Input</div>
+                <span class="arr"><svg width="14" height="14"><use href="#i-chev-right"/></svg></span>
+                <div class="step"><div class="n">2</div>Preview</div>
+                <span class="arr"><svg width="14" height="14"><use href="#i-chev-right"/></svg></span>
+                <div class="step"><div class="n">3</div>Scanning</div>
+                <span class="arr"><svg width="14" height="14"><use href="#i-chev-right"/></svg></span>
+                <div class="step"><div class="n">4</div>Results</div>
+              </div>
+
+              <div class="g-2" style="grid-template-columns:1.45fr 1fr;gap:20px;align-items:start">
+                <div class="card">
+                  <div class="card-head"><h3>Danh sách domain</h3><span style="font-size:12.5px;color:var(--m-ink-3)"><b>4 domain</b> · tối đa 500</span></div>
+                  <div class="card-body">
+                    <div class="field">
+                      <label>Mỗi dòng một domain</label>
+                      <textarea class="textarea" style="font-family:Geist Mono,monospace;font-size:13px;min-height:170px;line-height:1.6">vietsoftware.com.vn
+realgroup.vn
+fpt.com.vn
+greenhouse.vn</textarea>
+                      <div style="display:flex;justify-content:space-between;margin-top:6px">
+                        <span class="hint">Dán URL đầy đủ cũng được — sẽ tự lấy domain.</span>
+                        <span style="font-size:11.5px;color:var(--m-ink-3);font-family:Geist Mono,monospace">4 / 500</span>
+                      </div>
+                    </div>
+                    <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap">
+                      <button class="btn btn-sm"><svg class="ic"><use href="#i-upload"/></svg>Upload CSV</button>
+                      <button class="btn btn-sm">+ Dán từ clipboard</button>
+                      <button class="btn btn-sm">Xoá tất cả</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card">
+                  <div class="card-head"><h3>Tuỳ chọn scan</h3></div>
+                  <div class="card-body">
+                    <div class="field">
+                      <label>Email limit / domain</label>
+                      <div style="display:flex;gap:8px">
+                        <span class="badge badge--neutral" style="padding:6px 14px;cursor:pointer">10</span>
+                        <span class="badge badge--info" style="padding:6px 14px;cursor:pointer;background:var(--m-primary-soft);color:#1E40AF;border-color:#BFDBFE">50</span>
+                        <span class="badge badge--neutral" style="padding:6px 14px;cursor:pointer">100</span>
+                        <span class="badge badge--neutral" style="padding:6px 14px;cursor:pointer">500</span>
+                      </div>
+                      <span class="hint">Limit cao ⇒ Hunter.io có thể tính nhiều request hơn cho domain nhiều email.</span>
+                    </div>
+                    <div style="padding-top:14px;border-top:1px solid var(--m-rule);display:flex;flex-direction:column;gap:10px">
+                      <div class="row"><span class="switch on"></span><span style="font-size:13px;color:var(--m-ink-2)">Chỉ giữ email đã <b>verified</b></span></div>
+                      <div class="row"><span class="switch"></span><span style="font-size:13px;color:var(--m-ink-2)">Bỏ qua catch-all email</span></div>
+                      <div class="row"><span class="switch"></span><span style="font-size:13px;color:var(--m-ink-2)">Bỏ qua email webmail (gmail, yahoo…)</span></div>
+                      <div class="row"><span class="switch on"></span><span style="font-size:13px;color:var(--m-ink-2)">Auto-save scan vào History</span></div>
+                    </div>
+                  </div>
+                  <div class="card-foot">
+                    <span style="font-size:12.5px;color:var(--m-ink-3)">Ước tính ~4–16 Hunter request</span>
+                    <button class="btn btn-primary"><svg class="ic"><use href="#i-arrow-right"/></svg>Preview trước khi scan</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="frame__caption"><b>STEP 1/4</b> Input · Path: <code>/scan</code></div>
+
+  <div class="annot-list">
+    <div class="pin">1</div><div class="body"><b>Stepper 4 bước</b> luôn hiện. User thấy mình ở đâu, sắp đi đâu. Step Results chỉ active sau khi scan xong.</div>
+    <div class="pin">2</div><div class="body"><b>Textarea mono</b> — dễ paste & count dòng. Hiển thị <code>4 / 500</code> ngay. URL đầy đủ (https://…/path) cũng được — server normalize.</div>
+    <div class="pin">3</div><div class="body"><b>Upload CSV</b> — accept .csv với column đầu là domain. Show modal preview cột để map nếu cần.</div>
+    <div class="pin">4</div><div class="body"><b>Limit như chip toggle</b> thay vì select — 4 mức quen thuộc, click 1 phát. Brief specify chính xác 10 / 50 / 100 / 500.</div>
+    <div class="pin">5</div><div class="body"><b>Switch options</b> — giữ verified (default ON, an toàn cho cold email), bỏ catch-all, bỏ webmail, auto-save vào History.</div>
+    <div class="pin">6</div><div class="body"><b>Button "Preview trước khi scan"</b>, không phải "Scan ngay" — ngôn từ nhấn rule UX #3.</div>
+  </div>
+
+  <!-- ===== STEP 2: Preview ===== -->
+  <h3 style="margin-top:36px">Bước 2 / 4 · Preview</h3>
+  <div class="frame">
+    <div class="frame__bar">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <div class="url"><svg width="10" height="10"><use href="#i-lock"/></svg> app.tooldatamail.com / scan / preview</div>
+      <div class="tag">Domain Scan · Step 2 · 1280 × 720</div>
+    </div>
+    <div class="frame__body">
+      <div class="mock">
+        <div class="mock-app">
+          <aside class="m-side" style="visibility:hidden"></aside>
+          <div>
+            <div class="m-top" style="visibility:hidden"></div>
+            <div class="m-main">
+              <div class="stepper">
+                <div class="step is-done"><div class="n">✓</div>Input</div>
+                <span class="arr"><svg width="14" height="14"><use href="#i-chev-right"/></svg></span>
+                <div class="step is-active"><div class="n">2</div>Preview</div>
+                <span class="arr"><svg width="14" height="14"><use href="#i-chev-right"/></svg></span>
+                <div class="step"><div class="n">3</div>Scanning</div>
+                <span class="arr"><svg width="14" height="14"><use href="#i-chev-right"/></svg></span>
+                <div class="step"><div class="n">4</div>Results</div>
+              </div>
+
+              <div class="page-head"><div><h1 class="page-title" style="font-size:20px">Kiểm tra trước khi scan</h1><p class="page-sub" style="margin-bottom:12px">Chúng tôi đã validate danh sách. Hãy xem kỹ trước khi tốn request Hunter.io.</p></div></div>
+
+              <div class="preview-stats">
+                <div class="ps ok"><div class="lbl">Domain hợp lệ</div><div class="val">28</div></div>
+                <div class="ps"><div class="lbl">Trùng lặp</div><div class="val">3</div></div>
+                <div class="ps bad"><div class="lbl">Không hợp lệ</div><div class="val">2</div></div>
+                <div class="ps warn"><div class="lbl">Ước tính Hunter request</div><div class="val">~120</div></div>
+              </div>
+
+              <div class="alert alert--warn" style="margin-bottom:12px">
+                <svg class="ic"><use href="#i-alert"/></svg>
+                <div class="body"><strong>Giới hạn email / domain bạn đang chọn: 100.</strong><p>Hunter.io có thể tính nhiều request hơn cho domain nhiều email. Ước tính: <b>120 request</b> · còn lại sau scan: <b>60 / 500</b>. Bạn có thể giảm xuống 50 để tiết kiệm quota.</p></div>
+                <div class="actions"><button class="btn btn-sm">Giảm limit xuống 50</button></div>
+              </div>
+
+              <div class="card">
+                <div class="card-head"><h3>Danh sách domain</h3><span style="font-size:12.5px;color:var(--m-ink-3)">28 hợp lệ · 3 trùng · 2 lỗi</span></div>
+                <table class="table">
+                  <thead>
+                    <tr><th>#</th><th>Domain</th><th>Trạng thái validate</th><th>Email gần nhất quét được</th><th></th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td class="num">01</td><td class="email">vietsoftware.com.vn</td><td><span class="badge badge--ok"><span class="d"></span>Hợp lệ</span></td><td class="muted">—</td><td class="actions"><button class="btn btn-sm btn-ghost"><svg class="ic"><use href="#i-trash"/></svg></button></td></tr>
+                    <tr><td class="num">02</td><td class="email">realgroup.vn</td><td><span class="badge badge--ok"><span class="d"></span>Hợp lệ</span></td><td class="muted">—</td><td class="actions"><button class="btn btn-sm btn-ghost"><svg class="ic"><use href="#i-trash"/></svg></button></td></tr>
+                    <tr><td class="num">03</td><td class="email">fpt.com.vn</td><td><span class="badge badge--warn"><span class="d"></span>Đã quét 12 / 05</span></td><td>info<span class="at">&#64;</span>fpt.com.vn, ceo<span class="at">&#64;</span>fpt.com.vn …<span class="muted"> +12 email</span></td><td class="actions"><button class="btn btn-sm btn-ghost"><svg class="ic"><use href="#i-trash"/></svg></button></td></tr>
+                    <tr><td class="num">04</td><td class="email">greenhouse.vn</td><td><span class="badge badge--ok"><span class="d"></span>Hợp lệ</span></td><td class="muted">—</td><td class="actions"><button class="btn btn-sm btn-ghost"><svg class="ic"><use href="#i-trash"/></svg></button></td></tr>
+                    <tr><td class="num">05</td><td class="email muted">realgroup.vn</td><td><span class="badge badge--neutral">Trùng dòng 02</span></td><td class="muted">—</td><td class="actions"><button class="btn btn-sm btn-ghost"><svg class="ic"><use href="#i-trash"/></svg></button></td></tr>
+                    <tr><td class="num">06</td><td class="email" style="color:var(--m-danger)">acmecorp,com</td><td><span class="badge badge--bad"><span class="d"></span>Sai format · có dấu phẩy</span></td><td class="muted">—</td><td class="actions"><button class="btn btn-sm btn-ghost"><svg class="ic"><use href="#i-edit"/></svg></button></td></tr>
+                    <tr><td class="num">07</td><td class="email" style="color:var(--m-danger)">localhost</td><td><span class="badge badge--bad"><span class="d"></span>Không phải domain hợp lệ</span></td><td class="muted">—</td><td class="actions"><button class="btn btn-sm btn-ghost"><svg class="ic"><use href="#i-trash"/></svg></button></td></tr>
+                  </tbody>
+                </table>
+                <div class="card-foot">
+                  <div><span class="checkbox is-checked" style="margin-right:8px;vertical-align:-3px"></span><span style="font-size:13px">Loại bỏ tự động trùng lặp & domain lỗi</span></div>
+                  <div style="display:flex;gap:8px"><button class="btn">← Quay lại Input</button><button class="btn btn-primary"><svg class="ic"><use href="#i-zap"/></svg>Bắt đầu scan 28 domain</button></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="frame__caption"><b>STEP 2/4</b> Preview · Validation · Quota warning.</div>
+
+  <div class="annot-list">
+    <div class="pin">1</div><div class="body"><b>4 ô stats trên cùng</b> — hợp lệ (xanh) · trùng (neutral) · lỗi (đỏ) · ước tính request (cam, vì cần chú ý).</div>
+    <div class="pin">2</div><div class="body"><b>Warning quota</b> chỉ xuất hiện khi limit cao (50+) hoặc khi số request &gt; 30% quota còn lại. Có CTA "Giảm limit xuống 50" để one-click.</div>
+    <div class="pin">3</div><div class="body"><b>Table chi tiết</b> — show từng dòng với trạng thái validate, kể cả những dòng sẽ bị bỏ. User thấy chính xác app đang loại gì.</div>
+    <div class="pin">4</div><div class="body"><b>Cột "Email gần nhất quét được"</b> — nếu domain đã quét trước đây, show 2-3 email + count. User có thể skip hoặc scan lại để cập nhật.</div>
+    <div class="pin">5</div><div class="body"><b>2 CTA cuối</b> — "Quay lại Input" (secondary) và "Bắt đầu scan 28 domain" (primary, có số đếm). Số đếm thay đổi realtime nếu user xoá dòng.</div>
+  </div>
+
+  <!-- ===== STEP 3: Scanning ===== -->
+  <h3 style="margin-top:36px">Bước 3 / 4 · Scanning</h3>
+  <div class="frame">
+    <div class="frame__bar">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <div class="url"><svg width="10" height="10"><use href="#i-lock"/></svg> app.tooldatamail.com / scan / running / r-2026-05-18-042</div>
+      <div class="tag">Domain Scan · Step 3 · 1280 × 640</div>
+    </div>
+    <div class="frame__body">
+      <div class="mock">
+        <div class="mock-app">
+          <aside class="m-side" style="visibility:hidden"></aside>
+          <div>
+            <div class="m-top" style="visibility:hidden"></div>
+            <div class="m-main">
+              <div class="stepper">
+                <div class="step is-done"><div class="n">✓</div>Input</div>
+                <span class="arr"><svg width="14" height="14"><use href="#i-chev-right"/></svg></span>
+                <div class="step is-done"><div class="n">✓</div>Preview</div>
+                <span class="arr"><svg width="14" height="14"><use href="#i-chev-right"/></svg></span>
+                <div class="step is-active"><div class="n">3</div>Scanning</div>
+                <span class="arr"><svg width="14" height="14"><use href="#i-chev-right"/></svg></span>
+                <div class="step"><div class="n">4</div>Results</div>
+              </div>
+
+              <div class="card">
+                <div class="card-head">
+                  <div><h3>Đang scan 28 domain…</h3><div class="sub">Run ID: <code>r-2026-05-18-042</code> · bắt đầu 09:34:22</div></div>
+                  <button class="btn btn-sm btn-danger"><svg class="ic"><use href="#i-x"/></svg>Hủy scan</button>
+                </div>
+                <div class="card-body">
+                  <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:18px">
+                    <div style="padding:12px;background:var(--m-surface-2);border-radius:8px"><div style="font-size:11.5px;color:var(--m-ink-3);text-transform:uppercase;letter-spacing:0.08em">Đã xong</div><div style="font-size:22px;font-weight:600;margin-top:4px;color:var(--m-primary)">17 <span style="font-size:13px;color:var(--m-ink-3)">/ 28</span></div></div>
+                    <div style="padding:12px;background:var(--m-surface-2);border-radius:8px"><div style="font-size:11.5px;color:var(--m-ink-3);text-transform:uppercase;letter-spacing:0.08em">Email tìm được</div><div style="font-size:22px;font-weight:600;margin-top:4px;color:var(--m-success)">72</div></div>
+                    <div style="padding:12px;background:var(--m-surface-2);border-radius:8px"><div style="font-size:11.5px;color:var(--m-ink-3);text-transform:uppercase;letter-spacing:0.08em">Lỗi domain</div><div style="font-size:22px;font-weight:600;margin-top:4px;color:var(--m-danger)">2</div></div>
+                    <div style="padding:12px;background:var(--m-surface-2);border-radius:8px"><div style="font-size:11.5px;color:var(--m-ink-3);text-transform:uppercase;letter-spacing:0.08em">Hunter request</div><div style="font-size:22px;font-weight:600;margin-top:4px;color:var(--m-ink)">68</div></div>
+                  </div>
+
+                  <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px"><span style="color:var(--m-ink-2)"><b>17 / 28 domain</b> · còn ~ 22 giây</span><span class="mono" style="color:var(--m-ink-3)">61%</span></div>
+                  <div class="progress" style="height:10px"><i style="width:61%"></i></div>
+
+                  <div class="scan-running" style="grid-template-columns:1fr 360px;padding:18px 0 0 0">
+                    <div class="scan-log">
+                      <div><span class="ts">09:34:22</span><span class="info">→</span> Bắt đầu scan 28 domain · limit 100 / domain</div>
+                      <div><span class="ts">09:34:23</span><span class="ok">✓</span> vietsoftware.com.vn · <b style="color:#fff">12 email</b> · 142 ms</div>
+                      <div><span class="ts">09:34:24</span><span class="ok">✓</span> realgroup.vn · <b style="color:#fff">5 email</b> · 98 ms</div>
+                      <div><span class="ts">09:34:25</span><span class="warn">!</span> primeland.com.vn · không tìm thấy MX record</div>
+                      <div><span class="ts">09:34:27</span><span class="ok">✓</span> greenhouse.vn · <b style="color:#fff">8 email</b> · 211 ms</div>
+                      <div><span class="ts">09:34:28</span><span class="ok">✓</span> houseconnect.vn · <b style="color:#fff">3 email</b> · 184 ms</div>
+                      <div><span class="ts">09:34:30</span><span class="ok">✓</span> metroview.com.vn · <b style="color:#fff">11 email</b> · 167 ms</div>
+                      <div><span class="ts">09:34:31</span><span class="ok">✓</span> saigoncapital-re.vn · <b style="color:#fff">7 email</b> · 122 ms</div>
+                      <div><span class="ts">09:34:33</span><span class="info">→</span> Đang quét vietland.com.vn …</div>
+                    </div>
+                    <div>
+                      <div class="alert" style="margin:0">
+                        <svg class="ic"><use href="#i-info"/></svg>
+                        <div class="body">
+                          <strong>Bạn có thể đóng tab.</strong>
+                          <p>Scan sẽ chạy phía server. Sau khi xong, bạn nhận notification trong app + email (nếu bật).</p>
+                        </div>
+                      </div>
+                      <div style="margin-top:12px;padding:14px;background:#fff;border:1px solid var(--m-rule);border-radius:10px">
+                        <div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--m-ink-3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px"><span>Hunter quota</span><span class="mono">388 / 500</span></div>
+                        <div class="progress"><i style="width:77.6%"></i></div>
+                        <div style="font-size:12px;color:var(--m-ink-3);margin-top:6px">↑ từ 320 trước khi scan</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="frame__caption"><b>STEP 3/4</b> Scanning · realtime progress.</div>
+
+  <div class="annot-list">
+    <div class="pin">1</div><div class="body"><b>4 stat realtime</b> — done/total, email found, errors, Hunter request used. Quan trọng nhất: progress bar lớn ở giữa.</div>
+    <div class="pin">2</div><div class="body"><b>Live log đen</b> — như terminal, font mono. Show timestamp + status icon + domain + result. Limit 50 dòng cuối để không lag.</div>
+    <div class="pin">3</div><div class="body"><b>Quota panel update</b> — Hunter quota dùng đang tăng realtime, giúp user thấy "tiền" đang chạy ra.</div>
+    <div class="pin">4</div><div class="body"><b>"Bạn có thể đóng tab"</b> — scan chạy server-side. User vẫn nhận kết quả qua notification + email.</div>
+    <div class="pin">5</div><div class="body"><b>Cancel</b> — confirm modal "Hủy sẽ giữ lại 17 domain đã quét xong. Bạn có thể xem ở Results."</div>
+  </div>
+
+  <p style="font-size:13.5px;color:var(--m-ink-2);margin-top:14px">
+    <b>Step 4 (Results)</b> là chính trang § <a href="#results">3.6 Results Table</a> với <code>?runId=r-2026-05-18-042</code>.
+    Khi scan xong, app redirect tự động + show toast "Scan xong: 72 email từ 26 / 28 domain. <a>Xem kết quả →</a>".
+    Nếu user đã đóng tab, click vào notification quay lại trang results.
+  </p>
+</section>

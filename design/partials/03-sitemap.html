@@ -1,0 +1,166 @@
+<section class="doc-section" id="sitemap">
+  <div class="sec-eyebrow">03 · Kiến trúc thông tin</div>
+  <h2>Sitemap</h2>
+  <p class="sec-lede">
+    Web app gồm <b>3 vùng</b>: public (login/forgot), main app (sau khi đăng nhập), và admin panel
+    riêng cho owner. Sidebar chính có 9 mục cho user thường + 3 mục admin-only.
+  </p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 1080 540" width="100%" style="max-width:1080px" font-family="Geist, sans-serif">
+      <defs>
+        <marker id="arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0 0 L8 4 L0 8 z" fill="#94A3B8"/>
+        </marker>
+        <style>
+          .sm-node { fill: #fff; stroke: #CBD5E1; }
+          .sm-node-primary { fill: #EFF6FF; stroke: #93C5FD; }
+          .sm-node-admin { fill: #F5F3FF; stroke: #C4B5FD; }
+          .sm-line { stroke: #CBD5E1; stroke-width: 1.2; fill: none; }
+          .sm-title { font-size: 13px; font-weight: 600; fill: #0F172A; }
+          .sm-sub { font-size: 11px; fill: #64748B; }
+          .sm-group { font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; fill: #94A3B8; font-weight: 600; }
+        </style>
+      </defs>
+
+      <!-- Public column -->
+      <text x="40" y="32" class="sm-group">Public</text>
+      <g>
+        <rect x="40" y="48" width="170" height="44" rx="8" class="sm-node"/>
+        <text x="56" y="68" class="sm-title">Login</text>
+        <text x="56" y="83" class="sm-sub">/login</text>
+      </g>
+      <g>
+        <rect x="40" y="106" width="170" height="44" rx="8" class="sm-node"/>
+        <text x="56" y="126" class="sm-title">Forgot password</text>
+        <text x="56" y="141" class="sm-sub">/forgot</text>
+      </g>
+      <g>
+        <rect x="40" y="164" width="170" height="44" rx="8" class="sm-node"/>
+        <text x="56" y="184" class="sm-title">Set new password</text>
+        <text x="56" y="199" class="sm-sub">/reset/:token</text>
+      </g>
+
+      <!-- arrow public → app -->
+      <path d="M 215 70 C 250 70 250 140 285 140" class="sm-line" marker-end="url(#arr)"/>
+
+      <!-- Main app column -->
+      <text x="290" y="32" class="sm-group">Main App (after login)</text>
+      <g>
+        <rect x="290" y="48" width="200" height="44" rx="8" class="sm-node-primary"/>
+        <text x="306" y="68" class="sm-title">Dashboard</text>
+        <text x="306" y="83" class="sm-sub">/dashboard</text>
+      </g>
+
+      <!-- center spine -->
+      <line x1="390" y1="92" x2="390" y2="488" class="sm-line"/>
+
+      <g>
+        <rect x="510" y="116" width="200" height="44" rx="8" class="sm-node"/>
+        <text x="526" y="136" class="sm-title">Keyword Discovery</text>
+        <text x="526" y="151" class="sm-sub">/discover</text>
+        <line x1="390" y1="138" x2="510" y2="138" class="sm-line" marker-end="url(#arr)"/>
+      </g>
+      <g>
+        <rect x="510" y="166" width="200" height="44" rx="8" class="sm-node"/>
+        <text x="526" y="186" class="sm-title">Domain Scan</text>
+        <text x="526" y="201" class="sm-sub">/scan</text>
+        <line x1="390" y1="188" x2="510" y2="188" class="sm-line" marker-end="url(#arr)"/>
+      </g>
+      <g>
+        <rect x="510" y="216" width="200" height="44" rx="8" class="sm-node"/>
+        <text x="526" y="236" class="sm-title">Results</text>
+        <text x="526" y="251" class="sm-sub">/results/:runId</text>
+        <line x1="390" y1="238" x2="510" y2="238" class="sm-line" marker-end="url(#arr)"/>
+      </g>
+      <g>
+        <rect x="510" y="266" width="200" height="44" rx="8" class="sm-node-primary"/>
+        <text x="526" y="286" class="sm-title">Saved Leads</text>
+        <text x="526" y="301" class="sm-sub">/leads</text>
+        <line x1="390" y1="288" x2="510" y2="288" class="sm-line" marker-end="url(#arr)"/>
+      </g>
+      <g>
+        <rect x="510" y="316" width="200" height="44" rx="8" class="sm-node"/>
+        <text x="526" y="336" class="sm-title">Scan History</text>
+        <text x="526" y="351" class="sm-sub">/history</text>
+        <line x1="390" y1="338" x2="510" y2="338" class="sm-line" marker-end="url(#arr)"/>
+      </g>
+      <g>
+        <rect x="510" y="366" width="200" height="44" rx="8" class="sm-node"/>
+        <text x="526" y="386" class="sm-title">Settings · API Keys</text>
+        <text x="526" y="401" class="sm-sub">/settings/api</text>
+        <line x1="390" y1="388" x2="510" y2="388" class="sm-line" marker-end="url(#arr)"/>
+      </g>
+      <g>
+        <rect x="510" y="416" width="200" height="44" rx="8" class="sm-node"/>
+        <text x="526" y="436" class="sm-title">Subscription</text>
+        <text x="526" y="451" class="sm-sub">/billing</text>
+        <line x1="390" y1="438" x2="510" y2="438" class="sm-line" marker-end="url(#arr)"/>
+      </g>
+      <g>
+        <rect x="510" y="466" width="200" height="44" rx="8" class="sm-node"/>
+        <text x="526" y="486" class="sm-title">Help</text>
+        <text x="526" y="501" class="sm-sub">/help</text>
+        <line x1="390" y1="488" x2="510" y2="488" class="sm-line" marker-end="url(#arr)"/>
+      </g>
+
+      <!-- Right column: sub-pages / modals -->
+      <text x="740" y="32" class="sm-group">Sub-screens / modals</text>
+      <g>
+        <rect x="740" y="116" width="200" height="34" rx="6" class="sm-node"/>
+        <text x="756" y="137" class="sm-sub">↳ Results preview (inline)</text>
+      </g>
+      <g>
+        <rect x="740" y="166" width="200" height="34" rx="6" class="sm-node"/>
+        <text x="756" y="187" class="sm-sub">↳ Preview · Scanning · Done</text>
+      </g>
+      <g>
+        <rect x="740" y="216" width="200" height="34" rx="6" class="sm-node"/>
+        <text x="756" y="237" class="sm-sub">↳ Filter, Export modal</text>
+      </g>
+      <g>
+        <rect x="740" y="266" width="200" height="34" rx="6" class="sm-node"/>
+        <text x="756" y="287" class="sm-sub">↳ Lead detail drawer</text>
+      </g>
+      <g>
+        <rect x="740" y="316" width="200" height="34" rx="6" class="sm-node"/>
+        <text x="756" y="337" class="sm-sub">↳ Re-download CSV / JSON</text>
+      </g>
+      <g>
+        <rect x="740" y="366" width="200" height="34" rx="6" class="sm-node"/>
+        <text x="756" y="387" class="sm-sub">↳ Hunter / SerpAPI · Test</text>
+      </g>
+      <g>
+        <rect x="740" y="416" width="200" height="34" rx="6" class="sm-node"/>
+        <text x="756" y="437" class="sm-sub">↳ Upgrade · Manual activation</text>
+      </g>
+      <line x1="710" y1="138" x2="740" y2="133" class="sm-line"/>
+      <line x1="710" y1="188" x2="740" y2="183" class="sm-line"/>
+      <line x1="710" y1="238" x2="740" y2="233" class="sm-line"/>
+      <line x1="710" y1="288" x2="740" y2="283" class="sm-line"/>
+      <line x1="710" y1="338" x2="740" y2="333" class="sm-line"/>
+      <line x1="710" y1="388" x2="740" y2="383" class="sm-line"/>
+      <line x1="710" y1="438" x2="740" y2="433" class="sm-line"/>
+
+      <!-- Admin -->
+      <text x="970" y="32" class="sm-group">Admin only</text>
+      <g>
+        <rect x="970" y="48" width="90" height="34" rx="6" class="sm-node-admin"/>
+        <text x="986" y="69" class="sm-sub">Users</text>
+      </g>
+      <g>
+        <rect x="970" y="92" width="90" height="34" rx="6" class="sm-node-admin"/>
+        <text x="986" y="113" class="sm-sub">Usage</text>
+      </g>
+      <g>
+        <rect x="970" y="136" width="90" height="34" rx="6" class="sm-node-admin"/>
+        <text x="986" y="157" class="sm-sub">Settings</text>
+      </g>
+    </svg>
+  </div>
+
+  <p style="font-size:13px;color:var(--doc-ink-3)">
+    <span class="tag-inline" style="background:#EFF6FF;color:#1E40AF">Primary path</span>
+    Login → Dashboard → Saved Leads là quãng đường dài nhất user đi. UI ưu tiên 2 nhánh: <i>Discovery</i> & <i>Domain Scan</i>, gặp nhau tại <i>Results</i> → <i>Saved Leads</i>.
+  </p>
+</section>

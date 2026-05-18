@@ -1,0 +1,88 @@
+<section class="doc-section" id="layout">
+  <div class="sec-eyebrow">05 · Layout & navigation</div>
+  <h2>App shell · Sidebar + Topbar</h2>
+  <p class="sec-lede">
+    Layout chuẩn: <b>sidebar trái 240px</b> (sticky, scroll riêng), <b>topbar 60px</b> (sticky),
+    nội dung chính max-width 1280 padding 28. Sidebar có 9 mục nav cho user + section
+    "Account" cuối; topbar có breadcrumb, search global, badge gói, status API, thông báo, avatar.
+  </p>
+
+  <div class="frame">
+    <div class="frame__bar">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <div class="url"><svg width="10" height="10"><use href="#i-lock"/></svg> app.tooldatamail.com / dashboard</div>
+      <div class="tag">Shell · 1280 × 760</div>
+    </div>
+    <div class="frame__body">
+      <div class="mock">
+        <div class="mock-app">
+          <!-- Sidebar -->
+          <aside class="m-side">
+            <div class="brand">
+              <div class="brand-mark">TM</div>
+              <div class="brand-text">Tool Data Mail<small>Web</small></div>
+            </div>
+            <h6>Workspace</h6>
+            <div class="m-nav is-active"><svg class="ic"><use href="#i-home"/></svg>Dashboard</div>
+            <div class="m-nav"><svg class="ic"><use href="#i-target"/></svg>Keyword Discovery</div>
+            <div class="m-nav"><svg class="ic"><use href="#i-mail-search"/></svg>Domain Scan</div>
+            <div class="m-nav"><svg class="ic"><use href="#i-table"/></svg>Results<span class="badge">12</span></div>
+            <div class="m-nav"><svg class="ic"><use href="#i-bookmark"/></svg>Saved Leads<span class="badge">348</span></div>
+            <div class="m-nav"><svg class="ic"><use href="#i-history"/></svg>Scan History</div>
+            <h6>Account</h6>
+            <div class="m-nav"><svg class="ic"><use href="#i-settings"/></svg>Settings</div>
+            <div class="m-nav"><svg class="ic"><use href="#i-credit-card"/></svg>Subscription</div>
+            <div class="m-nav"><svg class="ic"><use href="#i-help"/></svg>Help</div>
+            <div class="quota-card">
+              <div class="lbl"><span>Hunter.io</span><span class="mono">320 / 500</span></div>
+              <div class="num">Còn 180 request</div>
+              <div class="bar"><i style="width:64%"></i></div>
+            </div>
+          </aside>
+          <!-- Topbar + body skeleton -->
+          <div>
+            <div class="m-top">
+              <div class="crumbs"><b>Dashboard</b></div>
+              <div class="search"><svg width="14" height="14"><use href="#i-search"/></svg>Tìm email, domain, công ty…<span style="margin-left:auto;font-family:var(--m-mono, monospace);font-size:11px;color:var(--m-ink-4)">⌘ K</span></div>
+              <div class="right">
+                <span class="plan-pill">PRO</span>
+                <span class="api-status"><span class="dot"></span>API OK</span>
+                <button class="icon-btn"><svg width="18" height="18"><use href="#i-bell"/></svg><span class="dot"></span></button>
+                <div class="avatar">TN</div>
+              </div>
+            </div>
+            <div class="m-main" style="display:grid;place-items:center;min-height:700px;color:var(--m-ink-3);font-size:13px;background:var(--m-bg)">
+              <div style="text-align:center;max-width:340px">
+                <div style="width:48px;height:48px;border-radius:12px;background:var(--m-primary-soft);color:var(--m-primary);display:grid;place-items:center;margin:0 auto 12px">
+                  <svg width="22" height="22"><use href="#i-folder"/></svg>
+                </div>
+                <b style="display:block;font-size:14px;color:var(--m-ink);margin-bottom:4px">Khu vực nội dung</b>
+                <span>Mỗi page sau đây sẽ render bên trong shell này — phần shell giữ nguyên, chỉ <code>main</code> thay đổi.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="frame__caption"><b>SHELL</b> Sidebar 240 · Topbar 60 · Main padding 28 · Page background <code>#F1F5F9</code> · Sidebar/Topbar background <code>#FFFFFF</code>.</div>
+
+  <h3>Sidebar — chi tiết</h3>
+  <div class="annot-list">
+    <div class="pin">1</div><div class="body"><b>Logo + workspace</b> — luôn click được về Dashboard. Subtitle "Web" để phân biệt với desktop.</div>
+    <div class="pin">2</div><div class="body"><b>Nhóm Workspace</b> — 6 mục chính. Mục đang active dùng <code>primary-50</code> bg + <code>primary-600</code> text + nav indicator bên trái (border-left 3px <code>primary-600</code>).</div>
+    <div class="pin">3</div><div class="body"><b>Badge sau nav</b> — Results hiển thị số kết quả run gần nhất (12); Saved Leads hiển thị tổng số lead đã lưu (348). Khi item active, badge đổi sang nền primary-600 trắng chữ.</div>
+    <div class="pin">4</div><div class="body"><b>Nhóm Account</b> — Settings, Subscription, Help. Dùng spacing trên cùng <code>mt-auto</code> đẩy quota card xuống dưới cùng.</div>
+    <div class="pin">5</div><div class="body"><b>Quota card</b> — mini Hunter.io quota luôn hiển thị, hover ra tooltip chi tiết. Khi <code>&lt;15%</code> còn lại, đổi sang trạng thái warning (label cam, bar cam).</div>
+  </div>
+
+  <h3>Topbar — chi tiết</h3>
+  <div class="annot-list">
+    <div class="pin">1</div><div class="body"><b>Breadcrumb</b> — page hiện tại đậm; có thể có 1 cấp cha (vd: <i>Domain Scan / Run #42</i>). Không show "Home /" thừa.</div>
+    <div class="pin">2</div><div class="body"><b>Global search</b> — keyboard shortcut <kbd>⌘K</kbd>. Tìm xuyên Results + Saved Leads + History theo email, domain, công ty.</div>
+    <div class="pin">3</div><div class="body"><b>Plan pill</b> — PRO / BASIC / TRIAL. Click → /billing. Trial dùng nền cam, Pro nền vàng-gold gradient, Agency nền tím.</div>
+    <div class="pin">4</div><div class="body"><b>API status</b> — chấm xanh khi cả 2 API key OK. Cam khi 1 trong 2 chưa connect (click ra dropdown chi tiết). Đỏ khi cả 2 fail.</div>
+    <div class="pin">5</div><div class="body"><b>Notifications</b> — toast & history (vd: scan xong, export sẵn sàng tải, quota gần hết).</div>
+    <div class="pin">6</div><div class="body"><b>Avatar menu</b> — profile, settings, đổi mật khẩu, đăng xuất. Initials làm fallback.</div>
+  </div>
+</section>

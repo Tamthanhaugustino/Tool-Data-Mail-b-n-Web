@@ -1,0 +1,206 @@
+<section class="doc-section" id="dashboard">
+  <div class="sec-eyebrow">07.2 · Main app</div>
+  <h2>Dashboard Home</h2>
+  <p class="sec-lede">
+    Trang đầu tiên sau khi đăng nhập. Mục tiêu: trong 5 giây user phải biết
+    (a) workspace đang ổn — API key đã có, quota còn, (b) bắt đầu scan từ đâu, (c) lead/scan gần nhất.
+  </p>
+
+  <div class="frame">
+    <div class="frame__bar">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <div class="url"><svg width="10" height="10"><use href="#i-lock"/></svg> app.tooldatamail.com / dashboard</div>
+      <div class="tag">Dashboard · 1280 × 900</div>
+    </div>
+    <div class="frame__body">
+      <div class="mock">
+        <div class="mock-app">
+          <!-- Sidebar (same as shell) -->
+          <aside class="m-side">
+            <div class="brand"><div class="brand-mark">TM</div><div class="brand-text">Tool Data Mail<small>Web</small></div></div>
+            <h6>Workspace</h6>
+            <div class="m-nav is-active"><svg class="ic"><use href="#i-home"/></svg>Dashboard</div>
+            <div class="m-nav"><svg class="ic"><use href="#i-target"/></svg>Keyword Discovery</div>
+            <div class="m-nav"><svg class="ic"><use href="#i-mail-search"/></svg>Domain Scan</div>
+            <div class="m-nav"><svg class="ic"><use href="#i-table"/></svg>Results<span class="badge">12</span></div>
+            <div class="m-nav"><svg class="ic"><use href="#i-bookmark"/></svg>Saved Leads<span class="badge">348</span></div>
+            <div class="m-nav"><svg class="ic"><use href="#i-history"/></svg>Scan History</div>
+            <h6>Account</h6>
+            <div class="m-nav"><svg class="ic"><use href="#i-settings"/></svg>Settings</div>
+            <div class="m-nav"><svg class="ic"><use href="#i-credit-card"/></svg>Subscription</div>
+            <div class="m-nav"><svg class="ic"><use href="#i-help"/></svg>Help</div>
+            <div class="quota-card">
+              <div class="lbl"><span>Hunter.io</span><span class="mono">320 / 500</span></div>
+              <div class="num">Còn 180 request</div>
+              <div class="bar"><i style="width:64%"></i></div>
+            </div>
+          </aside>
+
+          <div>
+            <div class="m-top">
+              <div class="crumbs"><b>Dashboard</b></div>
+              <div class="search"><svg width="14" height="14"><use href="#i-search"/></svg>Tìm email, domain, công ty…<span style="margin-left:auto;font-family:Geist Mono,monospace;font-size:11px;color:var(--m-ink-4)">⌘ K</span></div>
+              <div class="right">
+                <span class="plan-pill">PRO</span>
+                <span class="api-status"><span class="dot"></span>API OK</span>
+                <button class="icon-btn"><svg width="18" height="18"><use href="#i-bell"/></svg><span class="dot"></span></button>
+                <div class="avatar">TN</div>
+              </div>
+            </div>
+
+            <div class="m-main">
+              <div class="page-head">
+                <div>
+                  <h1 class="page-title">Chào Trang 👋</h1>
+                  <p class="page-sub">Hôm nay là thứ Hai, 18 / 05 / 2026 · workspace của bạn đang ổn.</p>
+                </div>
+                <div class="actions">
+                  <button class="btn"><svg class="ic"><use href="#i-history"/></svg>Lịch sử</button>
+                  <button class="btn btn-primary"><svg class="ic"><use href="#i-zap"/></svg>Scan nhanh</button>
+                </div>
+              </div>
+
+              <!-- Stats -->
+              <div class="g-stats">
+                <div class="stat">
+                  <div class="stat-icon"><svg width="18" height="18"><use href="#i-zap"/></svg></div>
+                  <div class="stat-label">Lần scan tháng này</div>
+                  <div class="stat-value">42</div>
+                  <div class="stat-delta up">↑ 18% so tháng trước</div>
+                </div>
+                <div class="stat stat--teal">
+                  <div class="stat-icon"><svg width="18" height="18"><use href="#i-mail"/></svg></div>
+                  <div class="stat-label">Email tìm được</div>
+                  <div class="stat-value">2.840</div>
+                  <div class="stat-delta up">↑ 124 hôm nay</div>
+                </div>
+                <div class="stat stat--violet">
+                  <div class="stat-icon"><svg width="18" height="18"><use href="#i-bookmark"/></svg></div>
+                  <div class="stat-label">Lead đã lưu</div>
+                  <div class="stat-value">348</div>
+                  <div class="stat-delta">+ 24 tuần này</div>
+                </div>
+                <div class="stat stat--amber">
+                  <div class="stat-icon"><svg width="18" height="18"><use href="#i-pie"/></svg></div>
+                  <div class="stat-label">Hunter quota</div>
+                  <div class="stat-value">320<span style="font-size:14px;color:var(--m-ink-3);font-weight:400">/500</span></div>
+                  <div class="stat-delta">Reset 01 / 06</div>
+                </div>
+              </div>
+
+              <!-- Quick actions -->
+              <h3 style="margin:28px 0 12px;font-size:15px;letter-spacing:-0.005em">Bắt đầu nhanh</h3>
+              <div class="g-actions">
+                <div class="action-card">
+                  <div class="icon-tile"><svg width="18" height="18"><use href="#i-target"/></svg></div>
+                  <h4>Keyword Discovery</h4>
+                  <p>Tìm website công ty từ keyword + quốc gia.</p>
+                  <span class="arrow"><svg width="16" height="16"><use href="#i-arrow-right"/></svg></span>
+                </div>
+                <div class="action-card action--teal">
+                  <div class="icon-tile"><svg width="18" height="18"><use href="#i-mail-search"/></svg></div>
+                  <h4>Domain Scan</h4>
+                  <p>Nhập danh sách domain để tìm email liên hệ.</p>
+                  <span class="arrow"><svg width="16" height="16"><use href="#i-arrow-right"/></svg></span>
+                </div>
+                <div class="action-card action--violet">
+                  <div class="icon-tile"><svg width="18" height="18"><use href="#i-bookmark"/></svg></div>
+                  <h4>Saved Leads</h4>
+                  <p>Mở mini-CRM của bạn để chăm sóc lead.</p>
+                  <span class="arrow"><svg width="16" height="16"><use href="#i-arrow-right"/></svg></span>
+                </div>
+                <div class="action-card action--amber">
+                  <div class="icon-tile"><svg width="18" height="18"><use href="#i-download"/></svg></div>
+                  <h4>Export Leads</h4>
+                  <p>Tải lead đã lưu thành CSV / JSON.</p>
+                  <span class="arrow"><svg width="16" height="16"><use href="#i-arrow-right"/></svg></span>
+                </div>
+              </div>
+
+              <!-- Two columns: setup + activity -->
+              <div class="g-2" style="margin-top:24px;grid-template-columns:1.05fr 1fr">
+
+                <!-- Setup checklist -->
+                <div class="card">
+                  <div class="card-head"><h3>Trạng thái workspace</h3><span class="badge badge--ok"><span class="d"></span>Sẵn sàng</span></div>
+                  <div class="card-body">
+                    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--m-rule)">
+                      <span class="checkbox is-checked"></span>
+                      <div style="flex:1"><div style="font-weight:500;font-size:13.5px">Hunter.io API Key đã kết nối</div><div style="font-size:12px;color:var(--m-ink-3)">Còn 180 / 500 request · reset 01 / 06</div></div>
+                      <span class="badge badge--ok"><span class="d"></span>Connected</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--m-rule)">
+                      <span class="checkbox is-checked"></span>
+                      <div style="flex:1"><div style="font-weight:500;font-size:13.5px">SerpAPI key đã kết nối</div><div style="font-size:12px;color:var(--m-ink-3)">Còn 84 search trong tháng</div></div>
+                      <span class="badge badge--ok"><span class="d"></span>Connected</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--m-rule)">
+                      <span class="checkbox is-checked"></span>
+                      <div style="flex:1"><div style="font-weight:500;font-size:13.5px">Subscription · Pro</div><div style="font-size:12px;color:var(--m-ink-3)">Renew 12 / 06 / 2026</div></div>
+                      <span class="badge badge--info"><span class="d"></span>Active</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:12px;padding:10px 0">
+                      <span class="checkbox"></span>
+                      <div style="flex:1"><div style="font-weight:500;font-size:13.5px">Thiết lập email outreach (sắp ra mắt)</div><div style="font-size:12px;color:var(--m-ink-3)">Kết nối SMTP để gửi thử cold email từ Saved Leads</div></div>
+                      <span class="badge badge--neutral">Sắp có</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Recent activity -->
+                <div class="card">
+                  <div class="card-head"><h3>Hoạt động gần đây</h3><a href="#" style="font-size:12.5px;color:var(--m-primary)">Xem lịch sử →</a></div>
+                  <div class="card-body" style="padding-top:6px;padding-bottom:6px">
+                    <div class="act-item">
+                      <div class="ic"><svg width="16" height="16"><use href="#i-mail-search"/></svg></div>
+                      <div class="meta"><div class="t">Domain Scan · 30 domain</div><div class="s">Tìm thấy 124 email · 18 verified</div></div>
+                      <div class="when">2 giờ trước</div>
+                    </div>
+                    <div class="act-item act-domain">
+                      <div class="ic"><svg width="16" height="16"><use href="#i-target"/></svg></div>
+                      <div class="meta"><div class="t">Keyword Discovery · "marketing agency Vietnam"</div><div class="s">Tìm thấy 48 website</div></div>
+                      <div class="when">Hôm qua · 16:20</div>
+                    </div>
+                    <div class="act-item act-saved">
+                      <div class="ic"><svg width="16" height="16"><use href="#i-bookmark"/></svg></div>
+                      <div class="meta"><div class="t">Đã lưu 8 lead vào Saved Leads</div><div class="s">Tag: <span class="tagpill tag-blue">Hot lead</span></div></div>
+                      <div class="when">Hôm qua · 16:18</div>
+                    </div>
+                    <div class="act-item">
+                      <div class="ic"><svg width="16" height="16"><use href="#i-download"/></svg></div>
+                      <div class="meta"><div class="t">Export CSV · 348 lead</div><div class="s">leads-2026-05-17.csv</div></div>
+                      <div class="when">17 / 05 · 09:42</div>
+                    </div>
+                    <div class="act-item act-domain">
+                      <div class="ic"><svg width="16" height="16"><use href="#i-mail-search"/></svg></div>
+                      <div class="meta"><div class="t">Domain Scan · 12 domain</div><div class="s">Tìm thấy 56 email</div></div>
+                      <div class="when">15 / 05 · 11:08</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="help-row" style="margin-top:18px"><svg width="14" height="14"><use href="#i-info"/></svg>Cần một hướng dẫn nhanh? Xem <a href="#">"Bắt đầu Tool Data Mail trong 5 phút"</a>.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="frame__caption"><b>SCREEN 2/11</b> Dashboard · Path: <code>/dashboard</code> · Above the fold: greeting + 4 stat + 4 quick action.</div>
+
+  <div class="annot-list">
+    <div class="pin">1</div><div class="body"><b>Greeting cá nhân</b>. Có ngày để user thấy app đang "live", và emoji vẫy tay duy nhất ở đây (không dùng emoji ở chỗ khác).</div>
+    <div class="pin">2</div><div class="body"><b>4 stat card</b> — không lạm dụng chart. Chỉ số chính có delta so kỳ trước (xanh / đỏ). Quota Hunter có denominator để user thấy ngữ cảnh.</div>
+    <div class="pin">3</div><div class="body"><b>4 quick action</b> — Discovery, Domain Scan, Saved Leads, Export. Mỗi card 1 màu accent khác để dễ phân biệt nhanh. Toàn bộ card đều click được.</div>
+    <div class="pin">4</div><div class="body"><b>Trạng thái workspace</b> — checklist 4 mục. Khi chưa cấu hình API key, item đó hiện badge cam "Cần kết nối" + button "Thiết lập ngay".</div>
+    <div class="pin">5</div><div class="body"><b>Recent activity</b> — 5 mục mới nhất, mix giữa 4 loại: Domain Scan, Keyword Discovery, Save Lead, Export. Click vào → mở context tương ứng (vd: click vào scan → mở Results của run đó).</div>
+  </div>
+
+  <h3>Zero state · user mới</h3>
+  <p>Khi user mới (chưa scan lần nào): thay khu vực Recent activity bằng card "Bắt đầu trong 3 bước" (1) Cấu hình API key → (2) Scan đầu tiên → (3) Lưu lead. Stat card hiển thị "—" hoặc "Chưa có dữ liệu" thay cho số.</p>
+
+  <h3>Khi chưa có API key</h3>
+  <p>Trên cùng page xuất hiện <span class="tag-inline" style="background:#FFFBEB;color:#92400E">Alert warning</span> bám fixed dưới topbar:
+  <i>"Bạn cần thêm Hunter.io API Key để bắt đầu quét email. <a style="color:#92400E;text-decoration:underline">Mở Settings →</a>"</i></p>
+</section>

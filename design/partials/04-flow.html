@@ -1,0 +1,176 @@
+<section class="doc-section" id="flow">
+  <div class="sec-eyebrow">04 · User flow</div>
+  <h2>User flow chính</h2>
+  <p class="sec-lede">
+    Flow chuẩn: <i>Login → Cấu hình API key → chọn Discovery hoặc Domain Scan → Preview → Scan → Results → Save → Export</i>.
+    Phần preview/cảnh báo trước khi tốn quota là <b>checkpoint bắt buộc</b>.
+  </p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 1080 460" width="100%" style="max-width:1080px" font-family="Geist, sans-serif">
+      <defs>
+        <marker id="farr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0 0 L8 4 L0 8 z" fill="#64748B"/>
+        </marker>
+        <style>
+          .fl-step { fill: #fff; stroke: #CBD5E1; stroke-width: 1.5; }
+          .fl-step-primary { fill: #EFF6FF; stroke: #93C5FD; stroke-width: 1.5; }
+          .fl-step-warn { fill: #FFFBEB; stroke: #FCD34D; stroke-width: 1.5; }
+          .fl-step-end { fill: #ECFDF5; stroke: #86EFAC; stroke-width: 1.5; }
+          .fl-deci { fill: #FFFFFF; stroke: #94A3B8; stroke-width: 1.5; }
+          .fl-line { stroke: #64748B; stroke-width: 1.4; fill: none; }
+          .fl-line-dash { stroke: #94A3B8; stroke-width: 1.2; fill: none; stroke-dasharray: 4 4; }
+          .fl-title { font-size: 13px; font-weight: 600; fill: #0F172A; text-anchor: middle; }
+          .fl-sub { font-size: 11px; fill: #64748B; text-anchor: middle; }
+          .fl-deci-label { font-size: 12.5px; fill: #0F172A; font-weight: 500; text-anchor: middle; }
+          .fl-edge { font-size: 11px; fill: #475569; font-weight: 500; }
+          .fl-lane { font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; fill: #94A3B8; font-weight: 600; }
+        </style>
+      </defs>
+
+      <!-- Swim lanes -->
+      <line x1="20" y1="76" x2="1060" y2="76" stroke="#E2E8F0" stroke-dasharray="2 4"/>
+      <line x1="20" y1="220" x2="1060" y2="220" stroke="#E2E8F0" stroke-dasharray="2 4"/>
+      <line x1="20" y1="350" x2="1060" y2="350" stroke="#E2E8F0" stroke-dasharray="2 4"/>
+      <text x="20" y="64" class="fl-lane">Onboarding</text>
+      <text x="20" y="92" class="fl-lane" opacity="0">.</text>
+      <text x="20" y="100" class="fl-lane">Find leads</text>
+      <text x="20" y="240" class="fl-lane">Review & save</text>
+      <text x="20" y="370" class="fl-lane">Export</text>
+
+      <!-- Lane 1: Onboarding -->
+      <g>
+        <rect x="60" y="22" width="120" height="44" rx="8" class="fl-step"/>
+        <text x="120" y="42" class="fl-title">Login</text>
+        <text x="120" y="58" class="fl-sub">/login</text>
+      </g>
+      <g>
+        <rect x="220" y="22" width="140" height="44" rx="8" class="fl-step-primary"/>
+        <text x="290" y="42" class="fl-title">Dashboard</text>
+        <text x="290" y="58" class="fl-sub">Quick actions</text>
+      </g>
+      <g>
+        <polygon points="400,44 460,16 520,44 460,72" class="fl-deci"/>
+        <text x="460" y="40" class="fl-deci-label">API key</text>
+        <text x="460" y="55" class="fl-deci-label">đã có?</text>
+      </g>
+      <g>
+        <rect x="560" y="22" width="160" height="44" rx="8" class="fl-step-warn"/>
+        <text x="640" y="42" class="fl-title">Settings · API Keys</text>
+        <text x="640" y="58" class="fl-sub">Hunter + SerpAPI</text>
+      </g>
+      <line x1="180" y1="44" x2="220" y2="44" class="fl-line" marker-end="url(#farr)"/>
+      <line x1="360" y1="44" x2="400" y2="44" class="fl-line" marker-end="url(#farr)"/>
+      <path d="M 460 72 L 460 100" class="fl-line" marker-end="url(#farr)"/>
+      <text x="470" y="92" class="fl-edge">Có</text>
+      <path d="M 520 44 L 560 44" class="fl-line" marker-end="url(#farr)"/>
+      <text x="525" y="38" class="fl-edge">Chưa</text>
+      <path d="M 640 66 L 640 110 L 460 110" class="fl-line-dash" marker-end="url(#farr)"/>
+      <text x="650" y="84" class="fl-edge" fill="#94A3B8">Test OK → back</text>
+
+      <!-- Lane 2: Find leads -->
+      <g>
+        <polygon points="400,150 460,122 520,150 460,178" class="fl-deci"/>
+        <text x="460" y="146" class="fl-deci-label">Bạn muốn</text>
+        <text x="460" y="160" class="fl-deci-label">tìm gì?</text>
+      </g>
+
+      <g>
+        <rect x="100" y="128" width="190" height="44" rx="8" class="fl-step"/>
+        <text x="195" y="148" class="fl-title">Keyword Discovery</text>
+        <text x="195" y="164" class="fl-sub">Keyword + Country</text>
+      </g>
+      <g>
+        <rect x="700" y="128" width="190" height="44" rx="8" class="fl-step"/>
+        <text x="795" y="148" class="fl-title">Domain Scan · Input</text>
+        <text x="795" y="164" class="fl-sub">Paste / upload CSV</text>
+      </g>
+
+      <path d="M 400 150 L 290 150" class="fl-line" marker-end="url(#farr)"/>
+      <text x="306" y="142" class="fl-edge">Có keyword</text>
+      <path d="M 520 150 L 700 150" class="fl-line" marker-end="url(#farr)"/>
+      <text x="600" y="142" class="fl-edge" text-anchor="middle">Có domain</text>
+
+      <g>
+        <rect x="100" y="186" width="190" height="34" rx="6" class="fl-step"/>
+        <text x="195" y="206" class="fl-sub">Results · website list →</text>
+      </g>
+      <path d="M 195 172 L 195 186" class="fl-line" marker-end="url(#farr)"/>
+      <path d="M 290 203 C 360 203 360 203 460 203 L 700 150" class="fl-line-dash" marker-end="url(#farr)"/>
+      <text x="430" y="200" class="fl-edge" fill="#94A3B8">Add to Domain Scan</text>
+
+      <g>
+        <rect x="700" y="186" width="190" height="44" rx="8" class="fl-step-warn"/>
+        <text x="795" y="204" class="fl-title">Preview · Validate</text>
+        <text x="795" y="220" class="fl-sub">Quota warning if cao</text>
+      </g>
+      <path d="M 795 172 L 795 186" class="fl-line" marker-end="url(#farr)"/>
+
+      <!-- Lane 3: Review & Save -->
+      <g>
+        <rect x="700" y="248" width="190" height="44" rx="8" class="fl-step-primary"/>
+        <text x="795" y="268" class="fl-title">Scanning · Progress</text>
+        <text x="795" y="284" class="fl-sub">Real-time log + cancel</text>
+      </g>
+      <path d="M 795 230 L 795 248" class="fl-line" marker-end="url(#farr)"/>
+
+      <g>
+        <rect x="700" y="306" width="190" height="44" rx="8" class="fl-step"/>
+        <text x="795" y="326" class="fl-title">Results Table</text>
+        <text x="795" y="342" class="fl-sub">Filter · Sort · Search</text>
+      </g>
+      <path d="M 795 292 L 795 306" class="fl-line" marker-end="url(#farr)"/>
+
+      <g>
+        <rect x="460" y="306" width="190" height="44" rx="8" class="fl-step-primary"/>
+        <text x="555" y="326" class="fl-title">Save lead (single/bulk)</text>
+        <text x="555" y="342" class="fl-sub">Add tag, note, status</text>
+      </g>
+      <path d="M 700 328 L 650 328" class="fl-line" marker-end="url(#farr)"/>
+
+      <g>
+        <rect x="220" y="306" width="190" height="44" rx="8" class="fl-step-primary"/>
+        <text x="315" y="326" class="fl-title">Saved Leads</text>
+        <text x="315" y="342" class="fl-sub">Mini-CRM</text>
+      </g>
+      <path d="M 460 328 L 410 328" class="fl-line" marker-end="url(#farr)"/>
+
+      <!-- Lane 4: Export -->
+      <g>
+        <rect x="220" y="386" width="190" height="44" rx="8" class="fl-step-end"/>
+        <text x="315" y="406" class="fl-title">Export CSV / JSON</text>
+        <text x="315" y="422" class="fl-sub">Download · toast</text>
+      </g>
+      <path d="M 315 350 L 315 386" class="fl-line" marker-end="url(#farr)"/>
+
+      <g>
+        <rect x="460" y="386" width="190" height="44" rx="8" class="fl-step-end"/>
+        <text x="555" y="406" class="fl-title">Scan History</text>
+        <text x="555" y="422" class="fl-sub">Re-download · view results</text>
+      </g>
+      <path d="M 410 408 L 460 408" class="fl-line-dash" marker-end="url(#farr)"/>
+      <text x="435" y="402" class="fl-edge" fill="#94A3B8">later</text>
+
+      <!-- legend -->
+      <g transform="translate(750,386)">
+        <rect width="14" height="14" rx="3" class="fl-step"/>
+        <text x="20" y="11" class="fl-sub" text-anchor="start">Action</text>
+        <rect x="80" width="14" height="14" rx="3" class="fl-step-warn"/>
+        <text x="100" y="11" class="fl-sub" text-anchor="start">Checkpoint</text>
+        <rect x="180" width="14" height="14" rx="3" class="fl-step-end"/>
+        <text x="200" y="11" class="fl-sub" text-anchor="start">Output</text>
+        <polygon points="0,30 8,22 16,30 8,38" class="fl-deci" transform="translate(0,-2)"/>
+        <text x="20" y="33" class="fl-sub" text-anchor="start">Decision</text>
+      </g>
+    </svg>
+  </div>
+
+  <h3>Edge flows quan trọng</h3>
+  <ol>
+    <li><b>API key chưa cấu hình</b> — Dashboard hiện warning card vàng. Khi user click Keyword Discovery/Domain Scan mà thiếu key tương ứng, redirect inline về Settings + alert giải thích key đó dùng làm gì.</li>
+    <li><b>Quota gần hết</b> — Topbar hiện badge cam <span class="tag-inline" style="background:#FFFBEB;color:#92400E">API · 78/100</span>. Khi limit cao trong Preview → alert đỏ chặn button Scan, bắt user xác nhận lại.</li>
+    <li><b>Scan timeout / partial fail</b> — Hiển thị mixed-state ở Results (vd: 23/30 domain xong, 7 failed). User có thể "Retry failed" mà không scan lại toàn bộ.</li>
+    <li><b>Session hết hạn</b> — Modal nhẹ "Phiên đăng nhập hết hạn" + button "Đăng nhập lại" — giữ context page hiện tại để quay lại sau login.</li>
+    <li><b>Khách hàng mới (zero state)</b> — Sau lần login đầu, Dashboard show "Bắt đầu trong 3 bước" thay vì recent activity rỗng.</li>
+  </ol>
+</section>

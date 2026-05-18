@@ -1,0 +1,327 @@
+<section class="doc-section" id="components">
+  <div class="sec-eyebrow">06 · Component library</div>
+  <h2>Component library</h2>
+  <p class="sec-lede">
+    Bộ component dùng xuyên suốt web app. Tất cả mock từ § 7 trở đi đều lắp ráp từ những
+    primitive này — FE có thể implement bằng <b>shadcn/ui</b> + tweak theo token đã chốt ở § 2.
+  </p>
+
+  <!-- ===== Buttons ===== -->
+  <h3>Buttons</h3>
+  <div class="kit-row">
+    <div class="demo">
+      <div class="mock" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:transparent">
+        <button class="btn btn-primary"><svg class="ic"><use href="#i-search"/></svg>Find websites</button>
+        <button class="btn"><svg class="ic"><use href="#i-download"/></svg>Export CSV</button>
+        <button class="btn btn-ghost">Hủy</button>
+        <button class="btn btn-danger"><svg class="ic"><use href="#i-trash"/></svg>Xoá</button>
+      </div>
+      <div class="mock" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px;background:transparent">
+        <button class="btn btn-primary btn-lg"><svg class="ic"><use href="#i-zap"/></svg>Bắt đầu Domain Scan</button>
+        <button class="btn btn-sm">+ Thêm tag</button>
+        <button class="btn btn-primary is-disabled">Đang xử lý…</button>
+      </div>
+    </div>
+    <div class="notes">
+      <h5>Variants</h5>
+      <p><code>primary</code> · <code>default</code> (outlined) · <code>ghost</code> · <code>danger</code>.</p>
+      <h5>Sizes</h5>
+      <p><code>sm</code> 28px · <code>md</code> 36px · <code>lg</code> 44px.</p>
+      <h5>Rules</h5>
+      <p>1 primary mỗi context. Icon trái cho action chính, không icon-only trừ topbar.</p>
+    </div>
+  </div>
+
+  <!-- ===== Inputs & form ===== -->
+  <h3>Inputs · Select · Textarea · Switch</h3>
+  <div class="kit-row">
+    <div class="demo">
+      <div class="mock" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;background:transparent">
+        <div class="field"><label>Keyword</label><input class="input" placeholder="ví dụ: marketing agency" value="real estate agency"/></div>
+        <div class="field"><label>Quốc gia</label>
+          <div class="input-group"><span class="prefix">🇻🇳</span><input class="input" value="Vietnam"/><span class="suffix"><svg width="14" height="14"><use href="#i-chev-down"/></svg></span></div>
+        </div>
+        <div class="field"><label>Email limit / domain</label>
+          <select class="select"><option>50</option></select>
+        </div>
+        <div class="field"><label>Hunter.io API key <span class="hint">(dùng cho Domain Scan)</span></label>
+          <div class="input-group"><span class="prefix"><svg width="14" height="14"><use href="#i-key"/></svg></span><input class="input is-mono" value="hk_•••••••••••••••••••••••a3d2"/><span class="suffix" style="cursor:pointer"><svg width="14" height="14"><use href="#i-eye"/></svg></span></div>
+          <span class="hint">Lấy tại hunter.io / api-keys</span>
+        </div>
+        <div class="field" style="grid-column:span 2"><label>Danh sách domain</label>
+          <textarea class="textarea" style="font-family:'Geist Mono',monospace;font-size:12.5px">vietsoftware.com.vn
+realgroup.vn
+fpt.com.vn
+greenhouse.vn</textarea>
+          <span class="hint">Mỗi dòng một domain · tối đa 500 / lần</span>
+        </div>
+        <div style="grid-column:span 2;display:flex;align-items:center;gap:14px;padding-top:6px;border-top:1px solid var(--m-rule)">
+          <div class="row"><span class="switch on"></span><span style="font-size:13px;color:var(--m-ink-2)">Chỉ lấy email đã verified</span></div>
+          <div class="row"><span class="checkbox is-checked"></span><span style="font-size:13px;color:var(--m-ink-2)">Bỏ qua catch-all</span></div>
+          <div class="row"><span class="checkbox"></span><span style="font-size:13px;color:var(--m-ink-2)">Skip free email</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <h5>Form</h5>
+      <p>Label 12.5 / 500 · input 36 / radius 8 / border <code>rule-strong</code>.</p>
+      <h5>API key</h5>
+      <p>Sau khi save: mask theo dạng <code>hk_•••a3d2</code> (giữ 4 ký tự cuối). Có nút eye + copy.</p>
+      <h5>Switch / checkbox</h5>
+      <p>Switch cho ON/OFF có effect ngay; checkbox cho lựa chọn rời rạc trong batch.</p>
+    </div>
+  </div>
+
+  <!-- ===== Badges ===== -->
+  <h3>Status badges & Confidence</h3>
+  <div class="kit-row">
+    <div class="demo">
+      <div class="mock" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:transparent">
+        <span class="badge badge--ok"><span class="d"></span>Verified</span>
+        <span class="badge badge--warn"><span class="d"></span>Accept all</span>
+        <span class="badge badge--bad"><span class="d"></span>Invalid</span>
+        <span class="badge badge--info"><span class="d"></span>Webmail</span>
+        <span class="badge badge--violet"><span class="d"></span>Saved</span>
+        <span class="badge badge--teal"><span class="d"></span>New run</span>
+        <span class="badge badge--neutral">Free</span>
+      </div>
+      <div class="mock" style="margin-top:16px;display:flex;gap:18px;flex-wrap:wrap;background:transparent">
+        <span class="conf is-high"><span class="bar"><i></i></span><span class="pct">92%</span></span>
+        <span class="conf is-mid"><span class="bar"><i></i></span><span class="pct">64%</span></span>
+        <span class="conf is-low"><span class="bar"><i></i></span><span class="pct">32%</span></span>
+      </div>
+      <div class="mock" style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;background:transparent">
+        <span class="tagpill tag-blue"><svg width="10" height="10"><use href="#i-tag"/></svg> Hot lead</span>
+        <span class="tagpill tag-violet">Decision maker</span>
+        <span class="tagpill tag-teal">SaaS</span>
+        <span class="tagpill tag-amber">Follow-up</span>
+        <span class="tagpill">VN HCM</span>
+      </div>
+    </div>
+    <div class="notes">
+      <h5>Status badge</h5>
+      <p>Dùng cho email verification, lead status, plan, run status. Có dot màu tròn dẫn.</p>
+      <h5>Confidence</h5>
+      <p>Hiển thị <b>bar + %</b> để user thấy ngay. ≥80% xanh · 50–79% vàng · &lt;50% đỏ.</p>
+      <h5>Tag pill</h5>
+      <p>Dành cho tag tự đặt ở Saved Leads (4 màu pastel + neutral).</p>
+    </div>
+  </div>
+
+  <!-- ===== Alerts ===== -->
+  <h3>Alerts (info · warn · error · success)</h3>
+  <div class="kit-row">
+    <div class="demo">
+      <div class="mock" style="display:flex;flex-direction:column;gap:10px;background:transparent">
+        <div class="alert"><svg class="ic"><use href="#i-info"/></svg>
+          <div class="body"><strong>Hunter.io: dùng để tìm email từ domain.</strong><p>Mỗi domain quét sẽ tiêu tốn ~1 request. Bạn có thể kiểm tra quota còn lại ở sidebar.</p></div>
+        </div>
+        <div class="alert alert--warn"><svg class="ic"><use href="#i-alert"/></svg>
+          <div class="body"><strong>Giới hạn cao có thể tốn nhiều request Hunter.io hơn.</strong><p>Bạn đang để limit 500 email / domain — ước tính cần ~120 request cho 30 domain này.</p></div>
+          <div class="actions"><button class="btn btn-sm">Giảm xuống 50</button></div>
+        </div>
+        <div class="alert alert--bad"><svg class="ic"><use href="#i-x"/></svg>
+          <div class="body"><strong>Không kết nối được SerpAPI.</strong><p>Kiểm tra lại API key hoặc thử lại sau vài phút.</p></div>
+          <div class="actions"><button class="btn btn-sm">Thử lại</button></div>
+        </div>
+        <div class="alert alert--ok"><svg class="ic"><use href="#i-check-circle"/></svg>
+          <div class="body"><strong>Hunter.io đã kết nối.</strong><p>Còn 320 / 500 request trong tháng này.</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <h5>Mức độ</h5>
+      <p><code>info</code> · <code>warn</code> · <code>bad</code> · <code>ok</code>.</p>
+      <h5>Anatomy</h5>
+      <p>Icon + tiêu đề bold + mô tả + optional action. Toast cho thông báo ngắn, alert cho bối cảnh page.</p>
+    </div>
+  </div>
+
+  <!-- ===== Cards & stats ===== -->
+  <h3>Cards · Stat cards · Action cards</h3>
+  <div class="kit-row" style="grid-template-columns:1fr">
+    <div class="demo">
+      <div class="mock" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;background:transparent">
+        <div class="stat">
+          <div class="stat-icon"><svg width="18" height="18"><use href="#i-zap"/></svg></div>
+          <div class="stat-label">Lần scan tháng này</div>
+          <div class="stat-value">42</div>
+          <div class="stat-delta up">↑ 18% so tháng trước</div>
+        </div>
+        <div class="stat stat--teal">
+          <div class="stat-icon"><svg width="18" height="18"><use href="#i-mail"/></svg></div>
+          <div class="stat-label">Email tìm được</div>
+          <div class="stat-value">2.840</div>
+          <div class="stat-delta up">↑ 124 hôm nay</div>
+        </div>
+        <div class="stat stat--violet">
+          <div class="stat-icon"><svg width="18" height="18"><use href="#i-bookmark"/></svg></div>
+          <div class="stat-label">Lead đã lưu</div>
+          <div class="stat-value">348</div>
+          <div class="stat-delta">+ 24 tuần này</div>
+        </div>
+        <div class="stat stat--amber">
+          <div class="stat-icon"><svg width="18" height="18"><use href="#i-pie"/></svg></div>
+          <div class="stat-label">Hunter quota</div>
+          <div class="stat-value">320<span style="font-size:14px;color:var(--m-ink-3);font-weight:400">/500</span></div>
+          <div class="stat-delta">Reset 01/06</div>
+        </div>
+      </div>
+
+      <div class="mock" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;background:transparent;margin-top:18px">
+        <div class="action-card">
+          <div class="icon-tile"><svg width="18" height="18"><use href="#i-target"/></svg></div>
+          <h4>Keyword Discovery</h4>
+          <p>Tìm website công ty từ keyword + quốc gia</p>
+          <span class="arrow"><svg width="16" height="16"><use href="#i-arrow-right"/></svg></span>
+        </div>
+        <div class="action-card action--teal">
+          <div class="icon-tile"><svg width="18" height="18"><use href="#i-mail-search"/></svg></div>
+          <h4>Domain Scan</h4>
+          <p>Quét email từ danh sách domain</p>
+          <span class="arrow"><svg width="16" height="16"><use href="#i-arrow-right"/></svg></span>
+        </div>
+        <div class="action-card action--violet">
+          <div class="icon-tile"><svg width="18" height="18"><use href="#i-bookmark"/></svg></div>
+          <h4>Saved Leads</h4>
+          <p>Xem lại lead đã lưu</p>
+          <span class="arrow"><svg width="16" height="16"><use href="#i-arrow-right"/></svg></span>
+        </div>
+        <div class="action-card action--amber">
+          <div class="icon-tile"><svg width="18" height="18"><use href="#i-download"/></svg></div>
+          <h4>Export Leads</h4>
+          <p>Tải file CSV / JSON</p>
+          <span class="arrow"><svg width="16" height="16"><use href="#i-arrow-right"/></svg></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Table ===== -->
+  <h3>Data table · toolbar · row · bulk select</h3>
+  <div class="kit-row" style="grid-template-columns:1fr">
+    <div class="demo">
+      <div class="mock" style="background:transparent">
+        <div class="table-wrap" style="box-shadow:none">
+          <div class="table-toolbar">
+            <span class="checkbox is-checked"></span>
+            <span style="font-size:12.5px;color:var(--m-ink-2)"><b>2</b> đã chọn</span>
+            <button class="btn btn-sm"><svg class="ic"><use href="#i-bookmark"/></svg>Lưu lead</button>
+            <button class="btn btn-sm"><svg class="ic"><use href="#i-download"/></svg>Export CSV</button>
+            <button class="btn btn-sm btn-danger"><svg class="ic"><use href="#i-trash"/></svg>Xoá</button>
+            <div class="search" style="margin-left:auto"><svg width="14" height="14"><use href="#i-search"/></svg>Tìm email, công ty…</div>
+            <button class="btn btn-sm"><svg class="ic"><use href="#i-filter"/></svg>Filter</button>
+            <button class="btn btn-sm"><svg class="ic"><use href="#i-sort"/></svg>Sort</button>
+          </div>
+          <table class="table">
+            <thead>
+              <tr>
+                <th style="width:30px"><span class="checkbox is-indet"></span></th>
+                <th>Email</th><th>Tên</th><th>Vị trí</th><th>Công ty</th><th>Confidence</th><th>Status</th><th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="is-selected">
+                <td><span class="checkbox is-checked"></span></td>
+                <td class="email">trang.nguyen<span class="at">&#64;</span>vietsoftware.com.vn</td>
+                <td>Nguyễn Thị Trang</td>
+                <td class="muted">Marketing Manager</td>
+                <td>VietSoftware JSC</td>
+                <td><span class="conf is-high"><span class="bar"><i></i></span><span class="pct">95%</span></span></td>
+                <td><span class="badge badge--ok"><span class="d"></span>Verified</span></td>
+                <td class="actions"><button class="btn btn-sm btn-ghost"><svg class="ic"><use href="#i-copy"/></svg></button><button class="btn btn-sm btn-ghost"><svg class="ic"><use href="#i-bookmark"/></svg></button></td>
+              </tr>
+              <tr class="is-selected">
+                <td><span class="checkbox is-checked"></span></td>
+                <td class="email">contact<span class="at">&#64;</span>realgroup.vn</td>
+                <td class="muted">—</td>
+                <td class="muted">—</td>
+                <td>Real Group Marketing</td>
+                <td><span class="conf is-mid"><span class="bar"><i></i></span><span class="pct">68%</span></span></td>
+                <td><span class="badge badge--warn"><span class="d"></span>Accept all</span></td>
+                <td class="actions"><button class="btn btn-sm btn-ghost"><svg class="ic"><use href="#i-copy"/></svg></button><button class="btn btn-sm btn-ghost"><svg class="ic"><use href="#i-bookmark"/></svg></button></td>
+              </tr>
+              <tr>
+                <td><span class="checkbox"></span></td>
+                <td class="email">hr<span class="at">&#64;</span>greenhouse.vn</td>
+                <td>Lê Minh Anh</td>
+                <td class="muted">HR Director</td>
+                <td>Green House Co., Ltd</td>
+                <td><span class="conf is-high"><span class="bar"><i></i></span><span class="pct">88%</span></span></td>
+                <td><span class="badge badge--ok"><span class="d"></span>Verified</span></td>
+                <td class="actions"><button class="btn btn-sm btn-ghost"><svg class="ic"><use href="#i-copy"/></svg></button><button class="btn btn-sm btn-ghost"><svg class="ic"><use href="#i-bookmark"/></svg></button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Modal & Toast ===== -->
+  <h3>Modal · Toast · Pagination · Tabs</h3>
+  <div class="kit-row">
+    <div class="demo" style="padding:0;border:none;background:transparent">
+      <div class="mock">
+        <div class="modal-shroud" style="border-radius:12px;min-height:auto;padding:24px">
+          <div class="modal">
+            <div class="modal-head">
+              <div><h3>Xác nhận bắt đầu scan</h3><div class="sub">30 domain · ~120 Hunter request</div></div>
+              <button class="btn btn-sm btn-ghost"><svg class="ic"><use href="#i-x"/></svg></button>
+            </div>
+            <div class="modal-body" style="padding-top:14px">
+              <div class="alert alert--warn" style="margin:0">
+                <svg class="ic"><use href="#i-alert"/></svg>
+                <div class="body"><strong>Giới hạn email / domain bạn đang chọn: 100.</strong><p>Hunter.io có thể tính nhiều request hơn cho domain nhiều email. Bạn vẫn muốn tiếp tục?</p></div>
+              </div>
+            </div>
+            <div class="modal-foot">
+              <button class="btn">Quay lại</button>
+              <button class="btn btn-primary"><svg class="ic"><use href="#i-zap"/></svg>Bắt đầu scan</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <h5>Modal</h5>
+      <p>Max 560px · radius 14 · shroud <code>rgba(15,23,42,.42)</code>.</p>
+      <h5>Toast</h5>
+      <p>Bottom-right · 4s auto-dismiss · success / error / info.</p>
+      <h5>Pagination</h5>
+      <p>10 · 20 · 50 · 100 rows. Hiển thị "1–20 / 348".</p>
+      <h5>Tabs</h5>
+      <p>Dùng cho Settings (API keys, Profile, Đổi mật khẩu).</p>
+    </div>
+  </div>
+
+  <div class="kit-row" style="grid-template-columns:1fr 1fr;margin-top:0">
+    <div class="demo">
+      <div class="mock" style="background:transparent">
+        <div class="tabs">
+          <div class="tab is-active">API Keys</div>
+          <div class="tab">Tài khoản</div>
+          <div class="tab">Đổi mật khẩu</div>
+          <div class="tab">Notifications</div>
+        </div>
+        <div class="pager" style="margin-top:18px">
+          <span class="pager info">1–20 / 348 kết quả</span>
+          <div class="pi is-disabled"><svg width="14" height="14"><use href="#i-chev-left"/></svg></div>
+          <div class="pi is-active">1</div>
+          <div class="pi">2</div>
+          <div class="pi">3</div>
+          <div class="pi">…</div>
+          <div class="pi">18</div>
+          <div class="pi"><svg width="14" height="14"><use href="#i-chev-right"/></svg></div>
+        </div>
+      </div>
+    </div>
+    <div class="demo">
+      <div class="mock" style="background:transparent;display:flex;flex-direction:column;gap:10px">
+        <div class="toast toast-ok"><svg class="ic"><use href="#i-check-circle"/></svg><div><strong>Đã lưu 2 lead vào Saved Leads.</strong><p>Bạn có thể xem ở mục Saved Leads ở sidebar.</p></div></div>
+        <div class="toast"><svg class="ic" style="color:#60A5FA"><use href="#i-download"/></svg><div><strong>File CSV đã sẵn sàng.</strong><p>leads-2026-05-18.csv · 348 hàng</p></div></div>
+        <div class="toast" style="background:#7F1D1D"><svg class="ic" style="color:#FCA5A5"><use href="#i-alert"/></svg><div><strong>Scan thất bại.</strong><p>3 domain không phản hồi. Bạn có thể thử lại các domain đó.</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>

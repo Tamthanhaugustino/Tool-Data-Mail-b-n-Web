@@ -1,0 +1,115 @@
+<section class="doc-section" id="tokens">
+  <div class="sec-eyebrow">02 · Design tokens</div>
+  <h2>Design tokens</h2>
+  <p class="sec-lede">
+    Hệ token được commit cho toàn web app: <b>Blue / Slate SaaS</b>, font Geist + Geist Mono,
+    soft shadow, radius 8 / 12 / 16. Toàn bộ mock trong tài liệu này đều dùng đúng token bên dưới —
+    FE chỉ cần map vào Tailwind config hoặc CSS variables.
+  </p>
+
+  <h3>Bảng màu — Primary & Neutral</h3>
+  <div class="swatch-grid">
+    <div class="swatch"><div class="chip" style="background:#EFF6FF"></div><div class="meta"><div class="name">primary-50</div><div class="hex">#EFF6FF</div><div class="role">Soft bg, alert primary, nav active</div></div></div>
+    <div class="swatch"><div class="chip" style="background:#DBEAFE"></div><div class="meta"><div class="name">primary-100</div><div class="hex">#DBEAFE</div><div class="role">Borders, hover bg</div></div></div>
+    <div class="swatch"><div class="chip" style="background:#2563EB"></div><div class="meta"><div class="name">primary-600</div><div class="hex">#2563EB</div><div class="role">Primary action, link, focus ring</div></div></div>
+    <div class="swatch"><div class="chip" style="background:#1D4ED8"></div><div class="meta"><div class="name">primary-700</div><div class="hex">#1D4ED8</div><div class="role">Primary hover/active</div></div></div>
+    <div class="swatch"><div class="chip" style="background:#1E3A8A"></div><div class="meta"><div class="name">primary-900</div><div class="hex">#1E3A8A</div><div class="role">Text on primary-soft</div></div></div>
+  </div>
+  <div class="swatch-grid">
+    <div class="swatch"><div class="chip" style="background:#FFFFFF;border-bottom:1px solid #E2E8F0"></div><div class="meta"><div class="name">surface</div><div class="hex">#FFFFFF</div><div class="role">Card, modal, input</div></div></div>
+    <div class="swatch"><div class="chip" style="background:#F8FAFC"></div><div class="meta"><div class="name">surface-2</div><div class="hex">#F8FAFC</div><div class="role">Toolbar, table header</div></div></div>
+    <div class="swatch"><div class="chip" style="background:#F1F5F9"></div><div class="meta"><div class="name">bg</div><div class="hex">#F1F5F9</div><div class="role">App background</div></div></div>
+    <div class="swatch"><div class="chip" style="background:#E2E8F0"></div><div class="meta"><div class="name">rule</div><div class="hex">#E2E8F0</div><div class="role">Divider, default border</div></div></div>
+    <div class="swatch"><div class="chip" style="background:#CBD5E1"></div><div class="meta"><div class="name">rule-strong</div><div class="hex">#CBD5E1</div><div class="role">Input border, separator</div></div></div>
+    <div class="swatch"><div class="chip" style="background:#94A3B8"></div><div class="meta"><div class="name">ink-4</div><div class="hex">#94A3B8</div><div class="role">Placeholder, mute icon</div></div></div>
+    <div class="swatch"><div class="chip" style="background:#64748B"></div><div class="meta"><div class="name">ink-3</div><div class="hex">#64748B</div><div class="role">Sub-text, caption</div></div></div>
+    <div class="swatch"><div class="chip" style="background:#334155"></div><div class="meta"><div class="name">ink-2</div><div class="hex">#334155</div><div class="role">Body text</div></div></div>
+    <div class="swatch"><div class="chip" style="background:#0F172A"></div><div class="meta"><div class="name">ink</div><div class="hex">#0F172A</div><div class="role">Headlines, table cell</div></div></div>
+  </div>
+
+  <h3>Bảng màu — Semantic</h3>
+  <div class="swatch-grid">
+    <div class="swatch"><div class="chip" style="background:#16A34A"></div><div class="meta"><div class="name">success-600</div><div class="hex">#16A34A</div><div class="role">Verified email, status connected</div></div></div>
+    <div class="swatch"><div class="chip" style="background:#ECFDF5"></div><div class="meta"><div class="name">success-50</div><div class="hex">#ECFDF5</div><div class="role">Success alert bg</div></div></div>
+    <div class="swatch"><div class="chip" style="background:#D97706"></div><div class="meta"><div class="name">warning-600</div><div class="hex">#D97706</div><div class="role">Quota warning, mid confidence</div></div></div>
+    <div class="swatch"><div class="chip" style="background:#FFFBEB"></div><div class="meta"><div class="name">warning-50</div><div class="hex">#FFFBEB</div><div class="role">Warning alert bg</div></div></div>
+    <div class="swatch"><div class="chip" style="background:#DC2626"></div><div class="meta"><div class="name">danger-600</div><div class="hex">#DC2626</div><div class="role">Error, low confidence</div></div></div>
+    <div class="swatch"><div class="chip" style="background:#FEF2F2"></div><div class="meta"><div class="name">danger-50</div><div class="hex">#FEF2F2</div><div class="role">Error alert bg</div></div></div>
+    <div class="swatch"><div class="chip" style="background:#7C3AED"></div><div class="meta"><div class="name">violet-600</div><div class="hex">#7C3AED</div><div class="role">Saved leads, premium accent</div></div></div>
+    <div class="swatch"><div class="chip" style="background:#0D9488"></div><div class="meta"><div class="name">teal-600</div><div class="hex">#0D9488</div><div class="role">Domain scan accent</div></div></div>
+  </div>
+
+  <h3>Typography — Geist + Geist Mono</h3>
+  <p>Geist là sans-serif hiện đại, neutral, đọc tốt ở mọi size — phù hợp dashboard mật độ cao mà không cứng như Inter. Mono dùng cho email, domain, API key, số liệu tabular.</p>
+  <div style="background:#fff;border:1px solid var(--doc-rule);border-radius:12px;padding:18px 24px;margin:12px 0 24px">
+    <div class="type-row"><div class="label">display</div><div class="sample" style="font-size:40px;font-weight:600;letter-spacing:-0.025em;line-height:1.1">Tìm email doanh nghiệp nhanh hơn</div><div class="spec">40 / 44 · w600 · -2.5%</div></div>
+    <div class="type-row"><div class="label">h1 / page</div><div class="sample" style="font-size:24px;font-weight:600;letter-spacing:-0.02em">Domain Scan</div><div class="spec">24 / 30 · w600 · -2%</div></div>
+    <div class="type-row"><div class="label">h2 / card</div><div class="sample" style="font-size:18px;font-weight:600;letter-spacing:-0.01em">Hunter.io API Key</div><div class="spec">18 / 26 · w600 · -1%</div></div>
+    <div class="type-row"><div class="label">h3 / list</div><div class="sample" style="font-size:15px;font-weight:600">Real Group Marketing JSC</div><div class="spec">15 / 22 · w600</div></div>
+    <div class="type-row"><div class="label">body</div><div class="sample" style="font-size:14px">Nhập danh sách domain mỗi dòng một domain. Tối đa 500 domain mỗi lần scan.</div><div class="spec">14 / 20 · w400</div></div>
+    <div class="type-row"><div class="label">caption</div><div class="sample" style="font-size:12.5px;color:var(--doc-ink-3)">Hunter.io có giới hạn request. Hãy kiểm tra quota trước khi scan số lượng lớn.</div><div class="spec">12.5 / 18 · w400</div></div>
+    <div class="type-row"><div class="label">label-uc</div><div class="sample" style="font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--doc-ink-3)">CONFIDENCE</div><div class="spec">11 · w600 · UPPER · +10%</div></div>
+    <div class="type-row"><div class="label">mono / data</div><div class="sample" style="font-family:var(--doc-mono);font-size:13px">trang<span class="at">&#64;</span>vietsoftware.com.vn · 95%</div><div class="spec">13 · Geist Mono</div></div>
+  </div>
+
+  <h3>Spacing · Radius · Shadow</h3>
+  <div class="g-2">
+    <div style="background:#fff;border:1px solid var(--doc-rule);border-radius:12px;padding:18px">
+      <h4 style="margin-top:0">Spacing scale</h4>
+      <table class="token-table" style="margin:0">
+        <thead><tr><th>Token</th><th>Px</th><th>Dùng</th></tr></thead>
+        <tbody>
+          <tr><td>space-1</td><td class="val">4</td><td style="font-family:inherit;font-size:13px;color:var(--doc-ink-2)">Gap icon</td></tr>
+          <tr><td>space-2</td><td class="val">8</td><td style="font-family:inherit;font-size:13px;color:var(--doc-ink-2)">Inline form</td></tr>
+          <tr><td>space-3</td><td class="val">12</td><td style="font-family:inherit;font-size:13px;color:var(--doc-ink-2)">Field gap</td></tr>
+          <tr><td>space-4</td><td class="val">16</td><td style="font-family:inherit;font-size:13px;color:var(--doc-ink-2)">Card body padding-sm</td></tr>
+          <tr><td>space-5</td><td class="val">20</td><td style="font-family:inherit;font-size:13px;color:var(--doc-ink-2)">Card padding default</td></tr>
+          <tr><td>space-6</td><td class="val">24</td><td style="font-family:inherit;font-size:13px;color:var(--doc-ink-2)">Section gap</td></tr>
+          <tr><td>space-8</td><td class="val">32</td><td style="font-family:inherit;font-size:13px;color:var(--doc-ink-2)">Page padding</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="background:#fff;border:1px solid var(--doc-rule);border-radius:12px;padding:18px">
+      <h4 style="margin-top:0">Radius & shadow</h4>
+      <div style="display:flex;gap:14px;margin-bottom:14px;flex-wrap:wrap">
+        <div style="width:60px;height:60px;background:#fff;border:1px solid var(--doc-rule-strong);border-radius:6px;display:grid;place-items:center;font-family:var(--doc-mono);font-size:11px;color:var(--doc-ink-3)">6</div>
+        <div style="width:60px;height:60px;background:#fff;border:1px solid var(--doc-rule-strong);border-radius:8px;display:grid;place-items:center;font-family:var(--doc-mono);font-size:11px;color:var(--doc-ink-3)">8</div>
+        <div style="width:60px;height:60px;background:#fff;border:1px solid var(--doc-rule-strong);border-radius:12px;display:grid;place-items:center;font-family:var(--doc-mono);font-size:11px;color:var(--doc-ink-3)">12</div>
+        <div style="width:60px;height:60px;background:#fff;border:1px solid var(--doc-rule-strong);border-radius:16px;display:grid;place-items:center;font-family:var(--doc-mono);font-size:11px;color:var(--doc-ink-3)">16</div>
+        <div style="width:60px;height:60px;background:var(--doc-accent);border-radius:999px;display:grid;place-items:center;font-family:var(--doc-mono);font-size:11px;color:#fff">∞</div>
+      </div>
+      <div style="display:flex;gap:18px;align-items:flex-end;flex-wrap:wrap">
+        <div style="width:84px;height:60px;background:#fff;border-radius:10px;box-shadow:var(--doc-shadow-sm);display:grid;place-items:end center;padding-bottom:6px;font-family:var(--doc-mono);font-size:10.5px;color:var(--doc-ink-3)">sm</div>
+        <div style="width:84px;height:60px;background:#fff;border-radius:10px;box-shadow:var(--doc-shadow-md);display:grid;place-items:end center;padding-bottom:6px;font-family:var(--doc-mono);font-size:10.5px;color:var(--doc-ink-3)">md</div>
+        <div style="width:84px;height:60px;background:#fff;border-radius:10px;box-shadow:var(--doc-shadow-lg);display:grid;place-items:end center;padding-bottom:6px;font-family:var(--doc-mono);font-size:10.5px;color:var(--doc-ink-3)">lg</div>
+      </div>
+      <p style="font-size:12.5px;color:var(--doc-ink-3);margin:14px 0 0">Radius mặc định <code>12</code> cho card · <code>8</code> cho input/button · <code>6</code> cho chip/pill · <code>999</code> cho badge. Shadow <code>sm</code> ở mọi card thường; <code>md</code> cho hover; <code>lg</code> chỉ cho modal/dropdown.</p>
+    </div>
+  </div>
+
+  <h3>Iconography</h3>
+  <p>Dùng <b>Lucide</b> (24×24 stroke 2). Trong dashboard, icon size <code>18px</code> ở sidebar nav, <code>16px</code> trong button, <code>14px</code> trong table cell. Luôn pair với label — không bao giờ dùng icon đơn không có nghĩa rõ.</p>
+  <div style="display:flex;flex-wrap:wrap;gap:14px;padding:18px;background:#fff;border:1px solid var(--doc-rule);border-radius:12px;align-items:center">
+    <div class="mock" style="display:contents">
+      <span title="search">  <svg width="20" height="20" style="color:#475569"><use href="#i-search"/></svg></span>
+      <span title="mail">    <svg width="20" height="20" style="color:#475569"><use href="#i-mail"/></svg></span>
+      <span title="target">  <svg width="20" height="20" style="color:#475569"><use href="#i-target"/></svg></span>
+      <span title="globe">   <svg width="20" height="20" style="color:#475569"><use href="#i-globe"/></svg></span>
+      <span title="bookmark"><svg width="20" height="20" style="color:#475569"><use href="#i-bookmark"/></svg></span>
+      <span title="download"><svg width="20" height="20" style="color:#475569"><use href="#i-download"/></svg></span>
+      <span title="upload">  <svg width="20" height="20" style="color:#475569"><use href="#i-upload"/></svg></span>
+      <span title="settings"><svg width="20" height="20" style="color:#475569"><use href="#i-settings"/></svg></span>
+      <span title="key">     <svg width="20" height="20" style="color:#475569"><use href="#i-key"/></svg></span>
+      <span title="lock">    <svg width="20" height="20" style="color:#475569"><use href="#i-lock"/></svg></span>
+      <span title="filter">  <svg width="20" height="20" style="color:#475569"><use href="#i-filter"/></svg></span>
+      <span title="zap">     <svg width="20" height="20" style="color:#475569"><use href="#i-zap"/></svg></span>
+      <span title="trending"><svg width="20" height="20" style="color:#475569"><use href="#i-trending"/></svg></span>
+      <span title="check">   <svg width="20" height="20" style="color:#16A34A"><use href="#i-check-circle"/></svg></span>
+      <span title="alert">   <svg width="20" height="20" style="color:#D97706"><use href="#i-alert"/></svg></span>
+      <span title="info">    <svg width="20" height="20" style="color:#2563EB"><use href="#i-info"/></svg></span>
+      <span title="history"> <svg width="20" height="20" style="color:#475569"><use href="#i-history"/></svg></span>
+      <span title="shield-check"><svg width="20" height="20" style="color:#475569"><use href="#i-shield-check"/></svg></span>
+    </div>
+    <span style="margin-left:auto;font-size:12.5px;color:var(--doc-ink-3)">Bộ Lucide đầy đủ — copy từ <code>lucide.dev</code></span>
+  </div>
+</section>

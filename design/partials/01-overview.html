@@ -1,0 +1,62 @@
+<section class="doc-section" id="overview">
+  <div class="sec-eyebrow">01 · Tổng quan dự án</div>
+  <h2>Tổng quan & nguyên tắc</h2>
+  <p class="sec-lede">
+    Bản web app cho phép khách dùng Tool Data Mail trực tiếp trên trình duyệt, không cần
+    cài desktop app. Tất cả nghiệp vụ core của desktop được giữ nguyên — chỉ thay
+    "license/Machine ID offline" bằng <b>login + subscription</b>, và thay "Open output folder"
+    bằng <b>Download CSV/JSON</b>.
+  </p>
+
+  <h3>Đối tượng người dùng</h3>
+  <ul>
+    <li><b>Sales / Marketing / B2B outreach</b> — cần tìm email công ty từ keyword hoặc danh sách domain để gửi cold email.</li>
+    <li><b>Chủ doanh nghiệp nhỏ</b> — không có team data, cần công cụ đơn giản nhập domain → ra email.</li>
+    <li><b>Người không rành kỹ thuật</b> — flow phải rõ, có preview trước khi tốn quota, copy tiếng Việt dễ hiểu.</li>
+  </ul>
+
+  <h3>Giá trị cốt lõi (mục tiêu UX)</h3>
+  <div class="g-3" style="margin-top:14px">
+    <div style="padding:18px;background:#fff;border:1px solid var(--doc-rule);border-radius:12px">
+      <div style="font-family:var(--doc-mono);font-size:11px;letter-spacing:0.1em;color:var(--doc-accent);text-transform:uppercase">01</div>
+      <b style="display:block;margin:4px 0 6px;font-size:15px">Rõ ràng > kỹ thuật</b>
+      <span style="color:var(--doc-ink-2);font-size:13.5px">Mọi từ kỹ thuật (Hunter, SerpAPI, quota, confidence) đều có chú thích nhẹ nhàng. Không bắt user phải hiểu hệ thống mới dùng được.</span>
+    </div>
+    <div style="padding:18px;background:#fff;border:1px solid var(--doc-rule);border-radius:12px">
+      <div style="font-family:var(--doc-mono);font-size:11px;letter-spacing:0.1em;color:var(--doc-accent);text-transform:uppercase">02</div>
+      <b style="display:block;margin:4px 0 6px;font-size:15px">Bảo vệ quota</b>
+      <span style="color:var(--doc-ink-2);font-size:13.5px">Luôn có bước <i>Preview</i> trước khi gọi Hunter / SerpAPI. Luôn cảnh báo khi user chọn limit cao có thể tốn nhiều request.</span>
+    </div>
+    <div style="padding:18px;background:#fff;border:1px solid var(--doc-rule);border-radius:12px">
+      <div style="font-family:var(--doc-mono);font-size:11px;letter-spacing:0.1em;color:var(--doc-accent);text-transform:uppercase">03</div>
+      <b style="display:block;margin:4px 0 6px;font-size:15px">Bảng dữ liệu là trung tâm</b>
+      <span style="color:var(--doc-ink-2);font-size:13.5px">Results & Saved Leads là nơi user sống lâu nhất. Bảng phải dễ đọc, filter mạnh, có preset "Best B2B Leads", bulk action rõ.</span>
+    </div>
+  </div>
+
+  <h3>Quyết định khác biệt so với desktop</h3>
+  <table class="token-table" style="margin-top:12px">
+    <thead><tr><th style="width:32%">Desktop (cũ)</th><th>Web (mới)</th><th style="width:30%">Lý do</th></tr></thead>
+    <tbody>
+      <tr><td>License Activation + Machine&nbsp;ID</td><td class="val">Login email/password + Subscription</td><td style="font-family:inherit;font-size:13px;color:var(--doc-ink-2)">Web không offline · 1 account dùng nhiều máy</td></tr>
+      <tr><td>Open output folder</td><td class="val">Download CSV / JSON nút rõ</td><td style="font-family:inherit;font-size:13px;color:var(--doc-ink-2)">Browser không có quyền vào folder máy user</td></tr>
+      <tr><td>Lưu lead vào file local</td><td class="val">Saved Leads (server) như mini-CRM</td><td style="font-family:inherit;font-size:13px;color:var(--doc-ink-2)">User truy cập được từ nhiều thiết bị</td></tr>
+      <tr><td>Cấu hình API key trong app settings (.env)</td><td class="val">Settings · API Keys (mask, test connection)</td><td style="font-family:inherit;font-size:13px;color:var(--doc-ink-2)">UI rõ ràng hơn, có Test button</td></tr>
+      <tr><td>Trial offline + key</td><td class="val">Plan: Trial · Basic · Pro · Agency</td><td style="font-family:inherit;font-size:13px;color:var(--doc-ink-2)">SaaS monthly · Manual activation nếu chưa có payment</td></tr>
+    </tbody>
+  </table>
+
+  <h3>10 UX rules của brief — đã áp dụng vào đâu</h3>
+  <ol style="margin-top:10px">
+    <li>Không từ kỹ thuật → mọi label đều tiếng Việt, có tooltip giải thích.</li>
+    <li>Giải thích API key dùng làm gì → Settings § <a href="#settings">3.3</a> có giải thích inline cho từng key.</li>
+    <li>Preview trước khi scan → Domain Scan § <a href="#domain-scan">3.5</a> có bước <i>Preview</i> bắt buộc.</li>
+    <li>Cảnh báo limit cao → Domain Scan preview step show alert warning.</li>
+    <li>Empty state rõ → catalog ở § <a href="#states">7</a>.</li>
+    <li>Data table mạnh → Results § <a href="#results">3.6</a> + Saved Leads § <a href="#saved">3.7</a>.</li>
+    <li>Export CSV dễ thấy → nút primary ở Results & Saved Leads, modal § <a href="#export">3.9</a>.</li>
+    <li>Saved Leads = mini-CRM → có tag, note, status, không chỉ là danh sách email.</li>
+    <li>Web không có Open folder → toast sau Export có link "Tải lại" thay vì "Mở folder".</li>
+    <li>Không có Machine ID → Subscription § <a href="#subscription">3.10</a> hiển thị plan + manual activation.</li>
+  </ol>
+</section>

@@ -1,0 +1,209 @@
+<section class="doc-section" id="admin">
+  <div class="sec-eyebrow">07.11 · Admin only</div>
+  <h2>Admin Dashboard</h2>
+  <p class="sec-lede">
+    Panel riêng cho owner — quản lý user, subscription, usage. Đường <code>/admin/*</code>
+    có sidebar và topbar khác (badge ADMIN tím, thiết kế tách bạch để không nhầm với panel khách).
+  </p>
+
+  <div class="frame">
+    <div class="frame__bar">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <div class="url"><svg width="10" height="10"><use href="#i-shield"/></svg> app.tooldatamail.com / admin / users</div>
+      <div class="tag">Admin · Users · 1280 × 880</div>
+    </div>
+    <div class="frame__body">
+      <div class="mock">
+        <div class="mock-app">
+          <!-- Admin sidebar -->
+          <aside class="m-side" style="background:#0F172A;border-right-color:#1E293B">
+            <div class="brand" style="border-bottom-color:#1E293B">
+              <div class="brand-mark" style="background:linear-gradient(135deg,#7C3AED,#5B21B6);box-shadow:none">TM</div>
+              <div class="brand-text" style="color:#fff">Tool Data Mail<small style="color:#94A3B8">Admin Panel</small></div>
+            </div>
+            <h6 style="color:#64748B">Operations</h6>
+            <div class="m-nav is-active" style="background:rgba(124,58,237,0.15);color:#C4B5FD"><svg class="ic" style="color:#C4B5FD"><use href="#i-users"/></svg>Users<span class="badge" style="background:#7C3AED;color:#fff">128</span></div>
+            <div class="m-nav" style="color:#CBD5E1"><svg class="ic" style="color:#94A3B8"><use href="#i-pie"/></svg>Usage</div>
+            <div class="m-nav" style="color:#CBD5E1"><svg class="ic" style="color:#94A3B8"><use href="#i-credit-card"/></svg>Plans &amp; Pricing</div>
+            <div class="m-nav" style="color:#CBD5E1"><svg class="ic" style="color:#94A3B8"><use href="#i-history"/></svg>All scans</div>
+            <h6 style="color:#64748B">System</h6>
+            <div class="m-nav" style="color:#CBD5E1"><svg class="ic" style="color:#94A3B8"><use href="#i-shield-check"/></svg>Audit log</div>
+            <div class="m-nav" style="color:#CBD5E1"><svg class="ic" style="color:#94A3B8"><use href="#i-settings"/></svg>Settings</div>
+            <h6 style="color:#64748B">Quay lại</h6>
+            <div class="m-nav" style="color:#CBD5E1"><svg class="ic" style="color:#94A3B8"><use href="#i-arrow-up-right"/></svg>App khách</div>
+          </aside>
+
+          <div>
+            <!-- Admin topbar -->
+            <div class="m-top" style="background:#0F172A;border-bottom-color:#1E293B">
+              <div class="crumbs" style="color:#94A3B8"><b style="color:#fff">Admin · Users</b></div>
+              <div class="search" style="background:#1E293B;border-color:#334155;color:#94A3B8"><svg width="14" height="14"><use href="#i-search"/></svg>Tìm user theo email, tên…</div>
+              <div class="right">
+                <span class="plan-pill" style="background:linear-gradient(135deg,#7C3AED,#5B21B6);color:#fff;border:none">ADMIN</span>
+                <span class="api-status" style="color:#CBD5E1"><span class="dot"></span>Hệ thống OK</span>
+                <button class="icon-btn" style="color:#94A3B8"><svg width="18" height="18"><use href="#i-bell"/></svg></button>
+                <div class="avatar" style="background:linear-gradient(135deg,#7C3AED,#5B21B6)">AD</div>
+              </div>
+            </div>
+
+            <div class="m-main">
+              <div class="page-head">
+                <div><h1 class="page-title">Users</h1><p class="page-sub">128 tài khoản · 96 active 30 ngày · 14 trial · 88 paid.</p></div>
+                <div class="actions">
+                  <button class="btn"><svg class="ic"><use href="#i-download"/></svg>Export CSV</button>
+                  <button class="btn btn-primary"><svg class="ic"><use href="#i-plus"/></svg>Tạo user mới</button>
+                </div>
+              </div>
+
+              <!-- Admin stats -->
+              <div class="g-stats" style="margin-bottom:18px">
+                <div class="stat">
+                  <div class="stat-icon"><svg width="18" height="18"><use href="#i-users"/></svg></div>
+                  <div class="stat-label">Tổng user</div>
+                  <div class="stat-value">128</div>
+                  <div class="stat-delta up">↑ 12 tuần này</div>
+                </div>
+                <div class="stat stat--teal">
+                  <div class="stat-icon"><svg width="18" height="18"><use href="#i-zap"/></svg></div>
+                  <div class="stat-label">Active 30 ngày</div>
+                  <div class="stat-value">96</div>
+                  <div class="stat-delta">75% retention</div>
+                </div>
+                <div class="stat stat--violet">
+                  <div class="stat-icon"><svg width="18" height="18"><use href="#i-credit-card"/></svg></div>
+                  <div class="stat-label">MRR</div>
+                  <div class="stat-value">112M₫</div>
+                  <div class="stat-delta up">↑ 8.4M tháng này</div>
+                </div>
+                <div class="stat stat--amber">
+                  <div class="stat-icon"><svg width="18" height="18"><use href="#i-pie"/></svg></div>
+                  <div class="stat-label">API spend</div>
+                  <div class="stat-value">$486</div>
+                  <div class="stat-delta">Hunter + SerpAPI 30d</div>
+                </div>
+              </div>
+
+              <!-- Filter chips -->
+              <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+                <span class="badge badge--info" style="padding:5px 12px;cursor:pointer">Tất cả · 128</span>
+                <span class="badge badge--neutral" style="padding:5px 12px;cursor:pointer">Active</span>
+                <span class="badge badge--neutral" style="padding:5px 12px;cursor:pointer">Inactive 30d+</span>
+                <span class="badge badge--neutral" style="padding:5px 12px;cursor:pointer">Trial</span>
+                <span class="badge badge--neutral" style="padding:5px 12px;cursor:pointer">Basic</span>
+                <span class="badge badge--neutral" style="padding:5px 12px;cursor:pointer">Pro</span>
+                <span class="badge badge--neutral" style="padding:5px 12px;cursor:pointer">Agency</span>
+                <span class="badge badge--neutral" style="padding:5px 12px;cursor:pointer">Bị khoá</span>
+              </div>
+
+              <div class="table-wrap">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>Plan</th>
+                      <th>Scan / lưu</th>
+                      <th>API usage</th>
+                      <th>Login gần nhất</th>
+                      <th>Tạo</th>
+                      <th>Trạng thái</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><div class="row-comp"><div class="logo" style="background:linear-gradient(135deg,#2563EB,#1D4ED8)">TN</div><div class="meta"><span class="name">Nguyễn Thị Trang</span><span class="sub mono">trang.nguyen<span class="at">&#64;</span>vietsoftware.com.vn</span></div></div></td>
+                      <td><span class="plan-pill" style="display:inline-block;background:linear-gradient(135deg,#FEF3C7,#FDE68A);color:#78350F">PRO</span><br><span class="muted text-xs">Renew 12 / 06</span></td>
+                      <td>42 / <b>348</b><br><span class="muted text-xs">tháng này</span></td>
+                      <td><div class="conf is-mid"><span class="bar"><i style="width:64%"></i></span><span class="pct">64%</span></div></td>
+                      <td><span class="mono text-xs">18 / 05 · 09:30</span></td>
+                      <td><span class="mono text-xs">12 / 03 / 2026</span></td>
+                      <td><span class="badge badge--ok"><span class="d"></span>Active</span></td>
+                      <td class="actions"><button class="btn btn-sm">Mở</button><button class="btn btn-sm btn-ghost"><svg class="ic"><use href="#i-more"/></svg></button></td>
+                    </tr>
+                    <tr>
+                      <td><div class="row-comp"><div class="logo" style="background:linear-gradient(135deg,#16A34A,#15803D)">LH</div><div class="meta"><span class="name">Lê Văn Hùng</span><span class="sub mono">hung.le<span class="at">&#64;</span>realgroup.vn</span></div></div></td>
+                      <td><span class="plan-pill" style="display:inline-block;background:linear-gradient(135deg,#F5F3FF,#DDD6FE);color:#5B21B6">AGENCY</span><br><span class="muted text-xs">Renew 28 / 05</span></td>
+                      <td>87 / <b>1.240</b><br><span class="muted text-xs">tháng này</span></td>
+                      <td><div class="conf is-high"><span class="bar"><i style="width:88%"></i></span><span class="pct">88%</span></div></td>
+                      <td><span class="mono text-xs">18 / 05 · 08:12</span></td>
+                      <td><span class="mono text-xs">04 / 01 / 2026</span></td>
+                      <td><span class="badge badge--ok"><span class="d"></span>Active</span></td>
+                      <td class="actions"><button class="btn btn-sm">Mở</button><button class="btn btn-sm btn-ghost"><svg class="ic"><use href="#i-more"/></svg></button></td>
+                    </tr>
+                    <tr>
+                      <td><div class="row-comp"><div class="logo" style="background:linear-gradient(135deg,#7C3AED,#6D28D9)">MA</div><div class="meta"><span class="name">Lê Minh Anh</span><span class="sub mono">anh.le<span class="at">&#64;</span>greenhouse.vn</span></div></div></td>
+                      <td><span class="plan-pill" style="display:inline-block;background:#EFF6FF;color:#1E40AF;border:1px solid #BFDBFE">BASIC</span><br><span class="muted text-xs">Renew 02 / 06</span></td>
+                      <td>14 / <b>72</b><br><span class="muted text-xs">tháng này</span></td>
+                      <td><div class="conf is-low"><span class="bar"><i style="width:22%"></i></span><span class="pct">22%</span></div></td>
+                      <td><span class="mono text-xs">17 / 05 · 18:55</span></td>
+                      <td><span class="mono text-xs">02 / 04 / 2026</span></td>
+                      <td><span class="badge badge--ok"><span class="d"></span>Active</span></td>
+                      <td class="actions"><button class="btn btn-sm">Mở</button><button class="btn btn-sm btn-ghost"><svg class="ic"><use href="#i-more"/></svg></button></td>
+                    </tr>
+                    <tr>
+                      <td><div class="row-comp"><div class="logo" style="background:linear-gradient(135deg,#F59E0B,#D97706)">HP</div><div class="meta"><span class="name">Trần Hồng Phong</span><span class="sub mono">phong.tran<span class="at">&#64;</span>metroview.com.vn</span></div></div></td>
+                      <td><span class="plan-pill" style="display:inline-block;background:#FFF7ED;color:#9A3412;border:1px solid #FDBA74">TRIAL</span><br><span class="muted text-xs" style="color:#D97706">Hết hạn 2 ngày</span></td>
+                      <td>5 / <b>12</b></td>
+                      <td><div class="conf is-low"><span class="bar"><i style="width:18%"></i></span><span class="pct">18%</span></div></td>
+                      <td><span class="mono text-xs">17 / 05 · 14:20</span></td>
+                      <td><span class="mono text-xs">14 / 05 / 2026</span></td>
+                      <td><span class="badge badge--warn"><span class="d"></span>Trial</span></td>
+                      <td class="actions"><button class="btn btn-sm">Mở</button><button class="btn btn-sm btn-ghost"><svg class="ic"><use href="#i-more"/></svg></button></td>
+                    </tr>
+                    <tr>
+                      <td><div class="row-comp"><div class="logo" style="background:linear-gradient(135deg,#94A3B8,#64748B)">KL</div><div class="meta"><span class="name">Võ Khánh Linh</span><span class="sub mono">linh.vo<span class="at">&#64;</span>houseconnect.vn</span></div></div></td>
+                      <td><span class="plan-pill" style="display:inline-block;background:#F1F5F9;color:#475569;border:1px solid #CBD5E1">BASIC</span><br><span class="muted text-xs">Hết hạn 12 / 04</span></td>
+                      <td>0 / <b>34</b></td>
+                      <td class="muted text-xs">—</td>
+                      <td><span class="mono text-xs">12 / 04 · 09:00</span></td>
+                      <td><span class="mono text-xs">15 / 03 / 2026</span></td>
+                      <td><span class="badge" style="background:#F1F5F9;color:#64748B;border-color:#CBD5E1"><span class="d"></span>Inactive</span></td>
+                      <td class="actions"><button class="btn btn-sm">Mở</button><button class="btn btn-sm btn-ghost"><svg class="ic"><use href="#i-more"/></svg></button></td>
+                    </tr>
+                    <tr>
+                      <td><div class="row-comp"><div class="logo" style="background:linear-gradient(135deg,#DC2626,#B91C1C)">SP</div><div class="meta"><span class="name">spam<span class="at">&#64;</span>test.io</span><span class="sub mono">spam<span class="at">&#64;</span>test.io</span></div></div></td>
+                      <td><span class="plan-pill" style="display:inline-block;background:#FFF7ED;color:#9A3412;border:1px solid #FDBA74">TRIAL</span></td>
+                      <td>11 / <b>0</b></td>
+                      <td><div class="conf is-high"><span class="bar"><i style="width:98%"></i></span><span class="pct">98%</span></div></td>
+                      <td><span class="mono text-xs">15 / 05 · 03:12</span></td>
+                      <td><span class="mono text-xs">14 / 05 / 2026</span></td>
+                      <td><span class="badge badge--bad"><span class="d"></span>Bị khoá</span></td>
+                      <td class="actions"><button class="btn btn-sm">Mở</button><button class="btn btn-sm btn-ghost"><svg class="ic"><use href="#i-more"/></svg></button></td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="card-foot" style="border-top:1px solid var(--m-rule);background:var(--m-surface-2);padding:10px 16px">
+                  <div class="pager">
+                    <span class="info">1–6 / 128 user</span>
+                    <div class="pi is-disabled"><svg width="14" height="14"><use href="#i-chev-left"/></svg></div>
+                    <div class="pi is-active">1</div><div class="pi">2</div><div class="pi">3</div><div class="pi">…</div><div class="pi">22</div>
+                    <div class="pi"><svg width="14" height="14"><use href="#i-chev-right"/></svg></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="frame__caption"><b>SCREEN 11/11</b> Admin · Users · Path: <code>/admin/users</code></div>
+
+  <div class="annot-list">
+    <div class="pin">1</div><div class="body"><b>Theme tối + accent tím</b> để admin panel <i>cảm</i> khác hẳn customer app. Sidebar dark slate, brand mark đổi tím, badge ADMIN gradient tím. Tránh nhầm lẫn khi đang demo cho khách.</div>
+    <div class="pin">2</div><div class="body"><b>4 admin stat</b> — Tổng user · Active 30d · MRR · API spend. MRR hiển thị VND, API spend USD (vì Hunter/SerpAPI bill USD).</div>
+    <div class="pin">3</div><div class="body"><b>Filter theo plan + status</b> — chip ngang, click apply filter ngay (giống Saved Leads).</div>
+    <div class="pin">4</div><div class="body"><b>Row user</b> — avatar + tên + email; plan badge với gradient màu khác nhau (Trial cam, Basic xanh, Pro vàng, Agency tím); usage stat (scan/lưu, API %); login gần nhất + ngày tạo.</div>
+    <div class="pin">5</div><div class="body"><b>Anomaly highlight</b> — row spam (đã khoá) có 11 scan nhưng 0 saved + API usage cao 98% → bị flag và disable. Admin có thể delete hoặc unlock.</div>
+    <div class="pin">6</div><div class="body"><b>Action "Mở"</b> → trang detail user: profile, subscription, scan history của user đó, action thủ công (đổi plan, reset password, khoá / mở khoá, xoá).</div>
+  </div>
+
+  <h3>Trang admin khác (ngắn)</h3>
+  <ul>
+    <li><b>Usage</b> — biểu đồ scan / day, API spend / day, top 10 user theo usage.</li>
+    <li><b>Plans &amp; Pricing</b> — edit limit của từng plan, ra mã activation thủ công.</li>
+    <li><b>All scans</b> — global view mọi scan, lọc theo user / status / loại.</li>
+    <li><b>Audit log</b> — mọi action admin: ai đổi plan của ai, khi nào — for compliance.</li>
+    <li><b>Settings</b> — env config, Hunter / SerpAPI default key cho user trial, email templates.</li>
+  </ul>
+</section>

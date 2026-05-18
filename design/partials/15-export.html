@@ -1,0 +1,123 @@
+<section class="doc-section" id="export">
+  <div class="sec-eyebrow">07.9 · Modal</div>
+  <h2>Export Modal</h2>
+  <p class="sec-lede">
+    Modal duy nhất cho mọi luồng export. Mở từ button "Export" ở Results, Saved Leads, History.
+    User chọn <b>scope</b> (lead nào?) và <b>format</b> (CSV / JSON / Best B2B CSV), rồi tải.
+  </p>
+
+  <div class="frame">
+    <div class="frame__bar">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <div class="url"><svg width="10" height="10"><use href="#i-lock"/></svg> app.tooldatamail.com / leads</div>
+      <div class="tag">Export modal overlay · 1280 × 760</div>
+    </div>
+    <div class="frame__body" style="background:#F1F5F9">
+      <div class="mock">
+        <!-- Simulated underlay: faded leads list -->
+        <div style="position:relative;min-height:660px;background:linear-gradient(180deg, rgba(241,245,249,1) 0%, rgba(241,245,249,0.92) 100%)">
+          <!-- Backdrop -->
+          <div style="position:absolute;inset:0;background:rgba(15,23,42,0.42)"></div>
+          <!-- Faded content behind -->
+          <div style="position:absolute;inset:0;padding:28px;opacity:0.5;filter:blur(0.4px)">
+            <div style="height:36px;background:#fff;border-radius:8px;width:220px;margin-bottom:24px"></div>
+            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:24px">
+              <div style="height:36px;background:#fff;border-radius:6px"></div><div style="height:36px;background:#fff;border-radius:6px"></div><div style="height:36px;background:#fff;border-radius:6px"></div><div style="height:36px;background:#fff;border-radius:6px"></div><div style="height:36px;background:#fff;border-radius:6px"></div>
+            </div>
+            <div class="skeleton skel-card" style="margin-bottom:8px"></div>
+            <div class="skeleton skel-card" style="margin-bottom:8px"></div>
+            <div class="skeleton skel-card" style="margin-bottom:8px"></div>
+            <div class="skeleton skel-card" style="margin-bottom:8px"></div>
+          </div>
+
+          <!-- Modal -->
+          <div style="position:absolute;top:80px;left:50%;transform:translateX(-50%);width:540px">
+            <div class="modal">
+              <div class="modal-head">
+                <div>
+                  <h3>Export lead</h3>
+                  <div class="sub">Chọn lead nào & format file bạn muốn tải.</div>
+                </div>
+                <button class="btn btn-sm btn-ghost"><svg class="ic"><use href="#i-x"/></svg></button>
+              </div>
+              <div class="modal-body" style="padding:18px 22px 6px">
+                <h4 style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--m-ink-3);margin:0 0 10px;font-weight:600">Phạm vi</h4>
+                <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px">
+                  <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid var(--m-primary-border);background:var(--m-primary-soft);border-radius:10px;cursor:pointer">
+                    <span style="width:16px;height:16px;border-radius:50%;border:5px solid var(--m-primary);background:#fff;flex-shrink:0;margin-top:1px"></span>
+                    <div style="flex:1"><b style="display:block;font-size:13.5px">3 lead đã chọn</b><span style="font-size:12.5px;color:var(--m-ink-2)">Trang Nguyễn · Lê Văn Hùng · Lê Minh Anh</span></div>
+                  </label>
+                  <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid var(--m-rule);background:#fff;border-radius:10px;cursor:pointer">
+                    <span style="width:16px;height:16px;border-radius:50%;border:1.5px solid var(--m-rule-strong);background:#fff;flex-shrink:0;margin-top:1px"></span>
+                    <div style="flex:1"><b style="display:block;font-size:13.5px">Toàn bộ lead đang filter</b><span style="font-size:12.5px;color:var(--m-ink-2)">42 lead · Status Contacted + Interested · tag "Hot lead"</span></div>
+                  </label>
+                  <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid var(--m-rule);background:#fff;border-radius:10px;cursor:pointer">
+                    <span style="width:16px;height:16px;border-radius:50%;border:1.5px solid var(--m-rule-strong);background:#fff;flex-shrink:0;margin-top:1px"></span>
+                    <div style="flex:1"><b style="display:block;font-size:13.5px">Tất cả 348 lead đã lưu</b><span style="font-size:12.5px;color:var(--m-ink-2)">Không filter</span></div>
+                  </label>
+                </div>
+
+                <h4 style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--m-ink-3);margin:0 0 10px;font-weight:600">Format</h4>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+                  <label style="padding:12px;border:2px solid var(--m-primary);background:var(--m-primary-soft);border-radius:10px;cursor:pointer;text-align:center">
+                    <div style="font-size:18px;font-weight:600;color:var(--m-primary)">CSV</div>
+                    <div style="font-size:11.5px;color:var(--m-ink-2);margin-top:4px">Excel · Google&nbsp;Sheets</div>
+                  </label>
+                  <label style="padding:12px;border:1px solid var(--m-rule);background:#fff;border-radius:10px;cursor:pointer;text-align:center">
+                    <div style="font-size:18px;font-weight:600;color:var(--m-ink)">JSON</div>
+                    <div style="font-size:11.5px;color:var(--m-ink-3);margin-top:4px">API · script</div>
+                  </label>
+                  <label style="padding:12px;border:1px solid var(--m-rule);background:#fff;border-radius:10px;cursor:pointer;text-align:center;position:relative">
+                    <span style="position:absolute;top:6px;right:6px" class="badge badge--info text-xs">⭐ Best B2B</span>
+                    <div style="font-size:18px;font-weight:600;color:var(--m-ink)">CSV<sup style="font-size:10px;color:var(--m-primary)">+</sup></div>
+                    <div style="font-size:11.5px;color:var(--m-ink-3);margin-top:4px">Lead chất lượng cao</div>
+                  </label>
+                </div>
+
+                <div style="display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--m-ink-2);padding:10px 12px;background:var(--m-surface-2);border-radius:8px;border:1px solid var(--m-rule)">
+                  <svg width="14" height="14" style="color:var(--m-ink-3);flex-shrink:0"><use href="#i-info"/></svg>
+                  CSV phù hợp để mở bằng Excel hoặc Google Sheets. JSON dành cho developer hoặc import vào CRM khác.
+                </div>
+
+                <details style="margin-top:14px">
+                  <summary style="cursor:pointer;font-size:12.5px;color:var(--m-primary);font-weight:500;list-style:none">⚙ Tuỳ chỉnh cột trong file (mặc định: tất cả) →</summary>
+                  <div style="margin-top:10px;padding:12px;background:var(--m-surface-2);border-radius:8px;font-size:12px;color:var(--m-ink-2)">Cột: email, name, position, company, domain, confidence, status, tag, note, date_saved …</div>
+                </details>
+              </div>
+              <div class="modal-foot">
+                <button class="btn">Hủy</button>
+                <button class="btn btn-primary"><svg class="ic"><use href="#i-download"/></svg>Tải xuống · 3 lead</button>
+              </div>
+            </div>
+
+            <!-- Toast that appears after download -->
+            <div style="position:absolute;bottom:-80px;right:0">
+              <div class="toast toast-ok" style="background:#0F172A">
+                <svg class="ic"><use href="#i-check-circle"/></svg>
+                <div><strong>File CSV đã sẵn sàng.</strong><p>leads-2026-05-18.csv · 3 hàng · <a style="color:#93C5FD;text-decoration:underline">Tải lại</a></p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="frame__caption"><b>SCREEN 9/11</b> Export Modal · trigger từ "Export" ở Results / Saved Leads / History.</div>
+
+  <div class="annot-list">
+    <div class="pin">1</div><div class="body"><b>Scope radio 3 lựa chọn</b> — "X đã chọn" (mặc định nếu có selection) · "Toàn bộ filter" · "Tất cả". Mỗi option có sub-text mô tả chính xác bao nhiêu lead.</div>
+    <div class="pin">2</div><div class="body"><b>Format 3 card</b> — CSV (mặc định, highlight primary), JSON, Best B2B CSV (có ⭐). Click toggle. Card được chọn có border 2px primary.</div>
+    <div class="pin">3</div><div class="body"><b>Tooltip giải thích</b> dưới — "CSV phù hợp với Excel, JSON cho developer". UX rule #1: không dùng từ kỹ thuật mà không giải thích.</div>
+    <div class="pin">4</div><div class="body"><b>Custom columns</b> ẩn trong &lt;details&gt; — power user mới cần, không làm phức tạp default flow.</div>
+    <div class="pin">5</div><div class="body"><b>Primary button có count</b> — "Tải xuống · 3 lead" giúp xác nhận lại scope trước khi click.</div>
+    <div class="pin">6</div><div class="body"><b>Sau khi click</b>: modal đóng → file tải xuống (browser handles) → toast bottom-right "File CSV đã sẵn sàng · Tải lại" + lưu vào History (cột "Đã export").</div>
+  </div>
+
+  <h3>"Best B2B CSV" — column được chuẩn hoá</h3>
+  <p>File CSV "Best B2B" có schema cố định để khách dễ import vào HubSpot / Mailchimp / cold email tool:</p>
+  <ul style="margin-top:6px">
+    <li><code>email, first_name, last_name, full_name, position, company, domain, country, linkedin_url, confidence, source, date_found</code></li>
+    <li>Đã lọc sẵn theo preset Best B2B (Verified + Senior+ + có tên + có chức vụ).</li>
+    <li>UTF-8 BOM để Excel hiển thị tiếng Việt đúng.</li>
+  </ul>
+</section>

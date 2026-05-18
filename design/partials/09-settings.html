@@ -1,0 +1,173 @@
+<section class="doc-section" id="settings">
+  <div class="sec-eyebrow">07.3 · Account</div>
+  <h2>Settings · API Keys</h2>
+  <p class="sec-lede">
+    Trang khách nhập & quản lý API key. Mỗi key có 3 trạng thái rõ:
+    <i>chưa có / đang test / đã kết nối</i>. Mỗi key có giải thích "dùng để làm gì",
+    nút Test connection, và sau khi save thì <b>mask</b> 4 ký tự cuối.
+  </p>
+
+  <div class="frame">
+    <div class="frame__bar">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <div class="url"><svg width="10" height="10"><use href="#i-lock"/></svg> app.tooldatamail.com / settings / api</div>
+      <div class="tag">Settings · 1280 × 900</div>
+    </div>
+    <div class="frame__body">
+      <div class="mock">
+        <div class="mock-app">
+          <aside class="m-side">
+            <div class="brand"><div class="brand-mark">TM</div><div class="brand-text">Tool Data Mail<small>Web</small></div></div>
+            <h6>Workspace</h6>
+            <div class="m-nav"><svg class="ic"><use href="#i-home"/></svg>Dashboard</div>
+            <div class="m-nav"><svg class="ic"><use href="#i-target"/></svg>Keyword Discovery</div>
+            <div class="m-nav"><svg class="ic"><use href="#i-mail-search"/></svg>Domain Scan</div>
+            <div class="m-nav"><svg class="ic"><use href="#i-table"/></svg>Results<span class="badge">12</span></div>
+            <div class="m-nav"><svg class="ic"><use href="#i-bookmark"/></svg>Saved Leads<span class="badge">348</span></div>
+            <div class="m-nav"><svg class="ic"><use href="#i-history"/></svg>Scan History</div>
+            <h6>Account</h6>
+            <div class="m-nav is-active"><svg class="ic"><use href="#i-settings"/></svg>Settings</div>
+            <div class="m-nav"><svg class="ic"><use href="#i-credit-card"/></svg>Subscription</div>
+            <div class="m-nav"><svg class="ic"><use href="#i-help"/></svg>Help</div>
+            <div class="quota-card"><div class="lbl"><span>Hunter.io</span><span class="mono">320 / 500</span></div><div class="num">Còn 180 request</div><div class="bar"><i style="width:64%"></i></div></div>
+          </aside>
+
+          <div>
+            <div class="m-top">
+              <div class="crumbs"><span>Account</span><span class="sep">/</span><b>Settings</b></div>
+              <div class="search"><svg width="14" height="14"><use href="#i-search"/></svg>Tìm email, domain, công ty…</div>
+              <div class="right">
+                <span class="plan-pill">PRO</span>
+                <span class="api-status"><span class="dot"></span>API OK</span>
+                <button class="icon-btn"><svg width="18" height="18"><use href="#i-bell"/></svg></button>
+                <div class="avatar">TN</div>
+              </div>
+            </div>
+
+            <div class="m-main">
+              <div class="page-head">
+                <div><h1 class="page-title">Settings</h1><p class="page-sub">Quản lý API key, tài khoản và bảo mật.</p></div>
+              </div>
+
+              <div class="tabs">
+                <div class="tab is-active">API Keys</div>
+                <div class="tab">Tài khoản</div>
+                <div class="tab">Đổi mật khẩu</div>
+                <div class="tab">Notifications</div>
+                <div class="tab">Bảo mật</div>
+              </div>
+
+              <!-- HUNTER -->
+              <div class="card" style="margin-bottom:16px">
+                <div class="card-head">
+                  <div style="display:flex;align-items:center;gap:12px">
+                    <div style="width:36px;height:36px;border-radius:9px;background:#FFF7ED;display:grid;place-items:center;color:#EA580C;font-weight:700">H</div>
+                    <div><h3>Hunter.io API Key</h3><div class="sub">Dùng cho <b>Domain Scan</b> — tìm email từ domain.</div></div>
+                  </div>
+                  <span class="badge badge--ok"><span class="d"></span>Đã kết nối</span>
+                </div>
+                <div class="card-body">
+                  <div class="field">
+                    <label>API key</label>
+                    <div class="key-reveal">
+                      <svg width="14" height="14"><use href="#i-key"/></svg>
+                      <span class="dots">••••••••••••••••••••••••</span><span class="tail">a3d2</span>
+                      <span class="reveal-btn"><svg width="13" height="13" style="vertical-align:-2px"><use href="#i-eye"/></svg> Hiện</span>
+                      <span class="reveal-btn"><svg width="13" height="13" style="vertical-align:-2px"><use href="#i-copy"/></svg> Copy</span>
+                    </div>
+                    <span class="hint">Lấy tại <a style="color:var(--m-primary)">hunter.io / api-keys</a>. Key được mã hoá & lưu phía server.</span>
+                  </div>
+                  <div class="g-2" style="margin-top:14px">
+                    <div style="padding:14px;background:var(--m-surface-2);border:1px solid var(--m-rule);border-radius:10px">
+                      <div style="font-size:11.5px;letter-spacing:0.08em;text-transform:uppercase;color:var(--m-ink-3);font-weight:600;margin-bottom:6px">Quota tháng này</div>
+                      <div style="font-size:22px;font-weight:600;letter-spacing:-0.02em">320 <span style="font-size:13px;color:var(--m-ink-3);font-weight:400">/ 500 request</span></div>
+                      <div class="progress" style="margin-top:8px"><i style="width:64%"></i></div>
+                      <div style="font-size:12px;color:var(--m-ink-3);margin-top:6px">Reset 01 / 06 / 2026</div>
+                    </div>
+                    <div style="padding:14px;background:var(--m-surface-2);border:1px solid var(--m-rule);border-radius:10px">
+                      <div style="font-size:11.5px;letter-spacing:0.08em;text-transform:uppercase;color:var(--m-ink-3);font-weight:600;margin-bottom:6px">Test gần nhất</div>
+                      <div style="font-size:13.5px;color:var(--m-ink-2)"><span class="badge badge--ok"><span class="d"></span>OK</span> &nbsp; 18 / 05 / 2026 · 09:34</div>
+                      <div style="font-size:12px;color:var(--m-ink-3);margin-top:8px">Response 142 ms · Plan Hunter Starter</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-foot">
+                  <span style="font-size:12.5px;color:var(--m-ink-3)">Key đã mask. Đổi key sẽ ngắt mọi scan đang chạy.</span>
+                  <div style="display:flex;gap:8px">
+                    <button class="btn btn-sm"><svg class="ic"><use href="#i-zap"/></svg>Test connection</button>
+                    <button class="btn btn-sm btn-danger">Xoá key</button>
+                    <button class="btn btn-primary btn-sm"><svg class="ic"><use href="#i-edit"/></svg>Đổi key</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- SERPAPI -->
+              <div class="card" style="margin-bottom:16px">
+                <div class="card-head">
+                  <div style="display:flex;align-items:center;gap:12px">
+                    <div style="width:36px;height:36px;border-radius:9px;background:#F5F3FF;display:grid;place-items:center;color:#6D28D9;font-weight:700">S</div>
+                    <div><h3>SerpAPI Key</h3><div class="sub">Dùng cho <b>Keyword Discovery</b> — tìm website từ keyword.</div></div>
+                  </div>
+                  <span class="badge badge--warn"><span class="d"></span>Chưa kết nối</span>
+                </div>
+                <div class="card-body">
+                  <div class="field">
+                    <label>API key</label>
+                    <div class="input-group">
+                      <span class="prefix"><svg width="14" height="14"><use href="#i-key"/></svg></span>
+                      <input class="input is-mono" placeholder="Dán SerpAPI key của bạn vào đây…"/>
+                      <span class="suffix" style="cursor:pointer"><svg width="14" height="14"><use href="#i-eye"/></svg></span>
+                    </div>
+                    <span class="hint">Đăng ký miễn phí 100 search / tháng tại <a style="color:var(--m-primary)">serpapi.com</a>. Plan trả phí mở rộng giới hạn.</span>
+                  </div>
+                  <div class="alert" style="background:var(--m-primary-soft);border-color:var(--m-primary-border);color:#1E40AF;margin-top:14px">
+                    <svg class="ic"><use href="#i-info"/></svg>
+                    <div class="body">
+                      <strong>Khi nào cần SerpAPI key?</strong>
+                      <p>Khi bạn muốn dùng <b>Keyword Discovery</b> để tìm website công ty từ keyword + quốc gia. Nếu bạn chỉ có sẵn danh sách domain, chỉ cần Hunter.io.</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-foot">
+                  <span style="font-size:12.5px;color:var(--m-ink-3)">Sau khi Test OK, key sẽ được mask.</span>
+                  <div style="display:flex;gap:8px">
+                    <button class="btn btn-sm is-disabled"><svg class="ic"><use href="#i-zap"/></svg>Test connection</button>
+                    <button class="btn btn-primary btn-sm"><svg class="ic"><use href="#i-check"/></svg>Lưu &amp; Test</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Security note -->
+              <div class="alert" style="margin-top:8px">
+                <svg class="ic"><use href="#i-shield-check"/></svg>
+                <div class="body">
+                  <strong>API key của bạn được bảo mật.</strong>
+                  <p>Khoá được mã hoá khi lưu vào database (AES-256). Tool Data Mail không chia sẻ key cho bên thứ ba. <b>Không chia sẻ key với người khác</b> — kẻ xấu có thể tiêu hết quota của bạn.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="frame__caption"><b>SCREEN 3/11</b> Settings · API Keys · Path: <code>/settings/api</code> · Tab Settings có 5 tab: API Keys (mặc định), Tài khoản, Đổi mật khẩu, Notifications, Bảo mật.</div>
+
+  <div class="annot-list">
+    <div class="pin">1</div><div class="body"><b>Mỗi key có icon riêng & màu</b> (Hunter cam, SerpAPI tím) để user nhớ. Card head có status badge bên phải.</div>
+    <div class="pin">2</div><div class="body"><b>Giải thích "dùng để làm gì" inline</b> — sub trong card-head + alert info bên dưới input. UX rule #2 từ brief.</div>
+    <div class="pin">3</div><div class="body"><b>Sau khi save → mask</b>. Hiển thị 24 dots + 4 ký tự cuối real. Có nút "Hiện" (tạm bỏ mask trong 5 giây) và "Copy".</div>
+    <div class="pin">4</div><div class="body"><b>Quota panel</b> chỉ hiện khi Hunter đã connect (Hunter API trả về quota). SerpAPI thường không trả quota qua API → không hiện.</div>
+    <div class="pin">5</div><div class="body"><b>Test connection button</b> — gọi 1 request ping, không tốn quota nếu có thể. Sau khi test, lưu timestamp + response time vào panel "Test gần nhất".</div>
+    <div class="pin">6</div><div class="body"><b>Save flow</b>. (a) User dán key → click "Lưu & Test" → spinner. (b) Test pass → toast "Đã kết nối Hunter.io", badge chuyển xanh, key mask. (c) Test fail → input đỏ + helper text "Key không hợp lệ. Kiểm tra lại trên hunter.io." Không lưu.</div>
+    <div class="pin">7</div><div class="body"><b>Security note ở cuối page</b> — UX rule #1 từ brief, nhắc về bảo mật. Dùng icon shield + tone tích cực ("được bảo mật") trước, cảnh báo ("không chia sẻ") sau.</div>
+  </div>
+
+  <h3>Tab khác (ngắn gọn)</h3>
+  <ul>
+    <li><b>Tài khoản</b> — Tên, avatar (upload), email (read-only nếu là email login), múi giờ, ngôn ngữ.</li>
+    <li><b>Đổi mật khẩu</b> — Mật khẩu cũ + mới + xác nhận. Hiện strength meter.</li>
+    <li><b>Notifications</b> — Email khi (a) scan xong, (b) export sẵn sàng, (c) quota gần hết, (d) hoá đơn.</li>
+    <li><b>Bảo mật</b> — 2FA, active sessions (logout từ thiết bị khác), lịch sử đăng nhập 30 ngày.</li>
+  </ul>
+</section>
