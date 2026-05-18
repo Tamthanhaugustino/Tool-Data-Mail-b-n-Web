@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ChevronRight, Loader2, Upload } from "lucide-react";
+import { ChevronRight, Download, Loader2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -53,6 +53,43 @@ function mapToRows(resp: ScanResponse): ScanResultRow[] {
     confidence: Math.round(r.confidence * 100),
     status: statusForTable(r.status),
   }));
+}
+
+function escapeCsvCell(value: string | number): string {
+  const s = String(value);
+  if (/[",\n\r]/.test(s)) {
+    return `"${s.replace(/"/g, '""')}"`;
+  }
+  return s;
+}
+
+function downloadScanResultsCsv(rows: ScanResultRow[], filename: string) {
+  const headers = [
+    "email",
+    "name",
+    "title",
+    "company",
+    "domain",
+    "confidence",
+    "status",
+  ];
+  const lines = [
+    headers.join(","),
+    ...rows.map((r) =>
+      [r.email, r.name, r.title, r.company, r.domain, r.confidence, r.status]
+        .map(escapeCsvCell)
+        .join(","),
+    ),
+  ];
+  const blob = new Blob(["\uFEFF" + lines.join("\r\n")], {
+    type: "text/csv;charset=utf-8",
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 export function DomainScanWizard({
@@ -315,6 +352,7 @@ export function DomainScanWizard({
 
       {step === "Results" && (
         <ScanResultsView
+          key={response?.run.id ?? errorCode ?? "scan-error"}
           response={response}
           rows={rows}
           verifiedOnly={verifiedOnly}
@@ -323,6 +361,12 @@ export function DomainScanWizard({
           errorHint={errorHint}
           onReset={() => {
             setStep("Input");
+            setResponse(null);
+            setError(null);
+            setErrorCode(null);
+          }}
+          onRescan={() => {
+            setStep("Preview");
             setResponse(null);
             setError(null);
             setErrorCode(null);
@@ -341,6 +385,7 @@ function ScanResultsView({
   errorCode,
   errorHint,
   onReset,
+  onRescan,
 }: {
   response: ScanResponse | null;
   rows: ScanResultRow[];
@@ -349,7 +394,24 @@ function ScanResultsView({
   errorCode: string | null;
   errorHint: string | null;
   onReset: () => void;
+  onRescan: () => void;
 }) {
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
+
+  const selectedRows = useMemo(
+    () => rows.filter((r) => selectedIds.has(r.id)),
+    [rows, selectedIds],
+  );
+  const selectedCount = selectedRows.length;
+  const allSelected = rows.length > 0 && selectedCount === rows.length;
+
+  const selectAll = () => setSelectedIds(new Set(rows.map((r) => r.id)));
+  const clearSelection = () => setSelectedIds(new Set());
+
+  const exportCsv = (exportRows: ScanResultRow[], suffix: string) => {
+    const stamp = response?.run.id ?? "scan";
+    downloadScanResultsCsv(exportRows, `domain-scan-${stamp}-${suffix}.csv`);
+  };
   if (error) {
     return (
       <Card className="border-red-200 bg-red-50 shadow-sm">
@@ -382,23 +444,90 @@ function ScanResultsView({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h3 className="font-semibold text-slate-900">Kết quả scan</h3>
-          <p className="text-sm text-slate-500">
-            {run.totalEmails} email tìm được · {run.scannedDomains} domain · provider {run.provider} ·{" "}
-            {run.durationMs}ms
-            {verifiedOnly && rows.length !== run.totalEmails
-              ? ` · đang lọc verified (${rows.length}/${run.totalEmails})`
-              : ""}
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={onReset}>
+      <div>
+        <h3 className="font-semibold text-slate-900">Kết quả scan</h3>
+        <p className="text-sm text-slate-500">
+          {run.totalEmails} email tìm được · {run.scannedDomains} domain · provider {run.provider} ·{" "}
+          {run.durationMs}ms
+          {verifiedOnly && rows.length !== run.totalEmails
+            ? ` · đang lọc verified (${rows.length}/${run.totalEmails})`
+            : ""}
+        </p>
+      </div>
+
+      <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4 space-y-3">
+        <p className="text-sm font-medium text-slate-800">Bước tiếp theo</p>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" onClick={onReset}>
+            Quay lại nhập domain
+          </Button>
+          <Button variant="outline" size="sm" onClick={onRescan}>
             Scan mới
           </Button>
-          <Button disabled>Lưu vào Saved Leads (Phase 09+)</Button>
+          <span className="hidden sm:inline w-px self-stretch bg-slate-200 mx-1" aria-hidden />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={selectAll}
+            disabled={rows.length === 0 || allSelected}
+          >
+            Chọn tất cả
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={clearSelection}
+            disabled={selectedCount === 0}
+          >
+            Bỏ chọn
+          </Button>
+          <span className="hidden sm:inline w-px self-stretch bg-slate-200 mx-1" aria-hidden />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => exportCsv(rows, "all")}
+            disabled={rows.length === 0}
+          >
+            <Download className="size-4" />
+            Tải CSV (tất cả)
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => exportCsv(selectedRows, "selected")}
+            disabled={selectedCount === 0}
+            title={
+              selectedCount === 0
+                ? "Chọn ít nhất 1 lead trong bảng để tải CSV đã chọn"
+                : undefined
+            }
+          >
+            <Download className="size-4" />
+            Tải CSV đã chọn
+          </Button>
+          <Button
+            size="sm"
+            disabled
+            title="API Saved Leads chưa có — sẽ bật ở Phase 09"
+          >
+            Lưu lead đã chọn (Phase 09)
+          </Button>
         </div>
+        <p className="text-xs text-slate-500">
+          {selectedCount > 0 ? (
+            <>
+              Đã chọn <b>{selectedCount}</b> / {rows.length} lead hiển thị. Tải CSV hoặc lưu lead sẽ dùng
+              danh sách đã chọn (lưu DB: Phase 09).
+            </>
+          ) : rows.length > 0 ? (
+            <>
+              Chọn lead trong bảng để tải CSV đã chọn hoặc lưu sau này. &quot;Tải CSV (tất cả)&quot; xuất
+              toàn bộ kết quả đang hiển thị.
+            </>
+          ) : (
+            "Không có lead để xuất hoặc lưu."
+          )}
+        </p>
       </div>
 
       {emptyDomains.length > 0 && (
@@ -427,6 +556,8 @@ function ScanResultsView({
 
       <ResultsTable
         rows={rows}
+        selectedIds={selectedIds}
+        onSelectedIdsChange={setSelectedIds}
         emptyMessage={
           verifiedOnly && run.totalEmails > 0
             ? "Không có email verified. Bỏ tick 'Chỉ giữ email đã verified' để xem tất cả."

@@ -24,10 +24,37 @@ function statusLabel(status: ScanResultRow["status"]) {
 export function ResultsTable({
   rows,
   emptyMessage = "Chưa có kết quả. Hãy chạy scan hoặc thử bộ lọc khác.",
+  selectedIds,
+  onSelectedIdsChange,
 }: {
   rows: ScanResultRow[];
   emptyMessage?: string;
+  selectedIds?: Set<string>;
+  onSelectedIdsChange?: (ids: Set<string>) => void;
 }) {
+  const selectable =
+    selectedIds !== undefined && onSelectedIdsChange !== undefined;
+  const allSelected =
+    selectable &&
+    rows.length > 0 &&
+    rows.every((r) => selectedIds.has(r.id));
+
+  const toggleAll = () => {
+    if (!selectable) return;
+    if (allSelected) {
+      onSelectedIdsChange(new Set());
+    } else {
+      onSelectedIdsChange(new Set(rows.map((r) => r.id)));
+    }
+  };
+
+  const toggleOne = (id: string) => {
+    if (!selectable) return;
+    const next = new Set(selectedIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    onSelectedIdsChange(next);
+  };
   if (rows.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
@@ -44,7 +71,14 @@ export function ResultsTable({
           <TableHeader>
             <TableRow className="bg-slate-50 hover:bg-slate-50">
               <TableHead className="w-10">
-                <input type="checkbox" className="rounded border-slate-300" aria-label="Chọn tất cả" />
+                <input
+                  type="checkbox"
+                  className="rounded border-slate-300"
+                  aria-label="Chọn tất cả"
+                  checked={selectable ? allSelected : false}
+                  disabled={!selectable || rows.length === 0}
+                  onChange={toggleAll}
+                />
               </TableHead>
               <TableHead>Email</TableHead>
               <TableHead className="hidden md:table-cell">Họ tên</TableHead>
@@ -62,7 +96,14 @@ export function ResultsTable({
               return (
                 <TableRow key={row.id}>
                   <TableCell>
-                    <input type="checkbox" className="rounded border-slate-300" aria-label={`Chọn ${row.email}`} />
+                    <input
+                      type="checkbox"
+                      className="rounded border-slate-300"
+                      aria-label={`Chọn ${row.email}`}
+                      checked={selectable ? selectedIds.has(row.id) : false}
+                      disabled={!selectable}
+                      onChange={() => toggleOne(row.id)}
+                    />
                   </TableCell>
                   <TableCell className="font-mono text-[13px] font-medium">{row.email}</TableCell>
                   <TableCell className="hidden md:table-cell">{row.name}</TableCell>
