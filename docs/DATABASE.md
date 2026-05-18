@@ -20,7 +20,9 @@ Phương án bị loại tạm:
 | Prisma + tự host Postgres | Vận hành DB tự host không hợp prototype/MVP. |
 | Firestore | NoSQL không khớp model quan hệ phức tạp (scan_runs ↔ scan_results ↔ saved_leads). |
 
-## 2. Files thuộc phase này
+## 2. Files thuộc các phase
+
+**Phase 04 — Schema foundation:**
 
 ```
 supabase/
@@ -32,7 +34,22 @@ docs/
 └── DATABASE.md                       # File này
 ```
 
-Tất cả phụ thuộc dùng dependency có sẵn — **không** thêm package mới ở Phase 04.
+**Phase 05 — Supabase client wiring:**
+
+```
+src/lib/supabase/
+├── env.ts                            # Public config + presence flags (safe everywhere)
+├── client.ts                         # createSupabaseBrowserClient() — RSC/Client
+├── server.ts                         # createSupabaseServerClient() — server-only, cookie-bound
+├── admin.ts                          # getSupabaseAdminClient() — service role, server-only
+├── health.ts                         # checkSupabaseHealth() — diagnostics, server-only
+└── index.ts                          # Re-exports CLIENT-SAFE pieces only
+```
+
+Phase 05 thêm 3 dependency:
+- `@supabase/supabase-js` — official client.
+- `@supabase/ssr` — Next.js App Router cookie integration.
+- `server-only` — build-time poison module để bảo vệ server modules khỏi bị import vào client bundle.
 
 ## 3. Entity overview
 
@@ -138,21 +155,66 @@ Phase 03 dùng cookie HMAC + demo users in-memory (`src/lib/auth/demo-users.ts`)
 
 Estimated effort: ~1 ngày engineering, không thay UI.
 
-## 8. Cái CHƯA làm ở Phase 04
+## 8. Supabase client wiring (Phase 05)
 
-- Không apply schema lên Supabase project — chỉ kiểm tra cú pháp manual.
-- Không tạo Supabase client (`createClient`) trong codebase — chờ Phase 05 khi có route handler thật.
-- Không cài `@supabase/supabase-js` hay `@supabase/ssr` — chờ khi có Supabase URL/key thật để test.
-- Không generate Supabase types (`supabase gen types typescript`) — hand-written tạm trong `src/lib/db/types.ts`.
-- Không billing thật, không Stripe — bảng `billing_subscriptions` có sẵn nhưng không có route ghi.
-- Không ghi audit log thật — bảng có nhưng chưa có server action insert.
+### Ba loại client + nguyên tắc dùng
 
-## 9. Phase tiếp theo
+| Client | File | Khi nào dùng | Auth context |
+|---|---|---|---|
+| Browser | [`src/lib/supabase/client.ts`](../src/lib/supabase/client.ts) | Client Components, code chạy trên browser | Đọc session từ cookie Supabase Auth (sau migration auth) |
+| Server | [`src/lib/supabase/server.ts`](../src/lib/supabase/server.ts) | RSC, server actions, route handlers | Cookie-bound, RLS áp dụng theo `auth.uid()` |
+| Admin (service role) | [`src/lib/supabase/admin.ts`](../src/lib/supabase/admin.ts) | Audit log writes, admin actions, webhooks | Bypass RLS — chỉ server, không có user context |
 
-Phase 05 — Keyword Discovery real workflow:
-- Cài `@supabase/supabase-js` + `@supabase/ssr`.
-- Apply migration này lên Supabase dev project.
-- Route handler `POST /api/discovery` insert vào `discovery_runs`, gọi SerpAPI với key user, insert `scan_results`.
-- Chuyển `/discover` page từ mock sang đọc data thật.
+### Bảo vệ service role
 
-Phase 05 chính là điểm RLS draft hôm nay được test thật. Nếu phát hiện gap (ví dụ cần policy write per-role), iterate ở migration `0002_*.sql`.
+- `admin.ts`, `server.ts`, `health.ts` đều có `import "server-only"` ở dòng đầu. Bất kỳ client component nào import vào sẽ vỡ build với lỗi rõ ràng từ Next.js.
+- `SUPABASE_SERVICE_ROLE_KEY` chỉ được đọc trong [`admin.ts`](../src/lib/supabase/admin.ts) — không re-export, không log.
+- [`src/lib/supabase/index.ts`](../src/lib/supabase/index.ts) chỉ re-export client-safe modules (`env`, `client`). Server modules phải import trực tiếp từ path tương ứng.
+- `hasSupabaseServiceRoleEnv()` trong [`env.ts`](../src/lib/supabase/env.ts) trả về boolean — không bao giờ trả về giá trị key.
+
+### Build-safe khi thiếu env
+
+Tất cả factory return `null` khi env vars vắng mặt. Điều này cho phép `npm run build` chạy trước khi có Supabase project. Caller bắt buộc check null trước khi dùng (TypeScript enforce qua kiểu trả về `T | null`).
+
+```ts
+const supabase = await createSupabaseServerClient();
+if (!supabase) {
+  // Show "Supabase chưa cấu hình" hoặc fallback mock
+  return ...;
+}
+const { data } = await supabase.from("profiles").select("...");
+```
+
+### Bridge với Phase 03 demo auth
+
+Giai đoạn hiện tại app vẫn dùng cookie HMAC (`tdm_session`) trong [`src/lib/auth/*`](../src/lib/auth/). Client Supabase chạy được nhưng **không có user context** — bất kỳ query nào cần RLS sẽ rỗng. Đây là chủ đích: Phase 05 chỉ wiring/prep, chưa migrate.
+
+Khi migrate ở Phase tiếp theo:
+1. `signInAction` đổi sang `supabase.auth.signInWithPassword` → Supabase set cookie riêng.
+2. `getSession()` trong [`src/lib/auth/session.ts`](../src/lib/auth/session.ts) đọc từ `createSupabaseServerClient().auth.getUser()`.
+3. Middleware đổi sang Supabase middleware helper để refresh cookie.
+4. Demo users seed qua admin client.
+
+## 9. Cái CHƯA làm
+
+Phase 04 (schema) và Phase 05 (client wiring) gộp lại còn dang dở:
+
+- Không provision Supabase project trong repo này.
+- Không apply migration thật — `0001_initial_schema.sql` chỉ review thủ công.
+- Không generate types (`supabase gen types typescript`) — hand-written tạm trong [`src/lib/db/types.ts`](../src/lib/db/types.ts).
+- Không migrate auth — demo HMAC còn nguyên.
+- Không gọi Hunter/SerpAPI thật.
+- Không ghi audit log thật.
+- Không billing/Stripe.
+
+## 10. Phase tiếp theo
+
+Phase 06 (hoặc tiếp Phase 05 nếu chia nhỏ) — Keyword Discovery real workflow:
+- Provision Supabase project.
+- Apply migration `0001_*.sql` qua Supabase Studio/CLI; uncomment trigger `on_auth_user_created`.
+- Migrate `src/lib/auth/*` sang Supabase Auth (theo `§7`).
+- Seed demo users qua admin client.
+- Route handler `POST /api/discovery` insert vào `discovery_runs`, gọi SerpAPI với key user từ `user_api_keys`, insert `scan_results`.
+- `/discover` page đọc/ghi data thật.
+
+Phase này chính là điểm RLS draft được test thật. Nếu phát hiện gap (ví dụ cần policy write per-role), iterate ở migration `0002_*.sql`.

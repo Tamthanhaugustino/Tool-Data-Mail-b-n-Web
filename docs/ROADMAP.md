@@ -13,8 +13,9 @@ Tài liệu phase cũ (Web 01–07, planning-only): [`PHASE_PLAN.md`](./PHASE_PL
 Phase 01  Prototype UI          ████████████████████  DONE
 Phase 02  Docs & planning       ████████████████████  DONE
 Phase 03  Auth                  ████████████████████  DONE (demo)
-Phase 04  Database              ████████████████░░░░  CURRENT (foundation)
-Phase 05  Keyword Discovery     ░░░░░░░░░░░░░░░░░░░░
+Phase 04  Database schema       ████████████████████  DONE
+Phase 05  Supabase wiring       ████████████████░░░░  CURRENT (prep)
+Phase 06  Keyword Discovery     ░░░░░░░░░░░░░░░░░░░░
 Phase 06  Domain Scan jobs      ░░░░░░░░░░░░░░░░░░░░
 Phase 07  Results / Leads       ░░░░░░░░░░░░░░░░░░░░
 Phase 08  Billing               ░░░░░░░░░░░░░░░░░░░░
@@ -89,7 +90,7 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 
 ---
 
-## Phase 04 — Database schema + Supabase foundation — CURRENT
+## Phase 04 — Database schema + Supabase foundation — DONE
 
 **Mục tiêu:** SQL migration v1 + RLS draft + TS types sẵn sàng apply lên Supabase ở Phase 05. Foundation-only — không provision Supabase project trong phase này.
 
@@ -114,23 +115,52 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 
 ---
 
-## Phase 05 — Keyword Discovery real workflow + Supabase wiring
+## Phase 05 — Supabase wiring + auth migration prep — CURRENT
 
-**Mục tiêu:** Provision Supabase, apply migration Phase 04, swap auth, rồi `/discover` gọi SerpAPI thật, lưu vào `discovery_runs` / `scan_results`.
+**Mục tiêu:** Cài Supabase SDK và viết factory client cho browser/server/admin. Build-safe khi env vắng. Auth Phase 03 chưa đổi — chỉ chuẩn bị cầu nối.
+
+**Đã làm:**
+
+- [x] Cài `@supabase/supabase-js`, `@supabase/ssr`, `server-only`
+- [x] [`src/lib/supabase/env.ts`](../src/lib/supabase/env.ts) — public config + flags (`hasSupabasePublicEnv`, `hasSupabaseServiceRoleEnv` không return secret)
+- [x] [`src/lib/supabase/client.ts`](../src/lib/supabase/client.ts) — `createSupabaseBrowserClient()` (RSC/Client Component)
+- [x] [`src/lib/supabase/server.ts`](../src/lib/supabase/server.ts) — `createSupabaseServerClient()` cookie-bound, `import "server-only"`
+- [x] [`src/lib/supabase/admin.ts`](../src/lib/supabase/admin.ts) — `getSupabaseAdminClient()` service role singleton, `import "server-only"`
+- [x] [`src/lib/supabase/health.ts`](../src/lib/supabase/health.ts) — `checkSupabaseHealth()` diagnostics, không leak connection string
+- [x] [`src/lib/supabase/index.ts`](../src/lib/supabase/index.ts) — barrel chỉ re-export client-safe modules
+- [x] Mọi factory return `null` khi env vắng → build vẫn pass
+- [x] `docs/DATABASE.md §8` document client wiring + bảo vệ service role + bridge demo auth
+
+**Chưa làm (chuyển Phase 06):**
+
+- [ ] Provision Supabase project + apply migration
+- [ ] Swap `src/lib/auth/*` sang Supabase Auth
+- [ ] Seed demo users qua admin client
+- [ ] Middleware đổi sang Supabase middleware helper
+- [ ] Generate types thật từ Supabase CLI
+
+**Deliverable:** Bất kỳ route handler/server action nào ở Phase 06 đều có thể `await createSupabaseServerClient()` ngay. Chỉ cần điền 3 env vars Supabase và app sẽ kết nối — không có refactor cần thiết.
+
+**Phụ thuộc:** Phase 04.
+
+---
+
+## Phase 06 — Keyword Discovery + Supabase Auth migration
+
+**Mục tiêu:** Provision Supabase project, swap auth, rồi `/discover` gọi SerpAPI thật, lưu vào `discovery_runs` / `scan_results`.
 
 **Công việc dự kiến:**
 
-- Provision Supabase project (cloud) + apply [`0001_initial_schema.sql`](../supabase/migrations/0001_initial_schema.sql)
-- Cài `@supabase/supabase-js`, `@supabase/ssr`
+- Provision Supabase project (cloud) + apply [`0001_initial_schema.sql`](../supabase/migrations/0001_initial_schema.sql); uncomment trigger `on_auth_user_created`
 - Swap `src/lib/auth/*` từ HMAC cookie sang Supabase Auth (giữ `Session` shape)
-- Seed demo users qua Supabase Admin API
+- Seed demo users qua admin client
 - `POST /api/discovery` insert vào `discovery_runs`, gọi SerpAPI với key user từ `user_api_keys`, insert `scan_results`
 - `/discover` page đọc/ghi data thật, loading/error/empty states
 - Quyết định encryption scheme cho `user_api_keys.encrypted_key`
 
 **Deliverable:** Một lượt keyword discovery end-to-end có lịch sử trong DB thật.
 
-**Phụ thuộc:** Phase 03–04.
+**Phụ thuộc:** Phase 03–05.
 
 ---
 
@@ -249,3 +279,4 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 | 2026-05-18 | Tạo ROADMAP phase 01–10; Phase 01 done, Phase 02 current |
 | 2026-05-18 | Phase 02 done; Phase 03 in-progress — auth foundation (HMAC cookie + demo users) hoàn tất, chờ Supabase ở Phase 04 |
 | 2026-05-18 | Phase 03 done (demo); Phase 04 in-progress — DB schema + RLS draft + TS types + DATABASE.md. Apply lên Supabase project ở Phase 05 |
+| 2026-05-18 | Phase 04 done; Phase 05 in-progress — Supabase client wiring (browser/server/admin/health), env-gated, không đụng auth hiện tại. Provision project + auth swap chuyển sang Phase 06 |

@@ -17,12 +17,13 @@ Desktop app (logic gốc) phát triển riêng tại project **`b2b-lead-finder`
 | Backend / API thật | Chưa có |
 | Auth foundation (cookie HMAC + demo users) | **Done (Phase 03)** — xem [`docs/AUTH.md`](./docs/AUTH.md) |
 | Database schema (SQL migration + TS types) | **Done (Phase 04 foundation)** — xem [`docs/DATABASE.md`](./docs/DATABASE.md) |
-| Supabase project (apply migration + Auth) | Chưa có (chuyển sang Phase 05) |
+| Supabase client wiring (browser/server/admin) | **Done (Phase 05 prep)** — factories sẵn sàng, env-gated |
+| Supabase project (apply migration + Auth) | Chưa có (chuyển sang Phase 06) |
 | Hunter.io / SerpAPI integration | Chưa có (chỉ mock trên UI) |
 | Billing / payment | Chưa có |
 | Production deploy | Chưa có |
 
-**Phase hiện tại:** [Phase 04 — Database schema + Supabase foundation](./docs/ROADMAP.md#phase-04--database-schema--supabase-foundation--current)
+**Phase hiện tại:** [Phase 05 — Supabase wiring + auth migration prep](./docs/ROADMAP.md#phase-05--supabase-wiring--auth-migration-prep--current)
 
 Chi tiết lộ trình: [`docs/ROADMAP.md`](./docs/ROADMAP.md)
 
@@ -95,11 +96,11 @@ cp .env.example .env.local
 | Biến | Bắt buộc | Mục đích |
 |---|---|---|
 | `AUTH_SECRET` | ≥16 ký tự, prod bắt buộc | Ký HMAC cookie session (Phase 03). Dev có fallback. |
-| `NEXT_PUBLIC_SUPABASE_URL` | Phase 05+ | URL Supabase project. Public — safe ở browser. |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Phase 05+ | Anon key Supabase. RLS protect data. |
-| `SUPABASE_SERVICE_ROLE_KEY` | Phase 05+ | **Server-only.** Bypass RLS. KHÔNG đặt trong `NEXT_PUBLIC_*`. |
+| `NEXT_PUBLIC_SUPABASE_URL` | Phase 06+ | URL Supabase project. Public — safe ở browser. |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Phase 06+ | Anon key Supabase. RLS protect data. |
+| `SUPABASE_SERVICE_ROLE_KEY` | Phase 06+ | **Server-only.** Bypass RLS. KHÔNG đặt trong `NEXT_PUBLIC_*`. |
 
-Phase 04 chỉ cần `AUTH_SECRET` để chạy local. Các biến Supabase để placeholder cho tới khi Phase 05 nối backend thật.
+Phase 05 chỉ cần `AUTH_SECRET` để chạy local. Supabase client factories build-safe khi thiếu env (return `null`). Các biến Supabase điền khi có project thật ở Phase 06.
 
 ---
 
@@ -142,6 +143,7 @@ tool-data-mail-web/
 │   └── lib/
 │       ├── auth/           # Phase 03 — cookie HMAC session
 │       ├── db/             # Phase 04 — TS types khớp DB schema
+│       ├── supabase/       # Phase 05 — client factories (browser/server/admin) + health
 │       ├── mock-data.ts
 │       └── navigation.ts
 ├── middleware.ts
@@ -157,9 +159,10 @@ tool-data-mail-web/
 |-------|----------|------------|
 | 01 | Frontend prototype scaffold | **Done** |
 | 02 | Docs & SaaS planning | **Done** |
-| 03 | Auth + user account foundation | **Done** (demo users, swap sang Supabase ở Phase 05) |
-| 04 | Database schema + lead/project models | **Current** (SQL migration + TS types ready, apply lên Supabase ở Phase 05) |
-| 05 | Keyword Discovery real workflow | Planned |
+| 03 | Auth + user account foundation | **Done** (demo HMAC; bridge sang Supabase Auth ở Phase 06) |
+| 04 | Database schema foundation | **Done** (SQL migration + TS types) |
+| 05 | Supabase client wiring + auth migration prep | **Current** (browser/server/admin clients + health, env-gated) |
+| 06 | Keyword Discovery real workflow + Supabase Auth migration | Planned |
 | 06 | Domain Scan job system | Planned |
 | 07 | Results, Saved Leads, Export | Planned |
 | 08 | Billing / subscription / credit limits | Planned |
