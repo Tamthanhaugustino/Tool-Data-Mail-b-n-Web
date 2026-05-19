@@ -70,7 +70,15 @@ content-type: application/json
 
 ### Auth
 
-Route nằm dưới `/api/*` nên middleware Phase 03 không chạy. Route check session thủ công qua `getSession()`. Không session → `401 unauthorized`.
+Route nằm dưới `/api/*` nên middleware không chạy. Route check session thủ công qua `getSession()`. Không session → `401 unauthorized`.
+
+Hunter key resolution (Phase 09F):
+
+1. User key trong `app_user_api_keys` nếu đã lưu và decrypt được.
+2. Server env `HUNTER_API_KEY`.
+3. Nếu không có key → `503 provider_unavailable` như trước.
+
+Không bao giờ trả plaintext key về client. Nếu decrypt user key lỗi nhưng server env có sẵn, route fallback env và thêm warning.
 
 ### Response (200)
 
@@ -156,7 +164,7 @@ Sanitize 2 lớp: provider scrub `api_key=` + URL trước khi throw; route scru
 2. `process.env.SCAN_PROVIDER` (nếu là `hunter`).
 3. Mặc định `mock`.
 
-Server **luôn** validate sau bước resolve. Client xin `hunter` nhưng server thiếu `HUNTER_API_KEY` → **không tự fallback** sang mock, mà trả `503 provider_unavailable`. Hành vi giống Phase 08A SerpAPI.
+Server **luôn** validate sau bước resolve. Client xin `hunter` nhưng không có user key hoặc server env `HUNTER_API_KEY` → **không tự fallback** sang mock, mà trả `503 provider_unavailable`. Hành vi giống SerpAPI.
 
 ### Quota-safe rules Hunter
 
@@ -184,7 +192,7 @@ SCAN_PROVIDER=mock     # hoặc hunter
 HUNTER_API_KEY=
 ```
 
-`HUNTER_API_KEY` chỉ được đọc trong [`src/lib/scan/hunter-provider.ts`](../src/lib/scan/hunter-provider.ts) — file `import "server-only"`. Build vỡ nếu lỡ import vào client component. Route dùng dynamic import — mock-only deployment không bundle code Hunter.
+User key được decrypt trong route server-side rồi truyền vào provider. Nếu không có user key, `HUNTER_API_KEY` được đọc server-side trong [`src/lib/scan/hunter-provider.ts`](../src/lib/scan/hunter-provider.ts) — file `import "server-only"`. Build vỡ nếu lỡ import vào client component. Route dùng dynamic import — mock-only deployment không bundle code Hunter.
 
 ### Hunter status mapping
 
@@ -245,7 +253,7 @@ curl -sS -X POST http://localhost:3000/api/scan/domain \
 
 | Triệu chứng | Nguyên nhân | Cách xử lý |
 |---|---|---|
-| `503 provider_unavailable` | Thiếu `HUNTER_API_KEY` hoặc chưa restart sau khi sửa `.env.local` | Restart `npm run dev` |
+| `503 provider_unavailable` | Thiếu cả user key lẫn `HUNTER_API_KEY`, hoặc chưa restart sau khi sửa `.env.local` | Lưu key trong Settings hoặc restart `npm run dev` |
 | `502 provider_invalid_key` | Key sai/đã reset/chưa active | Lấy key mới ở hunter.io → API Keys |
 | `429 provider_rate_limited` | Hết quota tháng (free 25), hoặc rate limit ngắn | Đợi reset, hoặc nâng gói |
 | `504 provider_timeout` | Mạng tới `api.hunter.io` chậm/bị block | Thử lại, đổi mạng |
@@ -322,7 +330,7 @@ UX polish (Hunter warning copy, over-cap UI hint, per-domain error display) khô
 
 | # | Test | Expected | Actual |
 |---|---|---|---|
-| 1 | Hunter missing key | 503 `provider_unavailable` | ✓ "Hunter provider is selected but HUNTER_API_KEY is not configured" |
+| 1 | Hunter missing key | 503 `provider_unavailable` | ✓ no user/env key → provider unavailable |
 | 2 | Hunter 6 domains (cap 5) | 503 (resolver throws before cap check) | ✓ 503 short-circuit — chủ đích: báo lỗi env quan trọng hơn trước |
 | 3 | Hunter `emailLimitPerDomain: 11` | 503 (resolver throws first) | ✓ same short-circuit |
 | 4 | Mock regression (2 domain, limit 5) | 200 với 7 emails | ✓ provider=mock, durationMs=0 |

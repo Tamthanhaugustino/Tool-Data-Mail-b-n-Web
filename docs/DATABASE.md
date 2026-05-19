@@ -90,6 +90,7 @@ audit_logs
 | `scan_results` | Dòng kết quả thuộc một run/job. | members |
 | `saved_leads` | Mini-CRM lead đã lưu. Unique (workspace, email). | members |
 | `app_saved_leads` | **Phase 09D** — lead per demo `session.id` (text). Unique (user_id, email, domain). Service role + app filter; RLS on, no anon policies. | server app |
+| `app_user_api_keys` | **Phase 09F** — encrypted Hunter/SerpAPI keys per hybrid auth user id. Unique (user_id, provider). | server app |
 | `exports` | Job export CSV/JSON, file đặt trong Supabase Storage. | members |
 | `billing_subscriptions` | 1 row/workspace; plan + status; Stripe hoặc activation code. | members read, owner write |
 | `audit_logs` | Append-only log thao tác nhạy cảm. | members read, system writes (service_role) |

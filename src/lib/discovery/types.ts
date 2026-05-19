@@ -50,6 +50,7 @@ export interface DiscoveryRunSummary {
   createdAt: string;
   /** Server-measured runtime in ms (provider call only). */
   durationMs: number;
+  warnings?: string[];
 }
 
 export interface DiscoveryResponse {
@@ -59,5 +60,9 @@ export interface DiscoveryResponse {
 
 export interface DiscoveryProvider {
   readonly name: DiscoveryProviderName;
-  run(request: Required<Pick<DiscoveryRequest, "keyword" | "country" | "limit">>): Promise<DiscoveryResultItem[]>;
+  run(
+    request: Required<Pick<DiscoveryRequest, "keyword" | "country" | "limit">> & {
+      apiKey?: string;
+    },
+  ): Promise<DiscoveryResultItem[]>;
 }

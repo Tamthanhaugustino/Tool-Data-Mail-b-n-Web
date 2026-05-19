@@ -74,6 +74,7 @@ export interface ScanProvider {
   run(request: {
     domains: string[];
     emailLimitPerDomain: number;
+    apiKey?: string;
   }): Promise<{
     domains: ScanDomainSummary[];
     results: ScanResultItem[];

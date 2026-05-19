@@ -6,14 +6,14 @@
 // Provider resolution (server-controlled):
 //   1. If the request body sets `provider`, that hint is used IF the
 //      server permits it (any provider is permitted today, but env
-//      must back the choice — e.g. SerpAPI needs SERPAPI_API_KEY).
+//      must back the choice — user key first, then SERPAPI_API_KEY env.
 //   2. Else fall back to env DISCOVERY_PROVIDER (`mock` | `serpapi`).
 //   3. Else "mock".
 //
 // Quota-safe rules:
 //   - SerpAPI provider is dynamically imported only when needed, so a
 //     mock-only deployment never pulls the network code.
-//   - When SerpAPI is requested but `SERPAPI_API_KEY` is missing, we
+//   - When SerpAPI is requested but no user/env key is available, we
 //     return 503 `provider_unavailable` — we DO NOT silently downgrade
 //     to mock (the caller asked for serpapi; surprising them with mock
 //     would be worse than a clear error).
@@ -22,6 +22,10 @@
 
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/session";
+import {
+  ApiKeyConfigError,
+  resolveProviderApiKey,
+} from "@/lib/api-keys/repository";
 import { mockDiscoveryProvider } from "@/lib/discovery/mock-provider";
 import {
   SerpapiProviderError,
@@ -79,24 +83,30 @@ function resolveDefaultProvider(): DiscoveryProviderName {
 }
 
 async function resolveProvider(
+  userId: string,
   requested: DiscoveryProviderName | undefined,
-): Promise<DiscoveryProvider> {
+): Promise<{ provider: DiscoveryProvider; apiKey?: string; userKeyError?: string }> {
   const effective: DiscoveryProviderName = requested ?? resolveDefaultProvider();
 
   if (effective === "serpapi") {
-    if (!process.env.SERPAPI_API_KEY) {
+    const key = await resolveProviderApiKey(userId, "serpapi");
+    if (!key.apiKey) {
       throw new ProviderUnavailableError(
         "serpapi",
-        "SerpAPI provider is selected but SERPAPI_API_KEY is not configured on the server.",
+        "SerpAPI provider is selected but no user key or SERPAPI_API_KEY is configured.",
       );
     }
     // Dynamic import keeps the SerpAPI module (server-only) out of any
     // graph where it could be tree-pulled into the client bundle.
     const mod = await import("@/lib/discovery/serpapi-provider");
-    return mod.serpapiDiscoveryProvider;
+    return {
+      provider: mod.serpapiDiscoveryProvider,
+      apiKey: key.apiKey,
+      userKeyError: key.userKeyError,
+    };
   }
 
-  return mockDiscoveryProvider;
+  return { provider: mockDiscoveryProvider };
 }
 
 export async function POST(req: Request) {
@@ -140,11 +150,24 @@ export async function POST(req: Request) {
 
   // Resolve provider FIRST so we know the max limit ceiling.
   let provider: DiscoveryProvider;
+  let providerApiKey: string | undefined;
+  let userKeyError: string | undefined;
   try {
-    provider = await resolveProvider(requestedProvider);
+    const resolved = await resolveProvider(session.id, requestedProvider);
+    provider = resolved.provider;
+    providerApiKey = resolved.apiKey;
+    userKeyError = resolved.userKeyError;
   } catch (e) {
     if (e instanceof ProviderUnavailableError) {
       return jsonError(503, "provider_unavailable", e.message, { provider: e.providerName });
+    }
+    if (e instanceof ApiKeyConfigError && e.code === "api_key_decrypt_failed") {
+      return jsonError(
+        409,
+        "provider_key_unreadable",
+        "Không đọc được SerpAPI key đã mã hóa. Hãy xóa và lưu lại key.",
+        { provider: "serpapi" },
+      );
     }
     return jsonError(500, "internal", sanitize(e instanceof Error ? e.message : "unknown"));
   }
@@ -163,8 +186,11 @@ export async function POST(req: Request) {
 
   const startedAt = Date.now();
   try {
-    const items = await provider.run({ keyword, country, limit });
+    const items = await provider.run({ keyword, country, limit, apiKey: providerApiKey });
     const durationMs = Date.now() - startedAt;
+    const warnings = userKeyError
+      ? ["[api_key_fallback] Không đọc được key cá nhân, đã dùng server env fallback."]
+      : [];
     const response: DiscoveryResponse = {
       run: {
         id: crypto.randomUUID(),
@@ -175,6 +201,7 @@ export async function POST(req: Request) {
         resultCount: items.length,
         createdAt: new Date(startedAt).toISOString(),
         durationMs,
+        ...(warnings.length > 0 ? { warnings } : {}),
       },
       results: items,
     };

@@ -43,9 +43,9 @@ const ERROR_HINTS: Record<string, string> = {
   unauthorized: "Phiên đăng nhập đã hết hạn. Đăng nhập lại tại /login.",
   invalid_input: "Kiểm tra danh sách domain hoặc tham số request.",
   provider_unavailable:
-    "Set HUNTER_API_KEY trong .env.local rồi restart npm run dev. Hoặc chọn provider Mock.",
+    "Lưu Hunter key cá nhân trong Settings hoặc set HUNTER_API_KEY trong .env.local rồi restart npm run dev. Hoặc chọn provider Mock.",
   provider_invalid_key:
-    "Kiểm tra giá trị HUNTER_API_KEY ở Settings → API của Hunter Dashboard.",
+    "Kiểm tra Hunter key cá nhân trong Settings hoặc giá trị HUNTER_API_KEY trên server.",
   provider_rate_limited:
     "Hunter báo hết quota tháng hoặc rate limit ngắn hạn. Đợi reset, hoặc dùng Mock.",
   provider_timeout:
@@ -217,7 +217,7 @@ export function DomainScanWizard({
           <p>
             Tối đa <b>{MAX_DOMAINS.hunter} domain</b> · <b>{MAX_EMAIL_LIMIT.hunter} email/domain</b> mỗi
             lần. Server chỉ chạy khi đã set{" "}
-            <code className="font-mono">HUNTER_API_KEY</code>; thiếu key → trả{" "}
+            Hunter key cá nhân hoặc <code className="font-mono">HUNTER_API_KEY</code>; thiếu key → trả{" "}
             <code className="font-mono">provider_unavailable</code> mà không tiêu quota.
           </p>
           {normalizedPreview.domains.length > MAX_DOMAINS.hunter && (

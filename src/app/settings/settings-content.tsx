@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { Copy, Eye, Key } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Key, Loader2, Save, Trash2 } from "lucide-react";
 import { PageHeader } from "@/components/shared/page-header";
 import { usePrototype } from "@/components/prototype/prototype-context";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,68 +13,107 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import type { ApiConnectionStatus } from "@/lib/mock-data";
 import type { Session } from "@/lib/auth/types";
+import type { ApiKeyProvider, ApiKeyStatus } from "@/lib/api-keys/types";
+
+type ApiKeyFormState = Record<ApiKeyProvider, string>;
+
+const PROVIDER_COPY: Record<
+  ApiKeyProvider,
+  { name: string; letter: string; letterBg: string; description: string; placeholder: string }
+> = {
+  hunter: {
+    name: "Hunter.io API Key",
+    letter: "H",
+    letterBg: "bg-orange-100 text-orange-700",
+    description: "Dùng cho Domain Scan — tìm email từ domain.",
+    placeholder: "Nhập Hunter API key",
+  },
+  serpapi: {
+    name: "SerpAPI Key",
+    letter: "S",
+    letterBg: "bg-blue-100 text-blue-700",
+    description: "Dùng cho Keyword Discovery — tìm website từ SERP.",
+    placeholder: "Nhập SerpAPI key",
+  },
+};
+
+function statusLabel(status: ApiKeyStatus): string {
+  if (status.hasUserKey) return `Đã lưu ${status.maskedKey ?? "****"}`;
+  if (status.serverFallbackAvailable) return "Dùng server env";
+  return "Chưa cấu hình";
+}
+
+function statusVariant(status: ApiKeyStatus): "default" | "secondary" {
+  return status.hasUserKey || status.serverFallbackAvailable ? "default" : "secondary";
+}
 
 function ApiKeyCard({
-  name,
-  letter,
-  letterBg,
-  description,
-  connected,
-  onToggle,
+  status,
+  value,
+  busy,
+  onChange,
+  onSave,
+  onDelete,
 }: {
-  name: string;
-  letter: string;
-  letterBg: string;
-  description: string;
-  connected: boolean;
-  onToggle: () => void;
+  status: ApiKeyStatus;
+  value: string;
+  busy: boolean;
+  onChange: (value: string) => void;
+  onSave: () => void;
+  onDelete: () => void;
 }) {
+  const copy = PROVIDER_COPY[status.provider];
+  const canSave = value.trim().length > 0 && !busy;
   return (
     <Card className="shadow-sm">
       <CardHeader className="flex flex-row items-start justify-between gap-4">
         <div className="flex gap-3">
-          <div
-            className={`flex size-9 items-center justify-center rounded-lg font-bold ${letterBg}`}
-          >
-            {letter}
+          <div className={`flex size-9 items-center justify-center rounded-lg font-bold ${copy.letterBg}`}>
+            {copy.letter}
           </div>
           <div>
-            <CardTitle className="text-base">{name}</CardTitle>
-            <CardDescription dangerouslySetInnerHTML={{ __html: description }} />
+            <CardTitle className="text-base">{copy.name}</CardTitle>
+            <CardDescription>{copy.description}</CardDescription>
           </div>
         </div>
-        <Badge variant={connected ? "default" : "secondary"} className="shrink-0">
-          {connected ? "Đã kết nối" : "Chưa kết nối"}
+        <Badge variant={statusVariant(status)} className="shrink-0">
+          {statusLabel(status)}
         </Badge>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label>API key</Label>
-          <div className="flex items-center gap-2 rounded-lg border bg-slate-50 px-3 py-2 font-mono text-sm">
-            <Key className="size-4 text-slate-400" />
-            <span className="flex-1 tracking-widest text-slate-400">
-              ••••••••••••••••••••
-            </span>
-            {connected && <span className="text-slate-600">a3d2</span>}
-            <Button variant="ghost" size="icon-sm" type="button">
-              <Eye className="size-3.5" />
+          <Label htmlFor={`api-key-${status.provider}`}>API key cá nhân</Label>
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <Key className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-slate-400" />
+              <Input
+                id={`api-key-${status.provider}`}
+                className="pl-9 font-mono"
+                type="password"
+                autoComplete="off"
+                placeholder={status.hasUserKey ? "Để trống nếu không đổi key" : copy.placeholder}
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+              />
+            </div>
+            <Button size="sm" onClick={onSave} disabled={!canSave}>
+              {busy ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
+              Lưu
             </Button>
-            <Button variant="ghost" size="icon-sm" type="button">
-              <Copy className="size-3.5" />
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={onDelete}
+              disabled={busy || !status.hasUserKey}
+            >
+              <Trash2 className="size-4" />
+              Xóa
             </Button>
           </div>
           <p className="text-xs text-slate-500">
-            Key được mã hoá & lưu phía server (mock — chưa có backend).
+            Không hiển thị lại plaintext sau khi lưu. Key được mã hóa ở server khi{" "}
+            <code className="font-mono">APP_ENCRYPTION_KEY</code> đã cấu hình.
           </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm">
-            Test connection
-          </Button>
-          <Button variant="outline" size="sm" onClick={onToggle}>
-            (Demo) {connected ? "Ngắt kết nối" : "Kết nối mock"}
-          </Button>
-          <Button size="sm">Lưu key</Button>
         </div>
       </CardContent>
     </Card>
@@ -82,14 +122,114 @@ function ApiKeyCard({
 
 export function SettingsContent({ session }: { session: Session }) {
   const { apiStatus, setApiStatus } = usePrototype();
-  const [hunterConnected, setHunterConnected] = useState(true);
-  const [serpConnected, setSerpConnected] = useState(true);
+  const [providers, setProviders] = useState<ApiKeyStatus[]>([]);
+  const [form, setForm] = useState<ApiKeyFormState>({ hunter: "", serpapi: "" });
+  const [busyProvider, setBusyProvider] = useState<ApiKeyProvider | null>(null);
+  const [message, setMessage] = useState<{ type: "error" | "success" | "info"; text: string } | null>(null);
 
-  const syncApiStatus = (hunter: boolean, serp: boolean) => {
+  const syncApiStatus = (items: ApiKeyStatus[]) => {
+    const usable = items.filter((p) => p.hasUserKey || p.serverFallbackAvailable).length;
     let next: ApiConnectionStatus = "ok";
-    if (!hunter && !serp) next = "error";
-    else if (!hunter || !serp) next = "partial";
+    if (usable === 0) next = "error";
+    else if (usable < 2) next = "partial";
     setApiStatus(next);
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetch("/api/settings/api-keys", { cache: "no-store" })
+      .then(async (res) => {
+        const data: unknown = await res.json().catch(() => null);
+        if (!res.ok) {
+          const err = (data as { message?: string; error?: string } | null) ?? null;
+          throw new Error(err?.message ?? err?.error ?? `HTTP ${res.status}`);
+        }
+        return (data as { providers?: ApiKeyStatus[] } | null)?.providers ?? [];
+      })
+      .then((next) => {
+        if (cancelled) return;
+        setProviders(next);
+        syncApiStatus(next);
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        setMessage({
+          type: "error",
+          text: e instanceof Error ? e.message : "Không tải được trạng thái API key.",
+        });
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const encryptionConfigured = providers.some((p) => p.encryptionConfigured);
+
+  const sortedProviders = useMemo(
+    () =>
+      [...providers].sort((a, b) =>
+        a.provider === "hunter" && b.provider !== "hunter" ? -1 : 1,
+      ),
+    [providers],
+  );
+
+  const saveKey = async (provider: ApiKeyProvider) => {
+    setBusyProvider(provider);
+    setMessage(null);
+    try {
+      const res = await fetch("/api/settings/api-keys", {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ provider, apiKey: form[provider] }),
+      });
+      const data: unknown = await res.json().catch(() => null);
+      if (!res.ok) {
+        const err = (data as { message?: string; error?: string } | null) ?? null;
+        throw new Error(err?.message ?? err?.error ?? `HTTP ${res.status}`);
+      }
+      const saved = (data as { provider?: ApiKeyStatus } | null)?.provider;
+      if (saved) {
+        setProviders((prev) => prev.map((p) => (p.provider === provider ? saved : p)));
+      }
+      setForm((prev) => ({ ...prev, [provider]: "" }));
+      setMessage({ type: "success", text: "Đã lưu API key cá nhân. Plaintext không được trả về client." });
+    } catch (e) {
+      setMessage({
+        type: "error",
+        text: e instanceof Error ? e.message : "Không lưu được API key.",
+      });
+    } finally {
+      setBusyProvider(null);
+    }
+  };
+
+  const deleteKey = async (provider: ApiKeyProvider) => {
+    setBusyProvider(provider);
+    setMessage(null);
+    try {
+      const res = await fetch(`/api/settings/api-keys/${provider}`, { method: "DELETE" });
+      const data: unknown = await res.json().catch(() => null);
+      if (!res.ok) {
+        const err = (data as { message?: string; error?: string } | null) ?? null;
+        throw new Error(err?.message ?? err?.error ?? `HTTP ${res.status}`);
+      }
+      setProviders((prev) =>
+        prev.map((p) =>
+          p.provider === provider
+            ? { ...p, hasUserKey: false, keyHint: null, maskedKey: null }
+            : p,
+        ),
+      );
+      setMessage({ type: "success", text: "Đã xóa API key cá nhân." });
+    } catch (e) {
+      setMessage({
+        type: "error",
+        text: e instanceof Error ? e.message : "Không xóa được API key.",
+      });
+    } finally {
+      setBusyProvider(null);
+    }
   };
 
   return (
@@ -106,39 +246,49 @@ export function SettingsContent({ session }: { session: Session }) {
 
         <TabsContent value="api" className="space-y-4">
           <p className="text-sm text-slate-500">
-            Trạng thái topbar (mock):{" "}
+            Trạng thái provider:{" "}
             <b>
               {apiStatus === "ok"
-                ? "API OK"
+                ? "đã có key khả dụng"
                 : apiStatus === "partial"
-                  ? "1 API chưa kết nối"
-                  : "API lỗi"}
+                  ? "một provider có key"
+                  : "chưa có key khả dụng"}
             </b>
           </p>
-          <ApiKeyCard
-            name="Hunter.io API Key"
-            letter="H"
-            letterBg="bg-orange-100 text-orange-700"
-            description="Dùng cho <b>Domain Scan</b> — tìm email từ domain."
-            connected={hunterConnected}
-            onToggle={() => {
-              const next = !hunterConnected;
-              setHunterConnected(next);
-              syncApiStatus(next, serpConnected);
-            }}
-          />
-          <ApiKeyCard
-            name="SerpAPI Key"
-            letter="S"
-            letterBg="bg-blue-100 text-blue-700"
-            description="Dùng cho <b>Keyword Discovery</b> — tìm website từ SERP."
-            connected={serpConnected}
-            onToggle={() => {
-              const next = !serpConnected;
-              setSerpConnected(next);
-              syncApiStatus(hunterConnected, next);
-            }}
-          />
+
+          <Alert className="border-amber-200 bg-amber-50 text-amber-950">
+            <AlertDescription className="text-sm">
+              {encryptionConfigured
+                ? "APP_ENCRYPTION_KEY đã sẵn sàng: có thể lưu key cá nhân đã mã hóa."
+                : "Chưa cấu hình APP_ENCRYPTION_KEY: API sẽ không lưu plaintext. Nếu owner đã cấu hình server env, provider vẫn dùng fallback server-side."}
+            </AlertDescription>
+          </Alert>
+
+          {message ? (
+            <Alert
+              className={
+                message.type === "error"
+                  ? "border-red-200 bg-red-50 text-red-900"
+                  : message.type === "success"
+                    ? "border-green-200 bg-green-50 text-green-900"
+                    : "border-slate-200 bg-slate-50 text-slate-800"
+              }
+            >
+              <AlertDescription className="text-sm">{message.text}</AlertDescription>
+            </Alert>
+          ) : null}
+
+          {sortedProviders.map((status) => (
+            <ApiKeyCard
+              key={status.provider}
+              status={status}
+              value={form[status.provider]}
+              busy={busyProvider === status.provider}
+              onChange={(value) => setForm((prev) => ({ ...prev, [status.provider]: value }))}
+              onSave={() => void saveKey(status.provider)}
+              onDelete={() => void deleteKey(status.provider)}
+            />
+          ))}
         </TabsContent>
 
         <TabsContent value="account">

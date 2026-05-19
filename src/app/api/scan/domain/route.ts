@@ -7,7 +7,7 @@
 // Provider resolution (server-controlled):
 //   1. If the request body sets `provider`, that hint is used IF the
 //      server permits it (any provider is permitted today, but env
-//      must back the choice — e.g. Hunter needs HUNTER_API_KEY).
+//      must back the choice — user key first, then HUNTER_API_KEY env.
 //   2. Else fall back to env SCAN_PROVIDER (`mock` | `hunter`).
 //   3. Else "mock".
 //
@@ -16,13 +16,17 @@
 //   - Per-domain email limit depends on provider: mock 1..100, hunter 1..10.
 //   - Hunter provider is dynamically imported only when needed, so a
 //     mock-only deployment never pulls Hunter network code.
-//   - When Hunter is requested but `HUNTER_API_KEY` is missing, we
+//   - When Hunter is requested but no user/env key is available, we
 //     return 503 `provider_unavailable` — never silent fallback to mock.
 //   - HunterProviderError typed codes map 1:1 to HTTP status (mirrors
 //     the SerpAPI mapping in /api/discovery/keyword).
 
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/session";
+import {
+  ApiKeyConfigError,
+  resolveProviderApiKey,
+} from "@/lib/api-keys/repository";
 import { normalizeDomains } from "@/lib/scan/domain-utils";
 import { mockScanProvider } from "@/lib/scan/mock-provider";
 import {
@@ -86,24 +90,30 @@ function resolveDefaultProvider(): ScanProviderName {
 }
 
 async function resolveProvider(
+  userId: string,
   requested: ScanProviderName | undefined,
-): Promise<ScanProvider> {
+): Promise<{ provider: ScanProvider; apiKey?: string; userKeyError?: string }> {
   const effective: ScanProviderName = requested ?? resolveDefaultProvider();
 
   if (effective === "hunter") {
-    if (!process.env.HUNTER_API_KEY) {
+    const key = await resolveProviderApiKey(userId, "hunter");
+    if (!key.apiKey) {
       throw new ProviderUnavailableError(
         "hunter",
-        "Hunter provider is selected but HUNTER_API_KEY is not configured on the server.",
+        "Hunter provider is selected but no user key or HUNTER_API_KEY is configured.",
       );
     }
     // Dynamic import keeps the Hunter module (server-only) out of any
     // bundle graph touched by mock-only deployments.
     const mod = await import("@/lib/scan/hunter-provider");
-    return mod.hunterScanProvider;
+    return {
+      provider: mod.hunterScanProvider,
+      apiKey: key.apiKey,
+      userKeyError: key.userKeyError,
+    };
   }
 
-  return mockScanProvider;
+  return { provider: mockScanProvider };
 }
 
 const HUNTER_ERROR_MAP: Record<HunterErrorCode, { status: number; error: string; message: string }> = {
@@ -163,11 +173,24 @@ export async function POST(req: Request) {
   // Resolve provider FIRST so we know the per-provider domain ceiling
   // and email ceiling.
   let provider: ScanProvider;
+  let providerApiKey: string | undefined;
+  let userKeyError: string | undefined;
   try {
-    provider = await resolveProvider(requestedProvider);
+    const resolved = await resolveProvider(session.id, requestedProvider);
+    provider = resolved.provider;
+    providerApiKey = resolved.apiKey;
+    userKeyError = resolved.userKeyError;
   } catch (e) {
     if (e instanceof ProviderUnavailableError) {
       return jsonError(503, "provider_unavailable", e.message, { provider: e.providerName });
+    }
+    if (e instanceof ApiKeyConfigError && e.code === "api_key_decrypt_failed") {
+      return jsonError(
+        409,
+        "provider_key_unreadable",
+        "Không đọc được Hunter API key đã mã hóa. Hãy xóa và lưu lại key.",
+        { provider: "hunter" },
+      );
     }
     return jsonError(500, "internal", sanitize(e instanceof Error ? e.message : "unknown"));
   }
@@ -215,9 +238,13 @@ export async function POST(req: Request) {
     const { domains: summaries, results } = await provider.run({
       domains: normalized,
       emailLimitPerDomain,
+      apiKey: providerApiKey,
     });
     const durationMs = Date.now() - startedAt;
     const warnings = normalizeWarnings.map((w) => `[${w.reason}] ${w.input}`);
+    if (userKeyError) {
+      warnings.push("[api_key_fallback] Không đọc được key cá nhân, đã dùng server env fallback.");
+    }
 
     const response: ScanResponse = {
       run: {

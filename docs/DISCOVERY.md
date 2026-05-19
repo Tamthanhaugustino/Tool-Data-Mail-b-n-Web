@@ -129,7 +129,7 @@ Phase 07 **không** insert vào `discovery_runs` / `scan_results`. Lý do: rows 
 2. `process.env.DISCOVERY_PROVIDER` (nếu là `serpapi`).
 3. Mặc định `mock`.
 
-Server **luôn** validate sau bước resolve. Ví dụ client xin `serpapi` nhưng server không có `SERPAPI_API_KEY` → **không tự fallback** sang mock, mà trả `503 provider_unavailable`. Lý do: silent fallback sẽ làm caller hiểu sai vì sao kết quả nhìn fake.
+Server **luôn** validate sau bước resolve. Ví dụ client xin `serpapi` nhưng không có user key hoặc `SERPAPI_API_KEY` → **không tự fallback** sang mock, mà trả `503 provider_unavailable`. Lý do: silent fallback sẽ làm caller hiểu sai vì sao kết quả nhìn fake.
 
 ### Quota-safe rules SerpAPI
 
@@ -141,7 +141,7 @@ Server **luôn** validate sau bước resolve. Ví dụ client xin `serpapi` nh�
 | Limit ceiling server | 30 (vs 50 cho mock) |
 | Auto-retry | **không** |
 | Cache | `cache: "no-store"` |
-| User-scoped key (`user_api_keys`) | **không** ở Phase 08A — chỉ đọc `SERPAPI_API_KEY` từ env |
+| User-scoped key (`app_user_api_keys`) | **Phase 09F** — ưu tiên key cá nhân đã mã hóa, fallback `SERPAPI_API_KEY` |
 
 ### Env vars
 
@@ -153,7 +153,7 @@ DISCOVERY_PROVIDER=mock     # hoặc serpapi
 SERPAPI_API_KEY=
 ```
 
-`SERPAPI_API_KEY` chỉ được đọc trong [`src/lib/discovery/serpapi-provider.ts`](../src/lib/discovery/serpapi-provider.ts) — file `import "server-only"`. Build sẽ vỡ nếu lỡ import vào client component. Route handler dùng `dynamic import` để khi `DISCOVERY_PROVIDER=mock` deployment không bundle code SerpAPI.
+User key được decrypt trong route server-side rồi truyền vào provider. Nếu không có user key, `SERPAPI_API_KEY` được đọc server-side trong [`src/lib/discovery/serpapi-provider.ts`](../src/lib/discovery/serpapi-provider.ts) — file `import "server-only"`. Build sẽ vỡ nếu lỡ import vào client component. Route handler dùng `dynamic import` để khi `DISCOVERY_PROVIDER=mock` deployment không bundle code SerpAPI.
 
 ### Filter domain
 
@@ -187,9 +187,9 @@ Map từ `DiscoveryResultItem` sang `ScanResultRow` (shape của `ResultsTable`)
 
 ## 7. Roadmap mở rộng SerpAPI
 
-Phase 09+ sẽ chuyển từ env-key sang **user-scoped key** trong `user_api_keys` (đọc qua admin client). Lúc đó:
-- `serpapi-provider.ts` nhận key qua đối số thay vì đọc trực tiếp `process.env`.
-- Resolution thêm bước "lookup `user_api_keys` của workspace hiện tại".
+Phase 09F đã thêm **user-scoped key** trong `app_user_api_keys` (đọc qua admin client server-only):
+- `serpapi-provider.ts` nhận key qua đối số khi route decrypt được key cá nhân.
+- Nếu không có key cá nhân, route fallback `SERPAPI_API_KEY`.
 - Phase 08A code chỉ cần refactor — KHÔNG cần đổi `DiscoveryProvider` contract.
 
 ## 7b. Bật SerpAPI cho live test (Phase 08B)
@@ -241,7 +241,7 @@ curl -sS -X POST http://localhost:3000/api/discovery/keyword \
 
 | Triệu chứng | Nguyên nhân | Cách xử lý |
 |---|---|---|
-| `503 provider_unavailable` | Thiếu `SERPAPI_API_KEY` hoặc chưa restart server sau khi sửa `.env.local` | Restart `npm run dev` |
+| `503 provider_unavailable` | Thiếu cả user key lẫn `SERPAPI_API_KEY`, hoặc chưa restart server sau khi sửa `.env.local` | Lưu key trong Settings hoặc restart `npm run dev` |
 | `502 provider_invalid_key` | Key sai/đã reset/ chưa active | Lấy key mới ở serpapi.com → Your Account |
 | `429 provider_rate_limited` | Hết quota tháng (free tier 100), hoặc bị rate limit ngắn hạn | Đợi reset, hoặc nâng cấp gói |
 | `504 provider_timeout` | Mạng tới `serpapi.com` chậm/bị block | Thử lại, hoặc đổi mạng |

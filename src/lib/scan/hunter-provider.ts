@@ -283,8 +283,8 @@ async function fetchOneDomain(
 
 export const hunterScanProvider: ScanProvider = {
   name: "hunter",
-  async run({ domains, emailLimitPerDomain }) {
-    const apiKey = process.env.HUNTER_API_KEY;
+  async run({ domains, emailLimitPerDomain, apiKey: providedApiKey }) {
+    const apiKey = providedApiKey ?? process.env.HUNTER_API_KEY;
     if (!apiKey) {
       throw new HunterProviderError("missing_key", "HUNTER_API_KEY is not configured");
     }

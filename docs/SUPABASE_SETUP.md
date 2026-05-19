@@ -88,6 +88,15 @@ Sau `0001` (hoặc trên project trống chỉ cần function `set_updated_at` n
 
 Chi tiết: [`SAVED_LEADS.md`](./SAVED_LEADS.md).
 
+### Migration Phase 09F — `app_user_api_keys` (User API Keys)
+
+1. Chạy [`supabase/migrations/0003_app_user_api_keys.sql`](../supabase/migrations/0003_app_user_api_keys.sql).
+2. Thêm `APP_ENCRYPTION_KEY` vào server env (tối thiểu 32 ký tự, không `NEXT_PUBLIC_*`).
+3. Restart app → Settings → API Keys có thể lưu Hunter/SerpAPI key cá nhân.
+4. Nếu thiếu `APP_ENCRYPTION_KEY`, API sẽ báo lỗi cấu hình và **không** lưu plaintext.
+
+Chi tiết: [`API_KEYS.md`](./API_KEYS.md).
+
 ### Re-apply / reset
 
 Nếu cần xoá hết để chạy lại migration:
@@ -148,6 +157,7 @@ Route luôn HTTP 200 — phân biệt healthy/degraded qua field `ok`. Error mes
 
 - [ ] Project Supabase đã tạo
 - [ ] `.env.local` có đủ 4 biến (`AUTH_SECRET` + 3 Supabase)
+- [ ] Nếu dùng API key cá nhân: `.env.local` có `APP_ENCRYPTION_KEY`
 - [ ] `SUPABASE_SERVICE_ROLE_KEY` **không** ở dòng `NEXT_PUBLIC_*`
 - [ ] Migration `0001_initial_schema.sql` đã chạy thành công
 - [ ] 11 bảng + enum types xuất hiện ở **Database → Tables / Types**

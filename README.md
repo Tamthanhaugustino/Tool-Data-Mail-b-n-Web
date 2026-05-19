@@ -29,6 +29,7 @@ Desktop app (logic gốc) phát triển riêng tại project **`b2b-lead-finder`
 | Saved Leads foundation (API + `/leads` + lưu từ scan) | **Done (Phase 09C)** — xem [`docs/SAVED_LEADS.md`](./docs/SAVED_LEADS.md) |
 | Saved Leads Supabase persist (`app_saved_leads`) | **Done (Phase 09D)** — service role + migration 0002; fallback memory nếu chưa env |
 | Supabase Auth migration production | Chưa hoàn tất — hybrid fallback, chưa bắt buộc Supabase Auth |
+| User API Keys foundation | **Done (Phase 09F)** — encrypted personal Hunter/SerpAPI keys; env fallback |
 | Billing / payment | Chưa có |
 | Production deploy | Chưa có |
 
@@ -108,6 +109,7 @@ cp .env.example .env.local
 | `NEXT_PUBLIC_SUPABASE_URL` | Phase 06+ | URL Supabase project. Public — safe ở browser. |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Phase 06+ | Anon key Supabase. RLS protect data. |
 | `SUPABASE_SERVICE_ROLE_KEY` | Phase 06+ | **Server-only.** Bypass RLS. KHÔNG đặt trong `NEXT_PUBLIC_*`. |
+| `APP_ENCRYPTION_KEY` | Phase 09F | **Server-only.** Mã hóa API key cá nhân. Thiếu env thì không lưu plaintext. |
 
 Phase 05–06 chỉ cần `AUTH_SECRET` để chạy local (Supabase client factories return `null` khi thiếu env nên `npm run build` vẫn pass). Khi muốn nối Supabase thật, làm theo [`docs/SUPABASE_SETUP.md`](./docs/SUPABASE_SETUP.md):
 
@@ -193,6 +195,7 @@ tool-data-mail-web/
 | 09C | Saved Leads foundation | **Done** |
 | 09D | Saved Leads Supabase persist | **Done** |
 | 09E | Supabase Auth hybrid foundation | **Done** |
+| 09F | User API Keys foundation | **Done** |
 | 06 | Domain Scan job system | Planned |
 | 07 | Results, Saved Leads, Export | Planned |
 | 08 | Billing / subscription / credit limits | Planned |

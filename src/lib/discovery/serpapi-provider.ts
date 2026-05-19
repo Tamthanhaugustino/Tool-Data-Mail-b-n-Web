@@ -146,8 +146,8 @@ function scrubMessage(message: string): string {
 
 export const serpapiDiscoveryProvider: DiscoveryProvider = {
   name: "serpapi",
-  async run({ keyword, country, limit }) {
-    const apiKey = process.env.SERPAPI_API_KEY;
+  async run({ keyword, country, limit, apiKey: providedApiKey }) {
+    const apiKey = providedApiKey ?? process.env.SERPAPI_API_KEY;
     if (!apiKey) {
       throw new SerpapiProviderError("missing_key", "SERPAPI_API_KEY is not configured");
     }

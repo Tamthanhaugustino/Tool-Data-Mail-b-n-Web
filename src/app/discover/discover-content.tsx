@@ -32,9 +32,9 @@ function statusForTable(s: DiscoveryResultItem["status"]): ScanResultRow["status
 
 const ERROR_HINTS: Record<string, string> = {
   provider_unavailable:
-    "Set SERPAPI_API_KEY trong .env.local rồi restart npm run dev. Hoặc chọn provider Mock.",
+    "Lưu SerpAPI key cá nhân trong Settings hoặc set SERPAPI_API_KEY trong .env.local rồi restart npm run dev. Hoặc chọn provider Mock.",
   provider_invalid_key:
-    "Kiểm tra giá trị SERPAPI_API_KEY ở Settings → API của SerpAPI Dashboard.",
+    "Kiểm tra SerpAPI key cá nhân trong Settings hoặc giá trị SERPAPI_API_KEY trên server.",
   provider_rate_limited:
     "Đợi vài phút hoặc nâng cấp gói SerpAPI. Có thể chuyển tạm sang Mock provider.",
   provider_timeout:
@@ -180,7 +180,7 @@ export function DiscoverContent() {
       {selectedProvider === "serpapi" && (
         <div className="mb-6 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
           <b>SerpAPI dùng quota thật.</b> Server chỉ chạy khi đã cấu hình{" "}
-          <code className="font-mono">SERPAPI_API_KEY</code>. Nếu chưa, request sẽ trả lỗi{" "}
+          SerpAPI key cá nhân hoặc <code className="font-mono">SERPAPI_API_KEY</code>. Nếu chưa, request sẽ trả lỗi{" "}
           <code className="font-mono">provider_unavailable</code> mà không tiêu quota.
         </div>
       )}

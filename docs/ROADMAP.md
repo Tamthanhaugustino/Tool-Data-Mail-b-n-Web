@@ -25,6 +25,7 @@ Phase 09B Hunter live + polish  ████████████████
 Phase 09C Saved Leads foundation ████████████████████  DONE
 Phase 09D Saved Leads Supabase    ████████████████████  DONE (app_saved_leads + fallback)
 Phase 09E Supabase Auth hybrid     ████████████████████  DONE (Supabase-first + demo fallback)
+Phase 09F User API Keys            ████████████████████  DONE (encrypted keys + env fallback)
 Phase 06  Domain Scan jobs      ░░░░░░░░░░░░░░░░░░░░
 Phase 07  Results / Leads       ░░░░░░░░░░░░░░░░░░░░
 Phase 08  Billing               ░░░░░░░░░░░░░░░░░░░░
@@ -432,6 +433,32 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 
 ---
 
+## Phase 09F — User API Keys foundation — DONE
+
+**Mục tiêu:** Cho user lưu Hunter/SerpAPI key cá nhân an toàn, không lưu plaintext, vẫn giữ server env fallback.
+
+**Đã làm:**
+
+- [x] [`supabase/migrations/0003_app_user_api_keys.sql`](../supabase/migrations/0003_app_user_api_keys.sql) — `app_user_api_keys`, `user_id` text, `provider`, `key_ciphertext`, `key_hint`, unique `(user_id, provider)`, RLS on
+- [x] [`src/lib/api-keys/crypto.ts`](../src/lib/api-keys/crypto.ts) — AES-256-GCM server-only, `APP_ENCRYPTION_KEY`
+- [x] [`src/lib/api-keys/repository.ts`](../src/lib/api-keys/repository.ts) — list masked, encrypt upsert, scoped delete, decrypt for providers
+- [x] API `GET/PUT /api/settings/api-keys`, `DELETE /api/settings/api-keys/[provider]`
+- [x] Hunter/SerpAPI provider resolution: user key → server env fallback → provider_unavailable
+- [x] Settings API Keys UI dùng masked status, không hiển thị plaintext
+- [x] [`docs/API_KEYS.md`](./API_KEYS.md)
+
+**Chưa làm (deferred):**
+
+- [ ] Test connection riêng cho từng provider key
+- [ ] Audit log cho thao tác save/delete key
+- [ ] KMS/Vault managed key rotation
+
+**Deliverable:** Thiếu `APP_ENCRYPTION_KEY` thì API không lưu key cá nhân; có env đầy đủ thì key được encrypt trước khi ghi DB.
+
+**Phụ thuộc:** Phase 09E auth session, Supabase service role + migration 0003 nếu muốn persist.
+
+---
+
 ## Phase 06 — Domain Scan job system
 
 **Mục tiêu:** Flow Input → Preview → Scanning → Results với Hunter.io thật; job async + progress.
@@ -558,3 +585,4 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 | 2026-05-19 | Phase 09B done; Phase 09C done — Saved Leads API (GET/POST/DELETE), in-memory store per session, `/leads` page, lưu từ Domain Scan Results, CSV export, `docs/SAVED_LEADS.md` |
 | 2026-05-19 | Phase 09D done — `app_saved_leads` migration, Supabase repository + memory fallback, UI storage banners |
 | 2026-05-19 | Phase 09E done — Supabase Auth hybrid foundation: `getSession()` Supabase-first, demo HMAC fallback, middleware accepts both |
+| 2026-05-19 | Phase 09F done — encrypted `app_user_api_keys`, Settings API key UI, Hunter/SerpAPI user-key-first with env fallback |
