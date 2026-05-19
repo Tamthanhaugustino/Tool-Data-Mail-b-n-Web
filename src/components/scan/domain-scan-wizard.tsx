@@ -545,7 +545,12 @@ function ScanResultsView({
         });
         return;
       }
-      const ok = data as { savedCount?: number; duplicateCount?: number };
+      const ok = data as {
+        savedCount?: number;
+        duplicateCount?: number;
+        storage?: "supabase" | "memory";
+        storageFallback?: boolean;
+      };
       const saved = ok.savedCount ?? 0;
       const dup = ok.duplicateCount ?? 0;
       let message = `Đã lưu ${saved} lead.`;
@@ -554,6 +559,13 @@ function ScanResultsView({
       }
       if (saved === 0 && dup > 0) {
         message = "Tất cả lead đã chọn đều đã có trong Saved Leads.";
+      }
+      if (ok.storage === "supabase" && !ok.storageFallback) {
+        message += " Lưu bền vững trên Supabase.";
+      } else if (ok.storageFallback) {
+        message += " (Fallback in-memory — chưa có bảng app_saved_leads.)";
+      } else if (ok.storage === "memory") {
+        message += " (In-memory demo — chưa cấu hình Supabase.)";
       }
       setSaveFeedback({
         type: saved > 0 ? "success" : "info",
@@ -679,7 +691,7 @@ function ScanResultsView({
               <Link href="/leads" className="font-medium text-primary underline-offset-2 hover:underline">
                 Saved Leads
               </Link>{" "}
-              (in-memory, theo tài khoản đăng nhập).
+              (Supabase nếu đã cấu hình, không thì in-memory demo).
             </>
           ) : rows.length > 0 ? (
             <>

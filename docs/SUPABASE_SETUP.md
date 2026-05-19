@@ -77,6 +77,17 @@ create trigger on_auth_user_created
 
 Phase 06 **chưa cần** trigger — app vẫn dùng demo auth, không insert vào `auth.users`.
 
+### Migration Phase 09D — `app_saved_leads` (Saved Leads persist)
+
+Sau `0001` (hoặc trên project trống chỉ cần function `set_updated_at` nếu đã có từ 0001):
+
+1. Chạy [`supabase/migrations/0002_app_saved_leads.sql`](../supabase/migrations/0002_app_saved_leads.sql) trong SQL Editor.
+2. Verify bảng **`app_saved_leads`** (khác `saved_leads` workspace trong 0001).
+3. Đảm bảo `.env.local` có `SUPABASE_SERVICE_ROLE_KEY` — API leads dùng admin client server-only.
+4. Mở `/leads` → banner xanh nếu persist OK; amber + `storageFallback` nếu thiếu bảng.
+
+Chi tiết: [`SAVED_LEADS.md`](./SAVED_LEADS.md).
+
 ### Re-apply / reset
 
 Nếu cần xoá hết để chạy lại migration:

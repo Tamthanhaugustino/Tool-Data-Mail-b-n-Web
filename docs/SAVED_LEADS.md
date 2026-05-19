@@ -1,119 +1,105 @@
-# Saved Leads — Phase 09C (foundation)
+# Saved Leads — Phase 09C + 09D
 
-> Trạng thái: **foundation / demo** — lưu lead qua API in-memory trên server, **chưa** ghi bảng `saved_leads` trên Supabase. Dữ liệu theo `session.id` (demo HMAC cookie).
+> **09C:** API + UI + in-memory fallback.
+> **09D:** Persist Supabase bảng `app_saved_leads` khi env service role sẵn sàng.
+> `user_id` = `session.id` demo HMAC — **chưa** `auth.users` UUID.
 
 ## 1. Mục đích
 
-Cho phép user đã đăng nhập:
+1. Chọn lead từ Domain Scan → **Lưu lead đã chọn** → `POST /api/leads`.
+2. Xem / tìm / xóa / CSV tại `/leads`.
+3. Dedupe **email + domain** (case-insensitive) per user.
 
-1. Chọn lead từ kết quả Domain Scan (`/scan` → Results).
-2. Bấm **Lưu lead đã chọn** → `POST /api/leads`.
-3. Xem / tìm / xóa / tải CSV tại `/leads`.
+## 2. Storage backends
 
-Dedupe: cùng **email + domain** (không phân biệt hoa thường) chỉ lưu một lần.
+| `storage` trong API | Điều kiện |
+|-------------------|-----------|
+| `supabase` | `NEXT_PUBLIC_SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` + bảng `app_saved_leads` đã migrate |
+| `memory` | Thiếu env **hoặc** bảng chưa có (`storageFallback: true`) |
 
-## 2. Giới hạn hiện tại
-
-| Hạng mục | Phase 09C |
-|----------|-----------|
-| Storage | `globalThis` Map in-memory trên Node server |
-| Persist sau restart / cold start Vercel | **Không** — có thể mất toàn bộ |
-| Đồng bộ đa thiết bị | **Không** |
-| CRM status (contacted, tags, notes) | **Chưa** — chỉ lưu verification status từ scan |
-| Billing / quota | **Không** |
-| Supabase Auth | **Chưa** — vẫn demo session Phase 03 |
-
-Đây **không phải** CRM production. UI và docs ghi rõ để tránh hiểu nhầm.
-
-## 3. Files
+Repository: [`src/lib/leads/repository.ts`](../src/lib/leads/repository.ts) — API route chỉ gọi facade, không import Supabase trực tiếp.
 
 ```
 src/lib/leads/
-├── types.ts          # SavedLeadRecord, SaveLeadInput
-├── store.ts          # server-only in-memory store (per userId)
-├── validate.ts       # parseSaveLeadInput
-├── export-csv.ts     # CSV escape + download helper (client)
-└── sanitize.ts       # API error sanitizer
-
-src/app/api/leads/
-├── route.ts          # GET list, POST batch save
-└── [id]/route.ts     # DELETE one lead
-
-src/app/leads/
-├── page.tsx          # requireSession + AppShell
-└── leads-content.tsx # list, search, delete, export CSV
-
-src/components/scan/domain-scan-wizard.tsx
-└── ScanResultsView   # wire "Lưu lead đã chọn"
+├── repository.ts      # chọn supabase vs memory
+├── memory-store.ts    # globalThis Map (Phase 09C)
+├── supabase-store.ts  # admin client, server-only
+├── types.ts
+├── validate.ts
+├── export-csv.ts
+└── sanitize.ts
 ```
+
+## 3. Supabase migration (Phase 09D)
+
+File: [`supabase/migrations/0002_app_saved_leads.sql`](../supabase/migrations/0002_app_saved_leads.sql)
+
+Bảng **`app_saved_leads`** (tách khỏi `saved_leads` workspace-scoped trong `0001`):
+
+| Cột | Kiểu |
+|-----|------|
+| `id` | uuid PK |
+| `user_id` | text NOT NULL (demo session id) |
+| `email` | citext NOT NULL |
+| `name`, `title`, `company` | text nullable |
+| `domain` | text NOT NULL |
+| `confidence` | numeric(5,2) |
+| `status` | text (`verified` \| `accept_all` \| `webmail`) |
+| `source` | text nullable |
+| `created_at`, `updated_at` | timestamptz |
+
+Unique index: `(user_id, lower(email), lower(domain))`.
+Index: `(user_id, created_at desc)`.
+
+### Cách apply
+
+1. Provision project theo [`SUPABASE_SETUP.md`](./SUPABASE_SETUP.md).
+2. SQL Editor → chạy `0002_app_saved_leads.sql` (hoặc `supabase db push` nếu dùng CLI).
+3. `.env.local`:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` (build-safe; leads API dùng service role)
+   - `SUPABASE_SERVICE_ROLE_KEY` (**server-only**, không commit)
+4. Restart `npm run dev` → `/leads` banner xanh “Lưu bền vững”.
+
+Không cần dependency mới — dùng `@supabase/supabase-js` đã có.
 
 ## 4. API
 
 ### `GET /api/leads`
 
-- Auth: cookie session (`getSession()`), 401 nếu chưa login.
-- Response: `{ leads: SavedLeadRecord[], storage: "memory" }`
+Response: `{ leads, storage: "supabase" | "memory", storageFallback?: true }`
 
 ### `POST /api/leads`
 
-Body:
-
-```json
-{
-  "leads": [
-    {
-      "email": "a@example.com",
-      "name": "Nguyễn A",
-      "title": "CEO",
-      "company": "Example Co",
-      "domain": "example.com",
-      "confidence": 90,
-      "status": "verified",
-      "source": "mock"
-    }
-  ]
-}
-```
-
-- `status`: `verified` | `accept_all` | `webmail`
-- Tối đa **100** lead / request
-- Response: `{ savedCount, duplicateCount, saved[], duplicates[], storage: "memory" }`
+- Body: `{ leads: SaveLeadInput[] }`, max **100**.
+- Response: `{ savedCount, duplicateCount, saved, duplicates, storage, storageFallback? }`
 
 ### `DELETE /api/leads/[id]`
 
-- 404 nếu id không thuộc user hiện tại
+- Scope: chỉ lead có `user_id` = session hiện tại.
 
-## 5. Luồng UI
+Lỗi sanitize — không lộ URL/key/JWT ([`sanitize.ts`](../src/lib/leads/sanitize.ts)).
 
-### Domain Scan → Lưu
+## 5. UI
 
-1. `/scan` — chạy scan (mock hoặc Hunter).
-2. Results — tick checkbox, **Lưu lead đã chọn**.
-3. Alert xanh: số lead mới + số trùng; link **Xem Saved Leads →**.
-
-### Saved Leads page
-
-1. `/leads` — banner amber giải thích in-memory.
-2. Ô tìm theo email / domain / công ty / tên.
-3. Nút **Tải CSV** (toàn bộ hoặc theo filter).
-4. Icon thùng rác — `DELETE /api/leads/[id]`.
+| Trạng thái | Copy |
+|------------|------|
+| Supabase OK | Banner xanh — lưu bền vững, nhắc session demo |
+| Memory | Banner amber — chưa cấu hình env |
+| `storageFallback` | Banner amber — env có, chưa migrate bảng |
 
 Empty state:
 
 > Chưa có lead nào được lưu. Hãy scan domain và lưu lead từ bảng kết quả trên trang Domain Scan.
 
-## 6. CSV export
+## 6. Giới hạn (chưa làm)
 
-Cột: `email, name, title, company, domain, confidence, status, source, savedAt`
+- Supabase Auth + map `user_id` → `auth.users`
+- Workspace-scoped `saved_leads` (0001) + CRM tags/notes
+- Lưu từ `/results` / Discovery
+- Export JSON signed URL
+- RLS policies cho `authenticated` role (hiện service role + filter app)
 
-UTF-8 BOM (`\uFEFF`) để Excel mở tiếng Việt đúng. Field có dấu phẩy/newline được quote theo RFC.
+## 7. CSV export
 
-## 7. Phase tiếp theo (deferred)
-
-- [ ] Persist `saved_leads` qua Supabase + RLS
-- [ ] CRM fields: tags, notes, pipeline status
-- [ ] Lưu từ `/results` và Keyword Discovery
-- [ ] Export JSON + signed URL
-- [ ] Đồng bộ badge sidebar theo count thật
-
-**Phụ thuộc:** Supabase Auth migration (để FK `saved_by` / workspace hợp lệ).
+Cột: `email, name, title, company, domain, confidence, status, source, savedAt` — UTF-8 BOM, RFC 4180 escape.

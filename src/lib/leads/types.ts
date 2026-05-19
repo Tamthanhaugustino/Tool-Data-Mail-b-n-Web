@@ -1,7 +1,15 @@
 /** Email verification status từ Domain Scan (khớp ScanResultRow). */
 export type SavedLeadVerificationStatus = "verified" | "accept_all" | "webmail";
 
-/** Bản ghi Saved Leads Phase 09C — in-memory per user, chưa Supabase. */
+export type LeadsStorageBackend = "supabase" | "memory";
+
+export type SavedLeadsOperationMeta = {
+  storage: LeadsStorageBackend;
+  /** Supabase env có nhưng bảng `app_saved_leads` chưa migrate — đã dùng memory */
+  storageFallback?: boolean;
+};
+
+/** Bản ghi Saved Leads — shape ổn định cho UI (memory hoặc Supabase). */
 export type SavedLeadRecord = {
   id: string;
   userId: string;

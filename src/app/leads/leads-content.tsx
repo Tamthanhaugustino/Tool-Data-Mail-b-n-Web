@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { Download, Loader2, Search, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { PageHeader } from "@/components/shared/page-header";
@@ -19,7 +19,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { downloadCsvFile, savedLeadsToCsv } from "@/lib/leads/export-csv";
-import type { SavedLeadRecord } from "@/lib/leads/types";
+import type {
+  LeadsStorageBackend,
+  SavedLeadRecord,
+} from "@/lib/leads/types";
 
 const verificationLabel: Record<SavedLeadRecord["status"], string> = {
   verified: "Verified",
@@ -41,7 +44,58 @@ function formatSavedAt(iso: string) {
   }
 }
 
-export function LeadsContent({ initialLeads }: { initialLeads: SavedLeadRecord[] }) {
+function storageAlertCopy(
+  storage: LeadsStorageBackend,
+  storageFallback?: boolean,
+): { className: string; body: ReactNode } {
+  if (storageFallback) {
+    return {
+      className: "mb-4 border-amber-200 bg-amber-50 text-amber-950",
+      body: (
+        <>
+          <b>Fallback bộ nhớ tạm:</b> Supabase đã cấu hình nhưng bảng{" "}
+          <code className="rounded bg-amber-100 px-1 font-mono text-xs">app_saved_leads</code> chưa
+          được migrate. Chạy migration <code className="font-mono text-xs">0002_app_saved_leads.sql</code>{" "}
+          rồi tải lại trang.
+        </>
+      ),
+    };
+  }
+  if (storage === "supabase") {
+    return {
+      className: "mb-4 border-green-200 bg-green-50 text-green-950",
+      body: (
+        <>
+          <b>Lưu bền vững:</b> Lead được lưu trên Supabase theo tài khoản đăng nhập (session demo).
+          Chưa đồng bộ Supabase Auth — <code className="font-mono text-xs">user_id</code> là id session
+          HMAC, không phải <code className="font-mono text-xs">auth.users</code>.
+        </>
+      ),
+    };
+  }
+  return {
+    className: "mb-4 border-amber-200 bg-amber-50 text-amber-950",
+    body: (
+      <>
+        <b>Demo in-memory:</b> Đang dùng bộ nhớ tạm thời trên server (chưa cấu hình Supabase service
+        role). Dữ liệu có thể mất khi restart. Điền{" "}
+        <code className="font-mono text-xs">NEXT_PUBLIC_SUPABASE_URL</code> +{" "}
+        <code className="font-mono text-xs">SUPABASE_SERVICE_ROLE_KEY</code> và apply migration để
+        persist.
+      </>
+    ),
+  };
+}
+
+export function LeadsContent({
+  initialLeads,
+  storage,
+  storageFallback,
+}: {
+  initialLeads: SavedLeadRecord[];
+  storage: LeadsStorageBackend;
+  storageFallback?: boolean;
+}) {
   const [leads, setLeads] = useState<SavedLeadRecord[]>(initialLeads);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
@@ -93,7 +147,11 @@ export function LeadsContent({ initialLeads }: { initialLeads: SavedLeadRecord[]
     <>
       <PageHeader
         title="Saved Leads"
-        subtitle="Foundation Phase 09C — lưu tạm trên server (in-memory), chưa đồng bộ Supabase."
+        subtitle={
+          storage === "supabase" && !storageFallback
+            ? "Phase 09D — lead lưu trên Supabase (session demo)."
+            : "Foundation demo — lưu in-memory hoặc chờ cấu hình Supabase."
+        }
         actions={
           <Button onClick={handleExport} disabled={leads.length === 0}>
             <Download className="size-4" />
@@ -102,13 +160,14 @@ export function LeadsContent({ initialLeads }: { initialLeads: SavedLeadRecord[]
         }
       />
 
-      <Alert className="mb-4 border-amber-200 bg-amber-50 text-amber-950">
-        <AlertDescription className="text-sm">
-          <b>Demo foundation:</b> Lead được lưu theo tài khoản đăng nhập trên bộ nhớ server. Dữ liệu có
-          thể mất khi deploy/restart (đặc biệt trên Vercel serverless). Chưa phải CRM production — Phase
-          sau sẽ persist vào Supabase.
-        </AlertDescription>
-      </Alert>
+      {(() => {
+        const alert = storageAlertCopy(storage, storageFallback);
+        return (
+          <Alert className={alert.className}>
+            <AlertDescription className="text-sm">{alert.body}</AlertDescription>
+          </Alert>
+        );
+      })()}
 
       {error ? (
         <Alert className="mb-4 border-red-200 bg-red-50 text-red-900">

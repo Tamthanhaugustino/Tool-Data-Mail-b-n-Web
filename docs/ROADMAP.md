@@ -22,7 +22,8 @@ Phase 08B SerpAPI live + polish ████████████████
 Phase 08C Domain Scan backend   ████████████████████  DONE
 Phase 09A Hunter provider       ████████████████████  DONE (quota-safe)
 Phase 09B Hunter live + polish  ████████████████████  DONE
-Phase 09C Saved Leads foundation ████████████████████  DONE (in-memory API + /leads)
+Phase 09C Saved Leads foundation ████████████████████  DONE
+Phase 09D Saved Leads Supabase    ████████████████████  DONE (app_saved_leads + fallback)
 Phase 06  Domain Scan jobs      ░░░░░░░░░░░░░░░░░░░░
 Phase 07  Results / Leads       ░░░░░░░░░░░░░░░░░░░░
 Phase 08  Billing               ░░░░░░░░░░░░░░░░░░░░
@@ -367,24 +368,48 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 - [x] [`leads-content.tsx`](../src/app/leads/leads-content.tsx) — list, search, delete, export CSV, empty state tiếng Việt, banner demo in-memory
 - [x] [`docs/SAVED_LEADS.md`](./SAVED_LEADS.md) — API, giới hạn, luồng UI
 
-**Chưa làm (deferred):**
+**Chưa làm (chuyển 09D+):**
 
-- [ ] Supabase Auth migration + persist `saved_leads` table
+- [ ] Supabase persist (→ Phase 09D)
 - [ ] CRM fields (tags, notes, pipeline status)
 - [ ] Lưu từ `/results` / Keyword Discovery
 - [ ] Export JSON production / signed URL
 
-**Deliverable:** User scan → chọn lead → lưu → thấy trên `/leads` → xóa / CSV. Dữ liệu mất khi server restart (documented).
+**Deliverable:** User scan → chọn lead → lưu → thấy trên `/leads` → xóa / CSV.
 
 **Phụ thuộc:** Phase 09B.
 
 ---
 
-## Phase 09D — Supabase Auth migration (deferred)
+## Phase 09D — Saved Leads Supabase persist — DONE
 
-**Mục tiêu:** Swap demo HMAC → Supabase Auth; persist Discovery, Scan, Saved Leads → DB.
+**Mục tiêu:** Ghi lead lên Supabase khi env sẵn sàng; giữ in-memory fallback khi chưa cấu hình hoặc chưa migrate.
 
-**Phụ thuộc:** Phase 09C, Supabase project provisioned.
+**Đã làm:**
+
+- [x] [`supabase/migrations/0002_app_saved_leads.sql`](../supabase/migrations/0002_app_saved_leads.sql) — `app_saved_leads`, unique `(user_id, email, domain)`, indexes
+- [x] [`repository.ts`](../src/lib/leads/repository.ts) + [`supabase-store.ts`](../src/lib/leads/supabase-store.ts) — admin client server-only, probe bảng, fallback memory
+- [x] API `GET/POST/DELETE` trả `storage` + `storageFallback`
+- [x] UI `/leads` + Domain Scan save feedback theo backend
+- [x] [`docs/SAVED_LEADS.md`](./SAVED_LEADS.md) — migration, env, fallback
+
+**Chưa làm (deferred):**
+
+- [ ] Map `user_id` → `auth.users` / workspace `saved_leads` (0001)
+- [ ] RLS cho role `authenticated` (không chỉ service role)
+- [ ] CRM fields, export JSON
+
+**Deliverable:** Owner apply migration 0002 + service role env → lead survive restart. Thiếu env vẫn build/run với memory.
+
+**Phụ thuộc:** Phase 09C, Phase 05–06 Supabase wiring.
+
+---
+
+## Phase 09E — Supabase Auth migration (deferred)
+
+**Mục tiêu:** Swap demo HMAC → Supabase Auth; unify `saved_leads` workspace model + Discovery/Scan persist.
+
+**Phụ thuộc:** Phase 09D, Supabase project provisioned.
 
 ---
 
@@ -512,3 +537,4 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 | 2026-05-18 | Phase 08C done; Phase 09A in-progress — Hunter Domain Search provider, server-only + dynamic import, quota-safe (max 5 domain/request, 10s timeout/domain, sequential, no retry), env-gated, typed errors → HTTP status. Live test deferred cho owner (5 search/lần) |
 | 2026-05-19 | Phase 09A done; Phase 09B in-progress — UX polish (1-domain test recommendation copy, live over-cap warning, per-domain error vs empty display). Regression smoke test 3 path OK. Live Hunter test vẫn deferred cho owner |
 | 2026-05-19 | Phase 09B done; Phase 09C done — Saved Leads API (GET/POST/DELETE), in-memory store per session, `/leads` page, lưu từ Domain Scan Results, CSV export, `docs/SAVED_LEADS.md` |
+| 2026-05-19 | Phase 09D done — `app_saved_leads` migration, Supabase repository + memory fallback, UI storage banners |

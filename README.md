@@ -25,13 +25,13 @@ Desktop app (logic gốc) phát triển riêng tại project **`b2b-lead-finder`
 | Domain Scan backend foundation (mock + API + UI wired) | **Done (Phase 08C)** — xem [`docs/SCAN.md`](./docs/SCAN.md) |
 | Hunter.io real provider (quota-safe, server-only) | **Done (Phase 09A)** — `HUNTER_API_KEY` + `SCAN_PROVIDER` env-gated, max 5 domain/request |
 | Hunter UX polish + 1-domain live guide | **Done (Phase 09B)** — over-cap UI hint, per-domain error display, regression OK |
-| Saved Leads foundation (API + `/leads` + lưu từ scan) | **Done (Phase 09C)** — in-memory per user; xem [`docs/SAVED_LEADS.md`](./docs/SAVED_LEADS.md) |
+| Saved Leads foundation (API + `/leads` + lưu từ scan) | **Done (Phase 09C)** — xem [`docs/SAVED_LEADS.md`](./docs/SAVED_LEADS.md) |
+| Saved Leads Supabase persist (`app_saved_leads`) | **Done (Phase 09D)** — service role + migration 0002; fallback memory nếu chưa env |
 | Supabase Auth migration | Chưa (deferred) |
-| Saved Leads DB persistence (Supabase) | Chưa (sau Phase 09C) |
 | Billing / payment | Chưa có |
 | Production deploy | Chưa có |
 
-**Phase hiện tại:** [Phase 09C — Saved Leads web foundation](./docs/ROADMAP.md#phase-09c--saved-leads-web-foundation--done)
+**Phase hiện tại:** [Phase 09D — Saved Leads Supabase persist](./docs/ROADMAP.md#phase-09d--saved-leads-supabase-persist--done)
 
 Chi tiết lộ trình: [`docs/ROADMAP.md`](./docs/ROADMAP.md)
 

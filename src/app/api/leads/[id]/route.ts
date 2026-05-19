@@ -1,8 +1,9 @@
-// DELETE /api/leads/[id] — xóa một saved lead (in-memory, per user)
+// DELETE /api/leads/[id] — xóa một saved lead (Supabase hoặc in-memory fallback)
 
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/session";
-import { deleteSavedLead } from "@/lib/leads/store";
+import { deleteSavedLead } from "@/lib/leads/repository";
+import { sanitizeApiMessage } from "@/lib/leads/sanitize";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -26,16 +27,24 @@ export async function DELETE(_req: Request, context: RouteContext) {
     );
   }
 
-  const deleted = deleteSavedLead(session.id, id);
-  if (!deleted) {
+  try {
+    const { deleted, storage, storageFallback } = await deleteSavedLead(session.id, id);
+    if (!deleted) {
+      return NextResponse.json(
+        { error: "not_found", message: "Không tìm thấy lead hoặc đã bị xóa." },
+        { status: 404, headers: { "cache-control": "no-store" } },
+      );
+    }
+
     return NextResponse.json(
-      { error: "not_found", message: "Không tìm thấy lead hoặc đã bị xóa." },
-      { status: 404, headers: { "cache-control": "no-store" } },
+      { ok: true, storage, ...(storageFallback ? { storageFallback: true } : {}) },
+      { headers: { "cache-control": "no-store" } },
+    );
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "unknown";
+    return NextResponse.json(
+      { error: "internal", message: sanitizeApiMessage(msg) },
+      { status: 500, headers: { "cache-control": "no-store" } },
     );
   }
-
-  return NextResponse.json(
-    { ok: true },
-    { headers: { "cache-control": "no-store" } },
-  );
 }
