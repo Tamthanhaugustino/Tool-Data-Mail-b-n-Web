@@ -2,6 +2,7 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { findDemoUser } from "./demo-users";
 import { signSession } from "./jwt";
 import { AUTH_COOKIE, SESSION_MAX_AGE } from "./types";
@@ -17,6 +18,18 @@ export async function signInAction(
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
   const from = String(formData.get("from") ?? "/dashboard");
+  const safeFrom = from.startsWith("/") && !from.startsWith("//") ? from : "/dashboard";
+
+  const supabase = await createSupabaseServerClient();
+  if (supabase) {
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
+    if (!error) {
+      redirect(safeFrom);
+    }
+  }
 
   const user = findDemoUser(email, password);
   if (!user) {
@@ -37,11 +50,14 @@ export async function signInAction(
     maxAge: SESSION_MAX_AGE,
   });
 
-  const safeFrom = from.startsWith("/") && !from.startsWith("//") ? from : "/dashboard";
   redirect(safeFrom);
 }
 
 export async function signOutAction(): Promise<void> {
+  const supabase = await createSupabaseServerClient();
+  if (supabase) {
+    await supabase.auth.signOut();
+  }
   const cookieStore = await cookies();
   cookieStore.delete(AUTH_COOKIE);
   redirect("/login");

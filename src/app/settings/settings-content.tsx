@@ -146,7 +146,8 @@ export function SettingsContent({ session }: { session: Session }) {
             <CardHeader>
               <CardTitle className="text-base">Thông tin tài khoản</CardTitle>
               <CardDescription>
-                Role hiện tại: <b className="uppercase">{session.role}</b> · Gói {session.plan}
+                Role hiện tại: <b className="uppercase">{session.role}</b> · Gói {session.plan} · Auth{" "}
+                {session.authProvider === "supabase" ? "Supabase" : "demo HMAC"}
               </CardDescription>
             </CardHeader>
             <CardContent className="grid max-w-md gap-4">
@@ -168,7 +169,7 @@ export function SettingsContent({ session }: { session: Session }) {
             <CardHeader>
               <CardTitle className="text-base">Đổi mật khẩu</CardTitle>
               <CardDescription>
-                Demo auth chưa lưu mật khẩu vào DB. Sẽ nối khi có Supabase Auth (Phase 04+).
+                Phase 09E mới thêm nền hybrid. Đổi mật khẩu thật sẽ dùng Supabase Auth ở phase sau.
               </CardDescription>
             </CardHeader>
             <CardContent className="grid max-w-md gap-4">

@@ -16,6 +16,7 @@ Desktop app (logic gốc) phát triển riêng tại project **`b2b-lead-finder`
 | Design handoff (`design/`) | Có — HTML/CSS mock + screenshots |
 | Backend / API thật | Chưa có |
 | Auth foundation (cookie HMAC + demo users) | **Done (Phase 03)** — xem [`docs/AUTH.md`](./docs/AUTH.md) |
+| Supabase Auth hybrid foundation | **Done (Phase 09E)** — Supabase session/sign-in nếu env sẵn sàng, fallback demo HMAC |
 | Database schema (SQL migration + TS types) | **Done (Phase 04 foundation)** — xem [`docs/DATABASE.md`](./docs/DATABASE.md) |
 | Supabase client wiring (browser/server/admin) | **Done (Phase 05 prep)** — factories sẵn sàng, env-gated |
 | Supabase setup guide + health check route | **Done (Phase 06)** — xem [`docs/SUPABASE_SETUP.md`](./docs/SUPABASE_SETUP.md) |
@@ -27,11 +28,11 @@ Desktop app (logic gốc) phát triển riêng tại project **`b2b-lead-finder`
 | Hunter UX polish + 1-domain live guide | **Done (Phase 09B)** — over-cap UI hint, per-domain error display, regression OK |
 | Saved Leads foundation (API + `/leads` + lưu từ scan) | **Done (Phase 09C)** — xem [`docs/SAVED_LEADS.md`](./docs/SAVED_LEADS.md) |
 | Saved Leads Supabase persist (`app_saved_leads`) | **Done (Phase 09D)** — service role + migration 0002; fallback memory nếu chưa env |
-| Supabase Auth migration | Chưa (deferred) |
+| Supabase Auth migration production | Chưa hoàn tất — hybrid fallback, chưa bắt buộc Supabase Auth |
 | Billing / payment | Chưa có |
 | Production deploy | Chưa có |
 
-**Phase hiện tại:** [Phase 09D — Saved Leads Supabase persist](./docs/ROADMAP.md#phase-09d--saved-leads-supabase-persist--done)
+**Phase hiện tại:** [Phase 09E — Supabase Auth foundation](./docs/ROADMAP.md#phase-09e--supabase-auth-migration-foundation--done)
 
 Chi tiết lộ trình: [`docs/ROADMAP.md`](./docs/ROADMAP.md)
 
@@ -91,7 +92,7 @@ Mở [http://localhost:3000](http://localhost:3000). Đăng nhập thử tại `
 | `trang.nguyen@vietsoftware.com.vn` | `demo123` | user |
 | `admin@tooldatamail.dev` | `admin123` | admin |
 
-Auth giai đoạn này dùng cookie HMAC server-side (chưa nối DB / Supabase). Chi tiết: [`docs/AUTH.md`](./docs/AUTH.md).
+Auth giai đoạn này là hybrid: nếu Supabase Auth cookie hợp lệ thì dùng Supabase user, còn không fallback demo HMAC. Chi tiết: [`docs/AUTH.md`](./docs/AUTH.md).
 
 ### Environment
 
@@ -188,8 +189,10 @@ tool-data-mail-web/
 | 08B | SerpAPI live smoke test + typed error UX | **Done** (6 mã code → HTTP status + UI hint) |
 | 08C | Domain Scan backend foundation | **Done** (mock provider + `/api/scan/domain` + wired wizard) |
 | 09A | Hunter real provider (quota-safe) | **Done** (server-only fetch, env-gated, max 5 domain/request) |
-| 09B | Hunter live smoke test + UX polish | **Current** (1-domain guide, over-cap UI, per-domain error display) |
-| 09C | Saved Leads foundation *or* Supabase Auth migration | Planned |
+| 09B | Hunter live smoke test + UX polish | **Done** |
+| 09C | Saved Leads foundation | **Done** |
+| 09D | Saved Leads Supabase persist | **Done** |
+| 09E | Supabase Auth hybrid foundation | **Done** |
 | 06 | Domain Scan job system | Planned |
 | 07 | Results, Saved Leads, Export | Planned |
 | 08 | Billing / subscription / credit limits | Planned |

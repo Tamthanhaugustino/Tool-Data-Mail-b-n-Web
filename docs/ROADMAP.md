@@ -24,6 +24,7 @@ Phase 09A Hunter provider       ████████████████
 Phase 09B Hunter live + polish  ████████████████████  DONE
 Phase 09C Saved Leads foundation ████████████████████  DONE
 Phase 09D Saved Leads Supabase    ████████████████████  DONE (app_saved_leads + fallback)
+Phase 09E Supabase Auth hybrid     ████████████████████  DONE (Supabase-first + demo fallback)
 Phase 06  Domain Scan jobs      ░░░░░░░░░░░░░░░░░░░░
 Phase 07  Results / Leads       ░░░░░░░░░░░░░░░░░░░░
 Phase 08  Billing               ░░░░░░░░░░░░░░░░░░░░
@@ -405,11 +406,29 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 
 ---
 
-## Phase 09E — Supabase Auth migration (deferred)
+## Phase 09E — Supabase Auth migration foundation — DONE
 
-**Mục tiêu:** Swap demo HMAC → Supabase Auth; unify `saved_leads` workspace model + Discovery/Scan persist.
+**Mục tiêu:** Chuẩn bị adapter auth Supabase-first mà không phá demo HMAC khi env/Auth chưa sẵn sàng.
 
-**Phụ thuộc:** Phase 09D, Supabase project provisioned.
+**Đã làm:**
+
+- [x] `Session.authProvider` để UI/API biết nguồn auth (`demo` hoặc `supabase`)
+- [x] [`src/lib/auth/supabase-session.ts`](../src/lib/auth/supabase-session.ts) — map Supabase user metadata về session contract hiện tại
+- [x] [`src/lib/auth/session.ts`](../src/lib/auth/session.ts) — `getSession()` ưu tiên Supabase Auth, fallback HMAC demo
+- [x] [`src/lib/auth/actions.ts`](../src/lib/auth/actions.ts) — login thử Supabase trước, fallback demo; logout sign out cả Supabase + demo cookie
+- [x] [`middleware.ts`](../middleware.ts) — route protection chấp nhận Supabase cookie hoặc demo cookie
+- [x] Login/settings/docs ghi rõ trạng thái hybrid foundation
+
+**Chưa làm (deferred):**
+
+- [ ] Seed/tạo user thật trong Supabase Auth
+- [ ] Đọc role/plan từ `profiles`/subscription thay vì metadata/default
+- [ ] Bỏ demo HMAC fallback
+- [ ] Migrate `app_saved_leads.user_id` demo text sang Supabase UUID nếu cần giữ dữ liệu cũ
+
+**Deliverable:** App build/run khi thiếu Supabase env; khi có Supabase Auth cookie hợp lệ thì `Session.id = auth.users.id`; demo login vẫn hoạt động.
+
+**Phụ thuộc:** Phase 09D, Supabase public env nếu muốn test Supabase Auth thật.
 
 ---
 
@@ -538,3 +557,4 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 | 2026-05-19 | Phase 09A done; Phase 09B in-progress — UX polish (1-domain test recommendation copy, live over-cap warning, per-domain error vs empty display). Regression smoke test 3 path OK. Live Hunter test vẫn deferred cho owner |
 | 2026-05-19 | Phase 09B done; Phase 09C done — Saved Leads API (GET/POST/DELETE), in-memory store per session, `/leads` page, lưu từ Domain Scan Results, CSV export, `docs/SAVED_LEADS.md` |
 | 2026-05-19 | Phase 09D done — `app_saved_leads` migration, Supabase repository + memory fallback, UI storage banners |
+| 2026-05-19 | Phase 09E done — Supabase Auth hybrid foundation: `getSession()` Supabase-first, demo HMAC fallback, middleware accepts both |

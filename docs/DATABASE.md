@@ -140,19 +140,15 @@ Trigger creation **commented** trong migration — uncomment khi apply lần đ�
 
 ## 7. Chuyển từ demo auth (Phase 03) sang Supabase Auth
 
-Phase 03 dùng cookie HMAC + demo users in-memory (`src/lib/auth/demo-users.ts`). Khi chuyển sang Supabase Auth:
+Phase 09E đã có hybrid adapter: `getSession()` ưu tiên Supabase Auth rồi fallback cookie HMAC + demo users in-memory (`src/lib/auth/demo-users.ts`). Khi chuyển sang production-only Supabase Auth:
 
 1. **Provision Supabase project** — lấy URL, anon key, service role key. Cập nhật `.env.local` (theo `.env.example`).
 2. **Apply migration** — chạy `0001_initial_schema.sql` qua Supabase Studio hoặc CLI. Uncomment trigger `on_auth_user_created`.
 3. **Tạo demo accounts** trên Supabase Auth — viết script ngắn dùng `service_role` để tạo cùng email/password trong `demo-users.ts`. Trigger sẽ tự tạo profile + workspace.
-4. **Đổi `src/lib/auth/session.ts`**:
-   - `getSession()` đổi từ `verifySession(cookie)` → đọc Supabase session qua `@supabase/ssr` helper.
-   - Shape `Session` giữ nguyên (id, email, name, initials, plan, role) — chỉ thay nguồn dữ liệu.
-5. **Đổi `src/lib/auth/actions.ts`**:
-   - `signInAction` → `supabase.auth.signInWithPassword`.
-   - `signOutAction` → `supabase.auth.signOut`.
-6. **Xoá / archive `src/lib/auth/demo-users.ts`** sau khi seed xong.
-7. **Middleware không cần đổi nhiều** — vẫn check cookie tồn tại; có thể đổi sang `@supabase/ssr` middleware helper khi cài lib.
+4. **Hoàn thiện role/plan source** — đọc `profiles.role` và subscription thay vì metadata/default.
+5. **Xoá / archive `src/lib/auth/demo-users.ts`** sau khi seed xong.
+6. **Disable HMAC fallback** khi owner xác nhận Supabase Auth đã thay thế hoàn toàn.
+7. **Migration dữ liệu app tables** — map user_id text demo (`u-trang`, `u-admin`) sang `auth.users.id` nếu cần giữ Saved Leads cũ.
 
 Estimated effort: ~1 ngày engineering, không thay UI.
 
@@ -188,13 +184,12 @@ const { data } = await supabase.from("profiles").select("...");
 
 ### Bridge với Phase 03 demo auth
 
-Giai đoạn hiện tại app vẫn dùng cookie HMAC (`tdm_session`) trong [`src/lib/auth/*`](../src/lib/auth/). Client Supabase chạy được nhưng **không có user context** — bất kỳ query nào cần RLS sẽ rỗng. Đây là chủ đích: Phase 05 chỉ wiring/prep, chưa migrate.
+Giai đoạn hiện tại app dùng hybrid auth: Supabase cookie hợp lệ sẽ có user context qua `auth.getUser()`, còn thiếu env/cookie sẽ fallback cookie HMAC (`tdm_session`). Các query cần RLS chỉ có context khi user đang đăng nhập bằng Supabase Auth.
 
-Khi migrate ở Phase tiếp theo:
-1. `signInAction` đổi sang `supabase.auth.signInWithPassword` → Supabase set cookie riêng.
-2. `getSession()` trong [`src/lib/auth/session.ts`](../src/lib/auth/session.ts) đọc từ `createSupabaseServerClient().auth.getUser()`.
-3. Middleware đổi sang Supabase middleware helper để refresh cookie.
-4. Demo users seed qua admin client.
+Các bước còn lại:
+1. Seed demo users qua admin client.
+2. Đọc role/plan từ DB.
+3. Disable demo HMAC fallback khi Supabase Auth đã ổn định.
 
 ## 9. Cái CHƯA làm
 

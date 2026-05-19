@@ -9,6 +9,7 @@ export type Session = {
   initials: string;
   plan: Plan;
   role: Role;
+  authProvider?: "demo" | "supabase";
 };
 
 export const AUTH_COOKIE = "tdm_session";

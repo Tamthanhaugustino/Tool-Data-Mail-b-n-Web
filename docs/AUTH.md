@@ -1,40 +1,29 @@
-# Auth foundation — Phase 03
+# Auth foundation — Phase 03 + 09E
 
-> Trạng thái: **prototype-ready**. Demo users in-memory + cookie session ký HMAC. Chưa nối DB / Supabase Auth.
+> Trạng thái: **hybrid foundation**. Supabase Auth được ưu tiên khi env/cookie sẵn sàng; nếu không, app fallback demo users + cookie HMAC để không phá local/dev flow.
 
 ## Tóm tắt quyết định
 
-Auth giai đoạn này dùng **session ký HMAC trong HttpOnly cookie**, không thêm dependency và không phụ thuộc backend ngoài. Ưu điểm:
+Auth giai đoạn này dùng adapter `Session` chung:
 
-- Không thêm thư viện (chỉ dùng Web Crypto có sẵn trên Node + Edge).
-- Chạy được trên Vercel Edge middleware → bảo vệ route trước khi page render.
-- Contract `Session` rõ ràng (`src/lib/auth/types.ts`) — dễ thay sang Supabase Auth / NextAuth khi có DB.
-- Không expose secret ra client. Cookie là HttpOnly + SameSite=Lax + (Secure ở production).
+- Supabase Auth: `getSession()` đọc `createSupabaseServerClient().auth.getUser()` và map về `Session`.
+- Demo fallback: nếu Supabase chưa cấu hình hoặc không có Supabase session, app đọc cookie HMAC `tdm_session`.
+- Login: `signInAction()` thử `supabase.auth.signInWithPassword()` trước, sau đó fallback demo credentials.
+- Middleware: chấp nhận cookie demo hoặc Supabase user hợp lệ; `/admin/*` vẫn dựa trên `Session.role`.
 
-Các phương án bị loại tạm thời:
-
-| Lựa chọn | Lý do hoãn |
-|---|---|
-| Supabase Auth | Phase 03 chưa setup Supabase project, sẽ kích hoạt khi Phase 04 thêm DB. Contract `Session` hiện tại tương thích với `auth.users` của Supabase. |
-| NextAuth/Auth.js | Cần adapter + provider config; với credentials-only thì chỉ chạy giống auth tự viết — dependency dư thừa cho prototype. |
-| Clerk | Tốt nhưng là dịch vụ trả phí, dữ liệu user nằm ngoài DB của ta — không phù hợp khi ta sắp dựng schema riêng. |
+Demo HMAC vẫn giữ vì local build phải chạy được khi thiếu Supabase env.
 
 ## Files
 
-```
+```text
 src/lib/auth/
-├── types.ts          # Session, Role, Plan, AUTH_COOKIE, SESSION_MAX_AGE
-├── jwt.ts            # signSession / verifySession (HMAC-SHA256 qua Web Crypto)
-├── session.ts        # getSession / requireSession / requireAdmin (server-only)
-├── demo-users.ts     # Demo credentials (dev only)
-└── actions.ts        # signInAction / signOutAction (server actions)
-middleware.ts         # Bảo vệ tất cả route trừ /login và /
-src/app/login/
-├── page.tsx          # Server component, redirect khi đã đăng nhập
-└── login-form.tsx    # Client component, dùng useActionState
-src/components/layout/
-├── topbar.tsx        # Hiển thị plan/role/initials thật từ session
-└── user-menu.tsx     # Dropdown: Settings, Admin (chỉ admin), Đăng xuất
+├── types.ts             # Session, Role, Plan, AUTH_COOKIE, SESSION_MAX_AGE
+├── jwt.ts               # signSession / verifySession (HMAC-SHA256)
+├── session.ts           # getSession / requireSession / requireAdmin (Supabase-first)
+├── supabase-session.ts  # map Supabase user metadata về Session
+├── demo-users.ts        # Demo credentials fallback
+└── actions.ts           # signInAction / signOutAction
+middleware.ts            # Protect routes bằng demo cookie hoặc Supabase cookie
 ```
 
 ## Demo accounts
@@ -44,38 +33,37 @@ src/components/layout/
 | `trang.nguyen@vietsoftware.com.vn` | `demo123` | user |
 | `admin@tooldatamail.dev` | `admin123` | admin |
 
-Demo users nằm trong `src/lib/auth/demo-users.ts` (bundled — sẽ xoá khi nối auth thật).
+Demo users nằm trong `src/lib/auth/demo-users.ts` và sẽ chỉ nên giữ tới khi owner xác nhận Supabase Auth production đã thay thế hoàn toàn.
 
 ## Environment variables
 
-Chỉ một biến duy nhất cho Phase 03:
+Biến tối thiểu cho demo fallback:
 
 ```bash
-# .env.local (KHÔNG commit)
-AUTH_SECRET=<>=16 ký tự bất kỳ; trong production phải set>
+AUTH_SECRET=<>=16 ký tự bất kỳ; production bắt buộc>
 ```
 
-Sinh giá trị nhanh:
+Biến Supabase Auth hybrid:
 
 ```bash
-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+NEXT_PUBLIC_SUPABASE_URL=<project url>
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon key>
 ```
 
-Khi `AUTH_SECRET` thiếu trong **development**, code dùng giá trị mặc định không an toàn (kèm cảnh báo runtime). Trong **production** thiếu biến sẽ throw — không boot được app. Xem `src/lib/auth/jwt.ts`.
+`SUPABASE_SERVICE_ROLE_KEY` không cần cho login Supabase Auth, nhưng vẫn cần cho các server admin/persistence flow như Saved Leads 09D. Service role không được import vào client.
 
 ## Route protection
 
 Hai lớp:
 
-1. **Middleware** (`middleware.ts`) — chạy trên Edge trước khi render. Cookie không hợp lệ → redirect `/login?from=<original>`. Truy cập `/admin/*` với role ≠ admin → redirect `/dashboard`.
-2. **Server component** — mọi protected page gọi `requireSession()` (hoặc `requireAdmin()` cho admin routes) ngay đầu file. Đây là defense-in-depth nếu middleware matcher bị bypass.
+1. **Middleware** (`middleware.ts`) chạy trước page render. Nếu có cookie demo hợp lệ hoặc Supabase Auth user hợp lệ thì cho qua. Nếu không có session, redirect `/login?from=<original>`.
+2. **Server component / API route** gọi `getSession()` hoặc `requireSession()` để defense-in-depth. API `/api/*` vẫn tự check session vì middleware matcher bỏ qua API routes.
 
-Public routes: `/` (redirect → `/dashboard`, middleware sẽ catch tiếp), `/login`.
+Public routes: `/` và `/login`.
 
 ## Session contract
 
 ```ts
-// src/lib/auth/types.ts
 export type Session = {
   id: string;
   email: string;
@@ -83,30 +71,26 @@ export type Session = {
   initials: string;
   plan: "PRO" | "BASIC" | "TRIAL";
   role: "user" | "admin";
+  authProvider?: "demo" | "supabase";
 };
 ```
 
-Khi nối Supabase Auth ở Phase 04+:
+Với Supabase Auth, `Session.id = auth.users.id`. Với demo fallback, `Session.id` vẫn là text như `u-trang`, nên các bảng app phase 09D đang dùng `user_id text` vẫn build/run an toàn.
 
-1. `signInAction` đổi từ `findDemoUser` → `supabase.auth.signInWithPassword`.
-2. `getSession` đổi từ verify HMAC → `supabase.auth.getUser()` (vẫn trả về cùng `Session` shape).
-3. `demo-users.ts` xoá hoặc giữ làm seed data cho `profiles` table.
-4. `middleware.ts` tiếp tục verify cookie — chỉ thay nguồn cookie sang Supabase cookie helper.
+## Chưa làm
 
-## Cái CHƯA làm (out of scope Phase 03)
+- Đăng ký user, quên mật khẩu, đổi mật khẩu thật.
+- Seed/tạo demo accounts trong Supabase Auth.
+- Đọc role/plan từ `profiles`/subscription DB; hiện Supabase user dùng metadata/default.
+- Disable demo HMAC fallback.
+- Migrate `app_saved_leads.user_id` demo text sang Supabase UUID nếu cần giữ dữ liệu cũ.
+- OAuth Google.
 
-- Đăng ký user (chỉ admin tạo tài khoản qua hệ thống nội bộ — sẽ làm Phase 09).
-- Quên / đổi mật khẩu thật (placeholder UI có sẵn).
-- OAuth (Google) — nút disabled, sẽ làm khi đổi sang Supabase Auth.
-- CSRF token riêng — server actions Next.js đã có built-in protection theo origin.
-- Refresh token / rotation — không cần khi session là 30 ngày HMAC stateless.
-- Audit log đăng nhập — chờ DB ở Phase 04.
+## Production-only Supabase Auth checklist
 
-## Khi nào chuyển sang Supabase Auth
-
-Mốc đề xuất: ngay khi Phase 04 dựng schema (`profiles` table + RLS). Lúc đó:
-
-- `Session.id` map thẳng vào `auth.users.id` (uuid).
-- Role chuyển từ baked-in sang `profiles.role` (enum).
-- Plan đọc từ `subscriptions` table thay vì cứng trong demo user.
-- Bỏ `AUTH_SECRET`, dùng Supabase service-role + anon key (cấu hình ở Vercel).
+1. Apply Supabase schema và trigger profile/workspace nếu dùng `profiles`.
+2. Tạo/seed users trong Supabase Auth.
+3. Set `app_metadata.role = "admin"` cho admin nếu vẫn muốn middleware check admin bằng metadata.
+4. Đọc role/plan từ DB thay vì metadata/default.
+5. Migrate dữ liệu demo user_id nếu cần.
+6. Tắt demo fallback và bỏ `AUTH_SECRET` khi không còn cần HMAC.

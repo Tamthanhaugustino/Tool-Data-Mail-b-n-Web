@@ -102,9 +102,10 @@ export default async function LoginPage({
             </p>
 
             <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-[11.5px] leading-relaxed text-amber-900">
-              <b className="font-semibold">Auth foundation · Phase 03</b>
+              <b className="font-semibold">Auth hybrid foundation · Phase 09E</b>
               <br />
-              Đây là nền tảng auth bằng cookie ký HMAC, dùng demo users (chưa nối Supabase / DB thật).
+              Nếu Supabase Auth đã cấu hình, form sẽ thử đăng nhập Supabase trước; nếu chưa sẵn sàng,
+              demo HMAC vẫn hoạt động.
               <br />
               <span className="font-mono">trang.nguyen@vietsoftware.com.vn / demo123</span> (user)
               <br />

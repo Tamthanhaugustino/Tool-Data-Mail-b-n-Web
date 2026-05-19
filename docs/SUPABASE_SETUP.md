@@ -137,12 +137,10 @@ Route luôn HTTP 200 — phân biệt healthy/degraded qua field `ok`. Error mes
 
 ## 6. Khi nào cần làm gì kế tiếp
 
-- **Vẫn chưa cần migrate auth.** App tiếp tục dùng demo HMAC (Phase 03). Demo users `trang.nguyen@vietsoftware.com.vn / demo123` và `admin@tooldatamail.dev / admin123` vẫn login được.
-- **Khi nào swap sang Supabase Auth**: Phase 07 (đề xuất). Lúc đó:
-  - Uncomment trigger `on_auth_user_created`.
-  - Tạo demo accounts qua Supabase Auth (Dashboard hoặc admin client).
-  - Đổi `src/lib/auth/session.ts` và `actions.ts` đọc/ghi qua `createSupabaseServerClient()`.
-  - Xem [`docs/DATABASE.md §7`](./DATABASE.md#7-chuyển-từ-demo-auth-phase-03-sang-supabase-auth) cho plan chi tiết.
+- **Phase 09E là hybrid auth foundation.** Nếu `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` có sẵn và user có Supabase Auth session, app dùng Supabase user. Nếu chưa, demo HMAC vẫn chạy.
+- Demo users `trang.nguyen@vietsoftware.com.vn / demo123` và `admin@tooldatamail.dev / admin123` vẫn login được.
+- Để test Supabase Auth thật: tạo user trong Supabase Auth, bật email/password provider, rồi login bằng email/password đó. Role admin có thể set qua `app_metadata.role = "admin"` nếu cần vào `/admin`.
+- Production-only migration còn deferred: seed users, đọc role/plan từ DB, disable demo fallback, và migrate `app_saved_leads.user_id` nếu cần.
 
 ---
 
