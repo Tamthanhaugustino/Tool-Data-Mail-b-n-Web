@@ -124,11 +124,19 @@ export function ResultsTable({
                         variant="ghost"
                         size="icon-sm"
                         className={cn(row.saved && "text-violet-600")}
-                        title="Lưu lead"
+                        title="Để lưu lead, dùng nút 'Lưu lead đã chọn' ở Domain Scan wizard."
+                        aria-label="Lưu lead (chuyển sang Domain Scan wizard)"
+                        disabled
                       >
                         <Bookmark className="size-4" />
                       </Button>
-                      <Button variant="ghost" size="icon-sm">
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        title="Menu hành động sẽ wire ở phase sau"
+                        aria-label="Menu hành động"
+                        disabled
+                      >
                         <MoreHorizontal className="size-4" />
                       </Button>
                     </div>

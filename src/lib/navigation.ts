@@ -23,8 +23,8 @@ export const WORKSPACE_NAV: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: Home, section: "workspace" },
   { href: "/discover", label: "Keyword Discovery", icon: Target, section: "workspace" },
   { href: "/scan", label: "Domain Scan", icon: MailSearch, section: "workspace" },
-  { href: "/results", label: "Results", icon: Table2, badge: 12, section: "workspace" },
-  { href: "/leads", label: "Saved Leads", icon: Bookmark, badge: 348, section: "workspace" },
+  { href: "/results", label: "Results", icon: Table2, section: "workspace" },
+  { href: "/leads", label: "Saved Leads", icon: Bookmark, section: "workspace" },
   { href: "/history", label: "Scan History", icon: History, section: "workspace" },
 ];
 

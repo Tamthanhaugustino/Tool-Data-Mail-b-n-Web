@@ -104,6 +104,7 @@ export function LeadsContent({
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -136,7 +137,20 @@ export function LeadsContent({
       setError(e instanceof Error ? e.message : "Không xóa được lead.");
     } finally {
       setDeletingId(null);
+      setConfirmId(null);
     }
+  };
+
+  const handleTrashClick = (id: string) => {
+    if (deletingId) return;
+    if (confirmId === id) {
+      void handleDelete(id);
+      return;
+    }
+    setConfirmId(id);
+    setTimeout(() => {
+      setConfirmId((curr) => (curr === id ? null : curr));
+    }, 5000);
   };
 
   const handleExport = () => {
@@ -251,19 +265,33 @@ export function LeadsContent({
                       {formatSavedAt(lead.savedAt)}
                     </TableCell>
                     <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        title="Xóa lead"
-                        disabled={deletingId === lead.id}
-                        onClick={() => void handleDelete(lead.id)}
-                      >
-                        {deletingId === lead.id ? (
-                          <Loader2 className="size-4 animate-spin" />
-                        ) : (
-                          <Trash2 className="size-4 text-red-600" />
-                        )}
-                      </Button>
+                      {confirmId === lead.id && deletingId !== lead.id ? (
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          className="h-7 px-2 text-[11px]"
+                          title="Bấm lần nữa để xác nhận xóa"
+                          aria-label={`Xác nhận xóa ${lead.email}`}
+                          onClick={() => handleTrashClick(lead.id)}
+                        >
+                          Xác nhận xóa
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          title="Xóa lead (bấm 2 lần để xác nhận)"
+                          aria-label={`Xóa lead ${lead.email}`}
+                          disabled={deletingId === lead.id}
+                          onClick={() => handleTrashClick(lead.id)}
+                        >
+                          {deletingId === lead.id ? (
+                            <Loader2 className="size-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="size-4 text-red-600" />
+                          )}
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}

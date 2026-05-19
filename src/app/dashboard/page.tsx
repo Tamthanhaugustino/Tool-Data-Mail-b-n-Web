@@ -24,7 +24,7 @@ export default async function DashboardPage() {
     <AppShell title="Dashboard" session={session}>
       <PageHeader
         title={`Chào ${session.name} 👋`}
-        subtitle="Hôm nay là thứ Hai, 18 / 05 / 2026 · workspace của bạn đang ổn."
+        subtitle="Số liệu mẫu — Phase 09 chưa wire dashboard analytics thật."
         actions={
           <>
             <Link href="/history" className={cn(buttonVariants({ variant: "outline" }))}>
@@ -53,9 +53,14 @@ export default async function DashboardPage() {
             accent: "amber",
           },
         ].map((stat) => (
-          <Card key={stat.label} className="shadow-sm">
+          <Card key={stat.label} className="shadow-sm" title="Số liệu mẫu — chưa nối analytics thật">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-xs font-medium text-slate-500">{stat.label}</CardTitle>
+              <CardTitle className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500">
+                {stat.label}
+                <span className="rounded bg-slate-100 px-1 py-0 text-[9px] font-semibold uppercase tracking-wider text-slate-500">
+                  demo
+                </span>
+              </CardTitle>
               <stat.icon className="size-[18px] text-slate-400" />
             </CardHeader>
             <CardContent>
@@ -65,7 +70,7 @@ export default async function DashboardPage() {
                   <span className="text-sm font-normal text-slate-500">{stat.suffix}</span>
                 ) : null}
               </p>
-              <p className="mt-1 text-xs text-green-600">{stat.delta}</p>
+              <p className="mt-1 text-xs text-slate-500">{stat.delta}</p>
             </CardContent>
           </Card>
         ))}

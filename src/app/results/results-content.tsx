@@ -167,7 +167,7 @@ export function ResultsContent({ jobId }: ResultsContentProps) {
     ? `${job.totalEmails} email · ${job.scannedDomains}/${job.totalDomains} domain · ${job.provider} · ${formatDate(job.createdAt)}${formatDuration(job.durationMs) ? ` · ${formatDuration(job.durationMs)}` : ""}`
     : jobId
       ? "Kết quả Domain Scan đã lưu."
-      : "Kết quả run gần nhất · Run #42 · 12 email (mock).";
+      : "Xem trước bảng kết quả mock — chọn 1 run trong History để xem dữ liệu thật.";
 
   return (
     <>
@@ -186,7 +186,7 @@ export function ResultsContent({ jobId }: ResultsContentProps) {
                 Làm mới
               </Button>
             )}
-            <Button variant="outline">
+            <Button variant="outline" disabled title="Bộ lọc sẽ wire ở phase sau">
               <Filter className="size-4" />
               Lọc
             </Button>
@@ -213,7 +213,19 @@ export function ResultsContent({ jobId }: ResultsContentProps) {
             Chạy scan mới
           </Link>
         </div>
-      ) : null}
+      ) : (
+        <div className="mb-4 rounded-lg border border-slate-200 bg-slate-50/80 px-4 py-3 text-sm text-slate-600">
+          Trang này đang hiển thị <b>mock data</b> để xem trước layout. Mở{" "}
+          <Link href="/history" className="font-medium text-primary underline-offset-2 hover:underline">
+            Scan History
+          </Link>{" "}
+          để chọn 1 run và xem kết quả thật, hoặc bắt đầu{" "}
+          <Link href="/scan" className="font-medium text-primary underline-offset-2 hover:underline">
+            Domain Scan
+          </Link>{" "}
+          mới.
+        </div>
+      )}
 
       {error ? (
         <div className="rounded-xl border border-red-200 bg-red-50 px-6 py-5 text-sm text-red-800">

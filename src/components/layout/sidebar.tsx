@@ -94,9 +94,17 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         ))}
       </nav>
 
-      <div className="mt-auto rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs">
-        <div className="mb-1 flex justify-between text-slate-500">
-          <span>Hunter.io</span>
+      <div
+        className="mt-auto rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs"
+        title="Số liệu mẫu — chưa nối quota Hunter thật"
+      >
+        <div className="mb-1 flex items-center justify-between text-slate-500">
+          <span className="inline-flex items-center gap-1.5">
+            Hunter.io
+            <span className="rounded bg-slate-200 px-1 py-0 text-[9px] font-semibold uppercase tracking-wider text-slate-600">
+              demo
+            </span>
+          </span>
           <span className="font-mono text-[11px]">
             {MOCK_STATS.hunterQuota.used} / {MOCK_STATS.hunterQuota.total}
           </span>

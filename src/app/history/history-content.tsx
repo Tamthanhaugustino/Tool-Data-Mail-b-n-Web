@@ -160,11 +160,14 @@ export function HistoryContent() {
           Đang tải lịch sử scan...
         </div>
       ) : jobs.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
+        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
           <p className="font-medium text-slate-700">Chưa có lịch sử scan</p>
-          <p className="mt-1 text-sm text-slate-500">
-            Chưa có lịch sử scan. Hãy chạy Domain Scan để tạo lịch sử.
+          <p className="mt-1 max-w-md text-sm text-slate-500">
+            Mỗi lần chạy Domain Scan sẽ tạo 1 dòng ở đây. Bấm bên dưới để bắt đầu.
           </p>
+          <Link href="/scan" className={cn(buttonVariants(), "mt-4")}>
+            Mở Domain Scan
+          </Link>
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
