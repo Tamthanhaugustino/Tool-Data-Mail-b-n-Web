@@ -106,6 +106,15 @@ Chi tiết: [`API_KEYS.md`](./API_KEYS.md).
 
 Nếu thiếu Supabase env hoặc chưa apply migration 0004, `/scan` vẫn chạy và app dùng in-memory fallback. Fallback này không bền vững qua restart. Phase này chưa có queue/background worker và chưa enforce billing/quota.
 
+### Migration Phase 09H — `app_usage_events` (Usage foundation)
+
+1. Chạy [`supabase/migrations/0005_app_usage_events.sql`](../supabase/migrations/0005_app_usage_events.sql).
+2. Verify bảng **`app_usage_events`**.
+3. Chạy Discovery, Domain Scan hoặc Save Leads.
+4. Gọi `GET /api/usage/summary?days=30` để xem tổng usage theo event type.
+
+Nếu thiếu migration 0005, usage write là no-op/fallback và không chặn flow chính. Phase này chưa làm billing, subscription hoặc quota enforcement.
+
 ### Re-apply / reset
 
 Nếu cần xoá hết để chạy lại migration:
@@ -169,6 +178,6 @@ Route luôn HTTP 200 — phân biệt healthy/degraded qua field `ok`. Error mes
 - [ ] Nếu dùng API key cá nhân: `.env.local` có `APP_ENCRYPTION_KEY`
 - [ ] `SUPABASE_SERVICE_ROLE_KEY` **không** ở dòng `NEXT_PUBLIC_*`
 - [ ] Migration `0001_initial_schema.sql` đã chạy thành công
-- [ ] Migration `0002_app_saved_leads.sql`, `0003_app_user_api_keys.sql`, `0004_app_scan_jobs.sql` đã chạy nếu cần các feature Phase 09D-09G
+- [ ] Migration `0002_app_saved_leads.sql`, `0003_app_user_api_keys.sql`, `0004_app_scan_jobs.sql`, `0005_app_usage_events.sql` đã chạy nếu cần các feature Phase 09D-09H
 - [ ] 11 bảng + enum types xuất hiện ở **Database → Tables / Types**
 - [ ] `curl /api/health/supabase` trả `{ ok: true }`

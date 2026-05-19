@@ -31,10 +31,11 @@ Desktop app (logic gốc) phát triển riêng tại project **`b2b-lead-finder`
 | Supabase Auth migration production | Chưa hoàn tất — hybrid fallback, chưa bắt buộc Supabase Auth |
 | User API Keys foundation | **Done (Phase 09F)** — encrypted personal Hunter/SerpAPI keys; env fallback |
 | Scan Jobs persistence | **Done (Phase 09G)** — `app_scan_jobs`/`app_scan_results` + `/history`/`/results?jobId=` |
+| Usage / Quota foundation | **Done (Phase 09H)** — `app_usage_events`, best-effort writes, no quota enforcement |
 | Billing / payment | Chưa có |
 | Production deploy | Chưa có |
 
-**Phase hiện tại:** [Phase 09G — Scan Jobs persistence](./docs/ROADMAP.md#phase-09g--scan-jobs-persistence--done)
+**Phase hiện tại:** [Phase 09H — Usage / Quota foundation](./docs/ROADMAP.md#phase-09h--usage--quota-foundation--done)
 
 Chi tiết lộ trình: [`docs/ROADMAP.md`](./docs/ROADMAP.md)
 
@@ -114,7 +115,9 @@ cp .env.example .env.local
 
 Phase 05–06 chỉ cần `AUTH_SECRET` để chạy local (Supabase client factories return `null` khi thiếu env nên `npm run build` vẫn pass). Khi muốn nối Supabase thật, làm theo [`docs/SUPABASE_SETUP.md`](./docs/SUPABASE_SETUP.md):
 
-Persisted Saved Leads, API Keys và Scan History cần chạy thêm migrations `0002`, `0003`, `0004`. Nếu thiếu Supabase env hoặc bảng chưa migrate, app vẫn build/chạy và dùng in-memory fallback cho các luồng demo liên quan.
+Persisted Saved Leads, API Keys, Scan History và Usage cần chạy thêm migrations `0002`, `0003`, `0004`, `0005`. Nếu thiếu Supabase env hoặc bảng chưa migrate, app vẫn build/chạy và dùng fallback/no-op cho các luồng demo liên quan.
+
+Usage foundation là best-effort: lỗi ghi usage không chặn Discovery, Domain Scan hoặc Save Leads. Phase này chưa billing/quota enforcement.
 
 ```bash
 curl -s http://localhost:3000/api/health/supabase
@@ -171,6 +174,7 @@ tool-data-mail-web/
 │       ├── discovery/      # Phase 07/08 — Keyword Discovery (mock + SerpAPI)
 │       ├── scan/           # Phase 08C — Domain Scan (mock provider, domain-utils)
 │       ├── scan-jobs/      # Phase 09G — scan job/result persistence + fallback
+│       ├── usage/          # Phase 09H — usage event foundation
 │       ├── mock-data.ts
 │       └── navigation.ts
 ├── middleware.ts

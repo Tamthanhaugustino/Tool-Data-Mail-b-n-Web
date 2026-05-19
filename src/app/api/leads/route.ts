@@ -7,6 +7,7 @@ import { listSavedLeads, saveLeads } from "@/lib/leads/repository";
 import { sanitizeApiMessage } from "@/lib/leads/sanitize";
 import { serializeLeadsStorageMeta } from "@/lib/leads/types";
 import { parseSaveLeadInput } from "@/lib/leads/validate";
+import { recordUsageEvent } from "@/lib/usage/repository";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -85,6 +86,18 @@ export async function POST(req: Request) {
   try {
     const result = await saveLeads(session.id, parsed);
     const { saved, duplicates, ...meta } = result;
+    if (saved.length > 0) {
+      await recordUsageEvent({
+        userId: session.id,
+        eventType: "saved_lead",
+        quantity: saved.length,
+        metadata: {
+          savedCount: saved.length,
+          duplicateCount: duplicates.length,
+          source: "api_leads_batch",
+        },
+      });
+    }
     return NextResponse.json(
       {
         savedCount: saved.length,

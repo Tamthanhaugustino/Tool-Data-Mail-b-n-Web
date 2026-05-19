@@ -164,6 +164,13 @@ Sau khi provider trả kết quả, route tạo scan job:
 
 Repository chọn Supabase khi `SUPABASE_SERVICE_ROLE_KEY` + migration 0004 sẵn sàng. Nếu thiếu env hoặc bảng chưa tồn tại, route dùng memory fallback và trả `scanStorage`, `scanStorageFallback`, `scanStorageReason`. Scan không fail chỉ vì lỗi persistence.
 
+Phase 09H ghi thêm usage events best-effort:
+
+- `domain_scan` với quantity = số domain normalized.
+- `hunter_search` với quantity = số domain nếu provider Hunter chạy được; nếu hard error sau request đầu, ghi quantity tối thiểu 1.
+
+Lỗi ghi usage không làm scan fail. Metadata không chứa API key/raw provider payload.
+
 APIs đọc:
 
 ```text

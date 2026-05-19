@@ -192,6 +192,13 @@ Phase 09F đã thêm **user-scoped key** trong `app_user_api_keys` (đọc qua a
 - Nếu không có key cá nhân, route fallback `SERPAPI_API_KEY`.
 - Phase 08A code chỉ cần refactor — KHÔNG cần đổi `DiscoveryProvider` contract.
 
+Phase 09H ghi usage events best-effort:
+
+- `discovery_search` cho mỗi run đã gọi provider.
+- `serpapi_search` nếu provider là SerpAPI.
+
+Lỗi ghi usage không làm Discovery fail. Metadata chỉ chứa provider/result count/status, không chứa API key hoặc raw provider payload.
+
 ## 7b. Bật SerpAPI cho live test (Phase 08B)
 
 Lưu ý quota-safe: mỗi lần bấm "Tìm website" với provider SerpAPI **= 1 SerpAPI search**. Gói free là 100/tháng. Đừng bấm spam.

@@ -27,7 +27,8 @@ Phase 09D Saved Leads Supabase    ███████████████�
 Phase 09E Supabase Auth hybrid     ████████████████████  DONE (Supabase-first + demo fallback)
 Phase 09F User API Keys            ████████████████████  DONE (encrypted keys + env fallback)
 Phase 09G Scan Jobs persistence    ████████████████████  DONE (jobs/results + fallback)
-Phase 09H Quota usage foundation   ░░░░░░░░░░░░░░░░░░░░
+Phase 09H Quota usage foundation   ████████████████████  DONE (usage events, no enforcement)
+Phase 09I Results/Leads polish     ░░░░░░░░░░░░░░░░░░░░
 Phase 07  Results / Leads       ░░░░░░░░░░░░░░░░░░░░
 Phase 08  Billing               ░░░░░░░░░░░░░░░░░░░░
 Phase 09  Admin                 ░░░░░░░░░░░░░░░░░░░░
@@ -486,16 +487,25 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 
 ---
 
-## Phase 09H — Quota and usage foundation
+## Phase 09H — Usage / Quota foundation — DONE
 
 **Mục tiêu:** Ghi usage events tối thiểu để chuẩn bị billing/quota sau này, chưa enforce quota thật.
 
 **Công việc dự kiến:**
 
-- Migration `app_usage_events` hoặc `app_usage_counters`
-- Helper `recordUsageEvent()` server-only, safe no-op nếu Supabase chưa cấu hình
-- Ghi event nhẹ cho discovery, domain scan, saved lead, export CSV
-- UI summary đơn giản nếu layout hiện tại phù hợp
+- [x] [`supabase/migrations/0005_app_usage_events.sql`](../supabase/migrations/0005_app_usage_events.sql) — event table, event type check, indexes theo `user_id`, RLS on
+- [x] [`src/lib/usage`](../src/lib/usage) — server-only repository/store, metadata sanitizer, best-effort no-op fallback
+- [x] Discovery ghi `discovery_search` và `serpapi_search`
+- [x] Domain Scan ghi `domain_scan` và `hunter_search`
+- [x] Saved Leads ghi `saved_lead` theo số lead mới lưu
+- [x] `GET /api/usage/summary?days=30` trả totals theo event type
+
+**Chưa làm (deferred):**
+
+- [ ] `csv_export` vì export hiện còn client-only, chưa có server endpoint
+- [ ] UI usage summary trên Dashboard/Billing/Settings
+- [ ] Enforce quota theo plan
+- [ ] Billing/subscription/Stripe
 
 **Deliverable:** Có dữ liệu usage foundation để Phase billing/quota dùng tiếp, nhưng không chặn user theo quota.
 
@@ -615,3 +625,4 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 | 2026-05-19 | Phase 09E done — Supabase Auth hybrid foundation: `getSession()` Supabase-first, demo HMAC fallback, middleware accepts both |
 | 2026-05-19 | Phase 09F done — encrypted `app_user_api_keys`, Settings API key UI, Hunter/SerpAPI user-key-first with env fallback |
 | 2026-05-19 | Phase 09G done — persisted `app_scan_jobs`/`app_scan_results`, scan job APIs, `/history` real data, `/results?jobId=` |
+| 2026-05-19 | Phase 09H done — `app_usage_events`, best-effort usage writes, summary API, no quota enforcement |

@@ -36,6 +36,7 @@ import type {
   DiscoveryProviderName,
   DiscoveryResponse,
 } from "@/lib/discovery";
+import { recordUsageEvent } from "@/lib/usage/repository";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -67,6 +68,38 @@ function sanitize(message: string): string {
 
 function isAllowedProvider(v: unknown): v is DiscoveryProviderName {
   return typeof v === "string" && ALLOWED_PROVIDERS.has(v as DiscoveryProviderName);
+}
+
+async function recordDiscoveryUsageSafe(input: {
+  userId: string;
+  provider: DiscoveryProviderName;
+  resultCount?: number;
+  status?: string;
+}) {
+  await recordUsageEvent({
+    userId: input.userId,
+    eventType: "discovery_search",
+    provider: input.provider,
+    quantity: 1,
+    metadata: {
+      provider: input.provider,
+      resultCount: input.resultCount ?? 0,
+      status: input.status,
+    },
+  });
+
+  if (input.provider === "serpapi") {
+    await recordUsageEvent({
+      userId: input.userId,
+      eventType: "serpapi_search",
+      provider: "serpapi",
+      quantity: 1,
+      metadata: {
+        resultCount: input.resultCount ?? 0,
+        status: input.status,
+      },
+    });
+  }
 }
 
 class ProviderUnavailableError extends Error {
@@ -205,15 +238,33 @@ export async function POST(req: Request) {
       },
       results: items,
     };
+    await recordDiscoveryUsageSafe({
+      userId: session.id,
+      provider: provider.name,
+      resultCount: items.length,
+      status: "completed",
+    });
     return NextResponse.json(response, {
       headers: { "cache-control": "no-store" },
     });
   } catch (e) {
     if (e instanceof SerpapiProviderError) {
       const { status, error, message } = mapSerpapiError(e);
+      await recordDiscoveryUsageSafe({
+        userId: session.id,
+        provider: provider.name,
+        resultCount: 0,
+        status: "failed",
+      });
       return jsonError(status, error, message, { provider: provider.name, code: e.code });
     }
     const msg = e instanceof Error ? e.message : "unknown error";
+    await recordDiscoveryUsageSafe({
+      userId: session.id,
+      provider: provider.name,
+      resultCount: 0,
+      status: "failed",
+    });
     return jsonError(500, "internal", sanitize(msg), { provider: provider.name });
   }
 }

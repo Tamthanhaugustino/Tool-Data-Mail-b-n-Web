@@ -93,6 +93,7 @@ audit_logs
 | `app_user_api_keys` | **Phase 09F** — encrypted Hunter/SerpAPI keys per hybrid auth user id. Unique (user_id, provider). | server app |
 | `app_scan_jobs` | **Phase 09G** — Domain Scan job per hybrid auth user id. Stores provider/status/input domains/counts/duration/sanitized error. | server app |
 | `app_scan_results` | **Phase 09G** — Results linked to `app_scan_jobs(id)` with `user_id` denormalized for scoped reads. No raw provider secrets. | server app |
+| `app_usage_events` | **Phase 09H** — Usage/quota foundation events per hybrid auth user id. Best-effort writes, no enforcement. | server app |
 | `exports` | Job export CSV/JSON, file đặt trong Supabase Storage. | members |
 | `billing_subscriptions` | 1 row/workspace; plan + status; Stripe hoặc activation code. | members read, owner write |
 | `audit_logs` | Append-only log thao tác nhạy cảm. | members read, system writes (service_role) |
@@ -203,10 +204,13 @@ Các bảng `app_*` là bridge an toàn trong giai đoạn auth hybrid. `user_id
 | `0002_app_saved_leads.sql` | `app_saved_leads` | Saved Leads bền vững; unique `user_id + lower(email) + lower(domain)` |
 | `0003_app_user_api_keys.sql` | `app_user_api_keys` | Hunter/SerpAPI key cá nhân, ciphertext only, cần `APP_ENCRYPTION_KEY` |
 | `0004_app_scan_jobs.sql` | `app_scan_jobs`, `app_scan_results` | Domain Scan history/results; `/history` và `/results?jobId=` đọc qua API scoped user |
+| `0005_app_usage_events.sql` | `app_usage_events` | Usage foundation cho discovery/scan/provider/search/save lead; chưa enforce quota |
 
 Nếu thiếu Supabase env hoặc chưa apply migration tương ứng, repository layer fallback in-memory để app vẫn build/run. In-memory không bền vững qua restart và chỉ phục vụ demo/local.
 
 `app_scan_results.raw` hiện để `null` trong app code để tránh lưu URL/header/API key từ provider response. Nếu sau này cần raw metadata, phải scrub `api_key`, token, Authorization header và URL nhạy cảm trước khi insert.
+
+`app_usage_events.metadata` chỉ lưu metadata tối thiểu đã sanitize như provider, count, status, subject id. Usage write failure không chặn core flow.
 
 ## 10. Cái CHƯA làm
 

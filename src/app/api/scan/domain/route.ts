@@ -35,6 +35,7 @@ import {
 } from "@/lib/scan/hunter-provider";
 import { createScanJob } from "@/lib/scan-jobs/repository";
 import { serializeScanJobsStorageMeta } from "@/lib/scan-jobs/types";
+import { recordUsageEvent } from "@/lib/usage/repository";
 import type {
   ScanDomainSummary,
   ScanProvider,
@@ -172,6 +173,46 @@ async function persistScanJobSafe(input: {
   });
 }
 
+async function recordScanUsageSafe(input: {
+  userId: string;
+  provider: ScanProviderName;
+  domainCount: number;
+  scanJobId?: string;
+  resultCount?: number;
+  status?: string;
+}) {
+  await recordUsageEvent({
+    userId: input.userId,
+    eventType: "domain_scan",
+    provider: input.provider,
+    quantity: input.domainCount,
+    subjectType: input.scanJobId ? "scan_job" : undefined,
+    subjectId: input.scanJobId,
+    metadata: {
+      provider: input.provider,
+      domainCount: input.domainCount,
+      resultCount: input.resultCount ?? 0,
+      status: input.status,
+    },
+  });
+
+  if (input.provider === "hunter") {
+    await recordUsageEvent({
+      userId: input.userId,
+      eventType: "hunter_search",
+      provider: "hunter",
+      quantity: input.domainCount,
+      subjectType: input.scanJobId ? "scan_job" : undefined,
+      subjectId: input.scanJobId,
+      metadata: {
+        domainCount: input.domainCount,
+        resultCount: input.resultCount ?? 0,
+        status: input.status,
+      },
+    });
+  }
+}
+
 export async function POST(req: Request) {
   const session = await getSession();
   if (!session) {
@@ -302,6 +343,14 @@ export async function POST(req: Request) {
       results,
     });
     const scanStorageMeta = serializeScanJobsStorageMeta(persisted);
+    await recordScanUsageSafe({
+      userId: session.id,
+      provider: provider.name,
+      domainCount: normalized.length,
+      scanJobId: persisted.job?.id,
+      resultCount: results.length,
+      status: scanStatus,
+    });
 
     const response: ScanResponse = {
       run: {
@@ -339,6 +388,14 @@ export async function POST(req: Request) {
         errorMessage: message,
         results: [],
       });
+      await recordScanUsageSafe({
+        userId: session.id,
+        provider: provider.name,
+        domainCount: provider.name === "hunter" ? 1 : normalized.length,
+        scanJobId: persisted.job?.id,
+        resultCount: 0,
+        status: "failed",
+      });
       return jsonError(status, error, message, {
         provider: provider.name,
         code: e.code,
@@ -360,6 +417,14 @@ export async function POST(req: Request) {
       durationMs,
       errorMessage: cleanMessage,
       results: [],
+    });
+    await recordScanUsageSafe({
+      userId: session.id,
+      provider: provider.name,
+      domainCount: normalized.length,
+      scanJobId: persisted.job?.id,
+      resultCount: 0,
+      status: "failed",
     });
     return jsonError(500, "internal", cleanMessage, {
       provider: provider.name,
