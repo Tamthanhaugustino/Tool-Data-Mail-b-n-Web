@@ -21,8 +21,8 @@ Phase 08A SerpAPI provider      ████████████████
 Phase 08B SerpAPI live + polish ████████████████████  DONE
 Phase 08C Domain Scan backend   ████████████████████  DONE
 Phase 09A Hunter provider       ████████████████████  DONE (quota-safe)
-Phase 09B Hunter live + polish  ████████████████░░░░  CURRENT (UX polish + 1-domain guide)
-Phase 09C Saved Leads / Auth migration  ░░░░░░░░░░░░░░░░░░░░
+Phase 09B Hunter live + polish  ████████████████████  DONE
+Phase 09C Saved Leads foundation ████████████████████  DONE (in-memory API + /leads)
 Phase 06  Domain Scan jobs      ░░░░░░░░░░░░░░░░░░░░
 Phase 07  Results / Leads       ░░░░░░░░░░░░░░░░░░░░
 Phase 08  Billing               ░░░░░░░░░░░░░░░░░░░░
@@ -331,7 +331,7 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 
 ---
 
-## Phase 09B — Hunter live smoke test + UX polish — CURRENT
+## Phase 09B — Hunter live smoke test + UX polish — DONE
 
 **Mục tiêu:** Polish UX để live test Hunter thật quota-safe, hiển thị per-domain partial-success/error, hướng dẫn owner 1-domain test path mà không leak key. Đối xứng cấu trúc với Phase 08B SerpAPI live polish.
 
@@ -355,24 +355,36 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 
 ---
 
-## Phase 09C — Saved Leads foundation *or* Supabase Auth migration
+## Phase 09C — Saved Leads web foundation — DONE
 
-**Mục tiêu:** Owner chọn hướng tiếp theo.
+**Mục tiêu:** Bật lưu lead từ Domain Scan, trang `/leads` dùng được, foundation không phụ thuộc Supabase DB.
 
-**Nhánh A — Saved Leads foundation:**
+**Đã làm:**
 
-- API route `POST /api/leads` để lưu lead đã chọn từ scan results.
-- Nút "Lưu lead đã chọn" wire qua route (đang disabled).
-- Mock store (in-memory) hoặc Supabase nếu đã apply migration.
+- [x] [`src/lib/leads/*`](../src/lib/leads/) — types, in-memory store (`globalThis` Map per `session.id`), validate, CSV export, error sanitize
+- [x] [`GET/POST /api/leads`](../src/app/api/leads/route.ts) + [`DELETE /api/leads/[id]`](../src/app/api/leads/[id]/route.ts) — session-gated, dedupe email+domain, max 100/request
+- [x] [`domain-scan-wizard.tsx`](../src/components/scan/domain-scan-wizard.tsx) — nút **Lưu lead đã chọn** wire API, feedback success/duplicate/error
+- [x] [`leads-content.tsx`](../src/app/leads/leads-content.tsx) — list, search, delete, export CSV, empty state tiếng Việt, banner demo in-memory
+- [x] [`docs/SAVED_LEADS.md`](./SAVED_LEADS.md) — API, giới hạn, luồng UI
 
-**Nhánh B — Supabase Auth migration:**
+**Chưa làm (deferred):**
 
-- Swap `src/lib/auth/*` sang Supabase Auth.
-- Bật persistence Discovery + Scan + Saved Leads → DB.
+- [ ] Supabase Auth migration + persist `saved_leads` table
+- [ ] CRM fields (tags, notes, pipeline status)
+- [ ] Lưu từ `/results` / Keyword Discovery
+- [ ] Export JSON production / signed URL
 
-**Deliverable:** Một trong hai nhánh hoàn tất.
+**Deliverable:** User scan → chọn lead → lưu → thấy trên `/leads` → xóa / CSV. Dữ liệu mất khi server restart (documented).
 
 **Phụ thuộc:** Phase 09B.
+
+---
+
+## Phase 09D — Supabase Auth migration (deferred)
+
+**Mục tiêu:** Swap demo HMAC → Supabase Auth; persist Discovery, Scan, Saved Leads → DB.
+
+**Phụ thuộc:** Phase 09C, Supabase project provisioned.
 
 ---
 
@@ -499,3 +511,4 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 | 2026-05-18 | Phase 08B done; Phase 08C in-progress — Domain Scan backend foundation (src/lib/scan/* + POST /api/scan/domain + wired wizard). Mock-only, max 50 domains, không gọi Hunter. Phase 09 sẽ wire Hunter hoặc Supabase Auth |
 | 2026-05-18 | Phase 08C done; Phase 09A in-progress — Hunter Domain Search provider, server-only + dynamic import, quota-safe (max 5 domain/request, 10s timeout/domain, sequential, no retry), env-gated, typed errors → HTTP status. Live test deferred cho owner (5 search/lần) |
 | 2026-05-19 | Phase 09A done; Phase 09B in-progress — UX polish (1-domain test recommendation copy, live over-cap warning, per-domain error vs empty display). Regression smoke test 3 path OK. Live Hunter test vẫn deferred cho owner |
+| 2026-05-19 | Phase 09B done; Phase 09C done — Saved Leads API (GET/POST/DELETE), in-memory store per session, `/leads` page, lưu từ Domain Scan Results, CSV export, `docs/SAVED_LEADS.md` |

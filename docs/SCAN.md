@@ -1,6 +1,6 @@
-# Domain Scan — Phase 08C + 09A + 09B
+# Domain Scan — Phase 08C + 09A + 09B + 09C
 
-> Trạng thái: **mock + Hunter** providers, UX polish Phase 09B (per-domain error display, 1-domain test recommendation, over-cap UI hint). **Không** ghi DB (chờ Supabase Auth migration).
+> Trạng thái: **mock + Hunter** providers, UX polish Phase 09B. **Lưu Saved Leads** từ Results qua `POST /api/leads` (in-memory, Phase 09C) — xem [`SAVED_LEADS.md`](./SAVED_LEADS.md). Scan run **chưa** persist DB.
 >
 > | Provider | Phase | Env | Quota | Limits |
 > |---|---|---|---|---|
@@ -339,7 +339,7 @@ UX polish (Hunter warning copy, over-cap UI hint, per-domain error display) khô
 
 - Không persist `scan_jobs` / `scan_results` vào DB (chờ Supabase Auth migration).
 - Không đọc `user_api_keys` — Hunter key lấy từ env, không phải user-scoped.
-- Không "Lưu Saved Leads" thật — nút disabled, chờ Phase 09B/10.
+- **Lưu Saved Leads** — Phase 09C: wire từ Results → `/api/leads` (in-memory, không Supabase). Scan job vẫn không persist DB.
 - Không Upload CSV — nút disabled.
 - Không rate limit per user / quota counter.
 - Không pagination — Hunter chỉ gọi 1 search/domain.

@@ -25,13 +25,13 @@ Desktop app (logic gốc) phát triển riêng tại project **`b2b-lead-finder`
 | Domain Scan backend foundation (mock + API + UI wired) | **Done (Phase 08C)** — xem [`docs/SCAN.md`](./docs/SCAN.md) |
 | Hunter.io real provider (quota-safe, server-only) | **Done (Phase 09A)** — `HUNTER_API_KEY` + `SCAN_PROVIDER` env-gated, max 5 domain/request |
 | Hunter UX polish + 1-domain live guide | **Done (Phase 09B)** — over-cap UI hint, per-domain error display, regression OK |
+| Saved Leads foundation (API + `/leads` + lưu từ scan) | **Done (Phase 09C)** — in-memory per user; xem [`docs/SAVED_LEADS.md`](./docs/SAVED_LEADS.md) |
 | Supabase Auth migration | Chưa (deferred) |
-| Saved Leads / DB persistence | Chưa (Phase 09C+) |
-| Hunter.io / SerpAPI integration | Chưa có (chỉ mock trên UI) |
+| Saved Leads DB persistence (Supabase) | Chưa (sau Phase 09C) |
 | Billing / payment | Chưa có |
 | Production deploy | Chưa có |
 
-**Phase hiện tại:** [Phase 09B — Hunter live smoke test + UX polish](./docs/ROADMAP.md#phase-09b--hunter-live-smoke-test--ux-polish--current)
+**Phase hiện tại:** [Phase 09C — Saved Leads web foundation](./docs/ROADMAP.md#phase-09c--saved-leads-web-foundation--done)
 
 Chi tiết lộ trình: [`docs/ROADMAP.md`](./docs/ROADMAP.md)
 

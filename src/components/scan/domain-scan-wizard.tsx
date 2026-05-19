@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { ChevronRight, Download, Loader2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -507,6 +508,67 @@ function ScanResultsView({
     const stamp = response?.run.id ?? "scan";
     downloadScanResultsCsv(exportRows, `domain-scan-${stamp}-${suffix}.csv`);
   };
+
+  const [saveBusy, setSaveBusy] = useState(false);
+  const [saveFeedback, setSaveFeedback] = useState<{
+    type: "success" | "error" | "info";
+    message: string;
+  } | null>(null);
+
+  const handleSaveLeads = async () => {
+    if (!response || selectedCount === 0) return;
+    setSaveBusy(true);
+    setSaveFeedback(null);
+    try {
+      const res = await fetch("/api/leads", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          leads: selectedRows.map((r) => ({
+            email: r.email,
+            name: r.name,
+            title: r.title,
+            company: r.company,
+            domain: r.domain,
+            confidence: r.confidence,
+            status: r.status,
+            source: response.run.provider,
+          })),
+        }),
+      });
+      const data: unknown = await res.json().catch(() => null);
+      if (!res.ok) {
+        const err = (data as { message?: string; error?: string } | null) ?? null;
+        setSaveFeedback({
+          type: "error",
+          message: err?.message ?? err?.error ?? `HTTP ${res.status}`,
+        });
+        return;
+      }
+      const ok = data as { savedCount?: number; duplicateCount?: number };
+      const saved = ok.savedCount ?? 0;
+      const dup = ok.duplicateCount ?? 0;
+      let message = `Đã lưu ${saved} lead.`;
+      if (dup > 0) {
+        message += ` ${dup} lead đã tồn tại (trùng email + domain, bỏ qua).`;
+      }
+      if (saved === 0 && dup > 0) {
+        message = "Tất cả lead đã chọn đều đã có trong Saved Leads.";
+      }
+      setSaveFeedback({
+        type: saved > 0 ? "success" : "info",
+        message,
+      });
+    } catch (e) {
+      setSaveFeedback({
+        type: "error",
+        message: e instanceof Error ? e.message : "Không lưu được lead.",
+      });
+    } finally {
+      setSaveBusy(false);
+    }
+  };
+
   if (error) {
     return (
       <Card className="border-red-200 bg-red-50 shadow-sm">
@@ -603,27 +665,51 @@ function ScanResultsView({
           </Button>
           <Button
             size="sm"
-            disabled
-            title="API Saved Leads chưa có — sẽ bật ở Phase 09"
+            disabled={selectedCount === 0 || saveBusy}
+            onClick={() => void handleSaveLeads()}
           >
-            Lưu lead đã chọn (Phase 09)
+            {saveBusy ? <Loader2 className="size-4 animate-spin" /> : null}
+            Lưu lead đã chọn
           </Button>
         </div>
         <p className="text-xs text-slate-500">
           {selectedCount > 0 ? (
             <>
-              Đã chọn <b>{selectedCount}</b> / {rows.length} lead hiển thị. Tải CSV hoặc lưu lead sẽ dùng
-              danh sách đã chọn (lưu DB: Phase 09).
+              Đã chọn <b>{selectedCount}</b> / {rows.length} lead hiển thị. Lưu vào{" "}
+              <Link href="/leads" className="font-medium text-primary underline-offset-2 hover:underline">
+                Saved Leads
+              </Link>{" "}
+              (in-memory, theo tài khoản đăng nhập).
             </>
           ) : rows.length > 0 ? (
             <>
-              Chọn lead trong bảng để tải CSV đã chọn hoặc lưu sau này. &quot;Tải CSV (tất cả)&quot; xuất
-              toàn bộ kết quả đang hiển thị.
+              Chọn lead trong bảng để lưu hoặc tải CSV đã chọn. &quot;Tải CSV (tất cả)&quot; xuất toàn bộ kết
+              quả đang hiển thị.
             </>
           ) : (
             "Không có lead để xuất hoặc lưu."
           )}
         </p>
+        {saveFeedback ? (
+          <Alert
+            className={
+              saveFeedback.type === "error"
+                ? "border-red-200 bg-red-50 text-red-900"
+                : saveFeedback.type === "success"
+                  ? "border-green-200 bg-green-50 text-green-900"
+                  : "border-amber-200 bg-amber-50 text-amber-900"
+            }
+          >
+            <AlertDescription className="text-sm">
+              {saveFeedback.message}{" "}
+              {saveFeedback.type === "success" ? (
+                <Link href="/leads" className="font-medium underline underline-offset-2">
+                  Xem Saved Leads →
+                </Link>
+              ) : null}
+            </AlertDescription>
+          </Alert>
+        ) : null}
       </div>
 
       {errorDomains.length > 0 && (
