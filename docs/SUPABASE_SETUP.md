@@ -2,7 +2,11 @@
 
 > Hướng dẫn provision Supabase project và apply schema cho **Tool Data Mail Web**. Phase 06 chỉ wiring foundation — auth của app vẫn dùng demo HMAC từ Phase 03, **không** swap sang Supabase Auth trong phase này.
 >
-> **Để chuẩn bị private beta** xem [`PRIVATE_BETA_CHECKLIST.md`](./PRIVATE_BETA_CHECKLIST.md) — tổng hợp env/migrations/test flows/limitations đầy đủ. File này tập trung Supabase setup từng bước.
+> **Để chuẩn bị private beta** xem [`PRIVATE_BETA_CHECKLIST.md`](./PRIVATE_BETA_CHECKLIST.md) — tổng hợp env/migrations/test flows/limitations.
+>
+> **Để deploy production** xem [`PRODUCTION_DEPLOY_RUNBOOK.md`](./PRODUCTION_DEPLOY_RUNBOOK.md) — runbook Vercel/Supabase, smoke test live, rollback, go/no-go.
+>
+> File này tập trung Supabase setup từng bước cơ bản.
 
 ## Trình tự ngắn gọn
 

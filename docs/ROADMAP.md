@@ -31,6 +31,7 @@ Phase 09H Quota usage foundation   ███████████████
 Phase 09I Results/Leads polish     ████████████████████  DONE (UX polish, no API change)
 Phase 09J Security audit           ████████████████████  DONE (PASS, no blocking issue)
 Phase 09K Private beta checklist   ████████████████████  DONE (PRIVATE_BETA_CHECKLIST.md)
+Phase 09L Production runbook       ████████████████████  DONE (PRODUCTION_DEPLOY_RUNBOOK.md)
 Phase 07  Results / Leads       ░░░░░░░░░░░░░░░░░░░░
 Phase 08  Billing               ░░░░░░░░░░░░░░░░░░░░
 Phase 09  Admin                 ░░░░░░░░░░░░░░░░░░░░
@@ -631,3 +632,4 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 | 2026-05-19 | Phase 09I done — Results/Leads/History UX polish (inline delete confirm, History CTA, Results mock banner, sidebar badge unhardcoded, demo chips on dashboard/sidebar quota) |
 | 2026-05-19 | Phase 09J done — Security & Production Readiness audit PASS, no blocking issue; safe to proceed |
 | 2026-05-19 | Phase 09K done — `docs/PRIVATE_BETA_CHECKLIST.md` 11 section (env, migrations, 14 test flow, limitations, troubleshooting, sign-off); leads/sanitize harmonize bearer; APP_ENCRYPTION_KEY entropy guidance trong `.env.example` + `API_KEYS.md` |
+| 2026-05-19 | Phase 09L done — `docs/PRODUCTION_DEPLOY_RUNBOOK.md` 11 section (pre-flight, Supabase project, key gen, migrations, env verify, Vercel/self-host deploy, 14 smoke test live, rollback, rotate key, go/no-go); cross-link README + PRIVATE_BETA_CHECKLIST + SUPABASE_SETUP |

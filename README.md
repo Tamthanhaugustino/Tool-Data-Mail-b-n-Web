@@ -35,9 +35,11 @@ Desktop app (logic gốc) phát triển riêng tại project **`b2b-lead-finder`
 | Billing / payment | Chưa có |
 | Production deploy | Chưa có |
 
-**Phase hiện tại:** [Phase 09K — Private Beta Release Checklist](./docs/PRIVATE_BETA_CHECKLIST.md)
+**Phase hiện tại:** [Phase 09L — Production / Supabase Deploy Runbook](./docs/PRODUCTION_DEPLOY_RUNBOOK.md)
 
-Trước khi mời tester, đọc qua [`docs/PRIVATE_BETA_CHECKLIST.md`](./docs/PRIVATE_BETA_CHECKLIST.md) — checklist setup env, migrations, manual test flow và known limitations.
+Trước khi mời tester:
+- [`docs/PRIVATE_BETA_CHECKLIST.md`](./docs/PRIVATE_BETA_CHECKLIST.md) — overview status, env, 14 test flows, limitations.
+- [`docs/PRODUCTION_DEPLOY_RUNBOOK.md`](./docs/PRODUCTION_DEPLOY_RUNBOOK.md) — runbook deploy Supabase + Vercel, smoke test live, rollback, go/no-go checklist.
 
 Chi tiết lộ trình: [`docs/ROADMAP.md`](./docs/ROADMAP.md)
 
@@ -211,6 +213,7 @@ tool-data-mail-web/
 | 09I | Results/Leads/History UX polish | **Done** |
 | 09J | Security & Production Readiness audit | **Done** |
 | 09K | Private Beta Release Checklist | **Done** — xem [`docs/PRIVATE_BETA_CHECKLIST.md`](./docs/PRIVATE_BETA_CHECKLIST.md) |
+| 09L | Production / Supabase Deploy Runbook | **Done** — xem [`docs/PRODUCTION_DEPLOY_RUNBOOK.md`](./docs/PRODUCTION_DEPLOY_RUNBOOK.md) |
 | 08 | Billing / subscription / credit limits | Planned |
 | 09 | Admin dashboard | Planned |
 | 10 | Deployment & production readiness | Planned |
@@ -231,6 +234,7 @@ Bảng đầy đủ, deliverable và phụ thuộc: **[`docs/ROADMAP.md`](./docs
 
 ## Related documentation
 
+- [Production deploy runbook (Phase 09L)](./docs/PRODUCTION_DEPLOY_RUNBOOK.md)
 - [Private Beta checklist (Phase 09K)](./docs/PRIVATE_BETA_CHECKLIST.md)
 - [Roadmap](./docs/ROADMAP.md)
 - [Auth foundation (Phase 03)](./docs/AUTH.md)

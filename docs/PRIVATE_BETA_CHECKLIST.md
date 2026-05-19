@@ -1,6 +1,8 @@
 # Private Beta Release Checklist — Phase 09K
 
 > Trạng thái: **private beta ready** (hybrid auth + Supabase persistence + provider integration). Tài liệu này tổng hợp setup, test, limitations để owner/tester có thể tự triển khai.
+>
+> **Để deploy thật** (Vercel + Supabase + rotate key + rollback) xem [`PRODUCTION_DEPLOY_RUNBOOK.md`](./PRODUCTION_DEPLOY_RUNBOOK.md) — runbook bước-từng-bước cho owner. File này tập trung overview + test flows + limitations.
 
 ## 1. Status hiện tại
 
