@@ -1,6 +1,6 @@
-# Domain Scan — Phase 08C + 09A
+# Domain Scan — Phase 08C + 09A + 09B
 
-> Trạng thái: **mock + Hunter** providers. API route + provider interface + domain-utils + UI wiring + typed errors đã có. **Không** ghi DB (chờ Supabase Auth migration).
+> Trạng thái: **mock + Hunter** providers, UX polish Phase 09B (per-domain error display, 1-domain test recommendation, over-cap UI hint). **Không** ghi DB (chờ Supabase Auth migration).
 >
 > | Provider | Phase | Env | Quota | Limits |
 > |---|---|---|---|---|
@@ -204,7 +204,13 @@ Confidence: Hunter trả 0–100 → app dùng 0.00–1.00 (chia 100, làm tròn
 
 ### Bật Hunter cho live test
 
-⚠️ Mỗi lần bấm "Bắt đầu scan" với provider Hunter = **N Hunter searches** (N = số domain). Gói free 25/tháng. Đừng test nhiều.
+**Quy tắc vàng**: Mỗi lần bấm "Bắt đầu scan" với provider Hunter = **N Hunter searches** (N = số domain). Gói free 25/tháng.
+
+**Khuyến nghị Phase 09B**:
+1. **Test 1 domain trước** để xác nhận key + mapping hoạt động đúng — tốn 1 search.
+2. Nếu OK, mới thử 2–3 domain. **Không** vượt cap 5/lần.
+3. Dùng domain "sạch" (Hunter có khả năng có data): `stripe.com`, `hubspot.com`, `vercel.com`, `vietsoftware.com.vn`.
+4. Dừng nếu thấy lỗi `invalid_key` hoặc `rate_limited` — không retry.
 
 **Bước 1:** Cấu hình `.env.local`:
 
@@ -300,6 +306,18 @@ Offline — không gọi Hunter, không tiêu quota.
 | 5 | `emailLimitPerDomain: 0` | 400 invalid | ✓ |
 | 6 | Mixed input — URL + email + `www.` + dup | 200 normalize + warnings | ✓ 6 → 3 valid + 3 warnings, 1 empty domain |
 
+### Phase 09B (regression after UX polish) — 2026-05-19
+
+UX polish (Hunter warning copy, over-cap UI hint, per-domain error display) không phá luồng cũ.
+
+| # | Test | Expected | Actual |
+|---|---|---|---|
+| 1 | Mock regression — 1 domain, limit 5 | 200 với 4 emails | ✓ HTTP 200, provider=mock, durationMs=1 |
+| 2 | Hunter missing key | 503 provider_unavailable | ✓ unchanged from 09A |
+| 3 | Invalid provider name `openai` | 400 invalid_input | ✓ "must be one of: mock, hunter" |
+
+**Live Hunter test deferred** — repo không có `HUNTER_API_KEY` thật. Owner thực hiện theo §5b "Bật Hunter cho live test" khi sẵn sàng (test 1 domain trước).
+
 ### Phase 09A (mock + Hunter offline) — 2026-05-18
 
 | # | Test | Expected | Actual |
@@ -317,7 +335,7 @@ Offline — không gọi Hunter, không tiêu quota.
 
 **Note**: T2/T3 short-circuit ở `resolveProvider()` (503) trước domain/limit validation. Khi có `HUNTER_API_KEY` thật, cap check sẽ fire đúng — đã verify qua type-check.
 
-## 10. Cái KHÔNG làm ở Phase 08C / 09A
+## 10. Cái KHÔNG làm ở Phase 08C / 09A / 09B
 
 - Không persist `scan_jobs` / `scan_results` vào DB (chờ Supabase Auth migration).
 - Không đọc `user_api_keys` — Hunter key lấy từ env, không phải user-scoped.

@@ -20,8 +20,9 @@ Phase 07  Discovery backend     ████████████████
 Phase 08A SerpAPI provider      ████████████████████  DONE (quota-safe)
 Phase 08B SerpAPI live + polish ████████████████████  DONE
 Phase 08C Domain Scan backend   ████████████████████  DONE
-Phase 09A Hunter provider       ████████████████░░░░  CURRENT (quota-safe)
-Phase 09B Saved Leads / polish  ░░░░░░░░░░░░░░░░░░░░
+Phase 09A Hunter provider       ████████████████████  DONE (quota-safe)
+Phase 09B Hunter live + polish  ████████████████░░░░  CURRENT (UX polish + 1-domain guide)
+Phase 09C Saved Leads / Auth migration  ░░░░░░░░░░░░░░░░░░░░
 Phase 06  Domain Scan jobs      ░░░░░░░░░░░░░░░░░░░░
 Phase 07  Results / Leads       ░░░░░░░░░░░░░░░░░░░░
 Phase 08  Billing               ░░░░░░░░░░░░░░░░░░░░
@@ -293,7 +294,7 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 
 ---
 
-## Phase 09A — Hunter real provider (quota-safe) — CURRENT
+## Phase 09A — Hunter real provider (quota-safe) — DONE
 
 **Mục tiêu:** Thêm Hunter.io Domain Search provider cho `/scan` theo hướng quota-safe, server-only, không lộ API key. Giữ mock provider làm default. Đối xứng cấu trúc với Phase 08A SerpAPI.
 
@@ -330,30 +331,48 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 
 ---
 
-## Phase 09B — Hunter live polish *or* Saved Leads foundation
+## Phase 09B — Hunter live smoke test + UX polish — CURRENT
+
+**Mục tiêu:** Polish UX để live test Hunter thật quota-safe, hiển thị per-domain partial-success/error, hướng dẫn owner 1-domain test path mà không leak key. Đối xứng cấu trúc với Phase 08B SerpAPI live polish.
+
+**Đã làm:**
+
+- [x] Polish Hunter warning copy trong `domain-scan-wizard.tsx`: thêm khuyến nghị "test 1 domain trước", live cap warning khi `normalizedPreview.domains.length > 5` (hiển thị ngay ở Input/Preview, không cần submit để biết)
+- [x] Tách per-domain `errorDomains` vs `emptyDomains` trong Results: red alert riêng cho domain bị provider trả lỗi (kèm `domains[].error` chi tiết, max 5 dòng), giúp owner thấy chính xác domain nào tiêu quota mà fail
+- [x] Smoke test regression 3 path (mock 200, hunter missing-key 503, invalid provider 400) — UX polish không phá luồng cũ
+- [x] [`docs/SCAN.md §5b`](./SCAN.md) — section "Khuyến nghị Phase 09B" với 4 quy tắc vàng (1 domain trước, ≤5 max, domain sạch, không retry on hard error)
+- [x] [`docs/SCAN.md §9`](./SCAN.md) — Phase 09B test record với 3 regression path
+
+**Chưa làm (deferred):**
+
+- [ ] Live test với Hunter key thật (repo không có key — owner tự test theo §5b 1-domain path)
+- [ ] Confidence/status badge visual polish nếu cần sau khi owner test thật
+- [ ] User-scoped Hunter key, quota counter, DB persistence — Phase 10+
+
+**Deliverable:** Owner mở `/scan` chọn Hunter → thấy warning rõ ràng + khuyến nghị 1-domain + cap UI live → test 1 domain → nếu OK thì tăng dần. Error path phân biệt được "domain không có email" (empty) vs "domain bị Hunter trả lỗi" (error) — đủ thông tin để debug.
+
+**Phụ thuộc:** Phase 09A.
+
+---
+
+## Phase 09C — Saved Leads foundation *or* Supabase Auth migration
 
 **Mục tiêu:** Owner chọn hướng tiếp theo.
 
-**Nhánh A — Hunter live smoke test + polish (đối xứng Phase 08B):**
-
-- Owner test với key thật 1–2 request, ghi smoke test record vào `SCAN.md`.
-- Polish UX nếu phát hiện vấn đề (rate limit messaging, partial success display).
-- Cải thiện confidence display / status badges nếu cần.
-
-**Nhánh B — Saved Leads foundation:**
+**Nhánh A — Saved Leads foundation:**
 
 - API route `POST /api/leads` để lưu lead đã chọn từ scan results.
-- Hiện tại nút "Lưu lead đã chọn" disabled — wire qua route.
+- Nút "Lưu lead đã chọn" wire qua route (đang disabled).
 - Mock store (in-memory) hoặc Supabase nếu đã apply migration.
 
-**Nhánh C — Supabase Auth migration:**
+**Nhánh B — Supabase Auth migration:**
 
 - Swap `src/lib/auth/*` sang Supabase Auth.
-- Bật persistence Discovery + Scan → DB.
+- Bật persistence Discovery + Scan + Saved Leads → DB.
 
-**Deliverable:** Một trong các nhánh hoàn tất.
+**Deliverable:** Một trong hai nhánh hoàn tất.
 
-**Phụ thuộc:** Phase 09A.
+**Phụ thuộc:** Phase 09B.
 
 ---
 
@@ -479,3 +498,4 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 | 2026-05-18 | Phase 08A done; Phase 08B in-progress — SerpapiProviderError typed codes (6 mã) → route map HTTP status (429/502/503/504) → UI hiển thị Vietnamese hint. Offline smoke test 6 path đều OK. Live SerpAPI test deferred cho owner (1 search/lần) |
 | 2026-05-18 | Phase 08B done; Phase 08C in-progress — Domain Scan backend foundation (src/lib/scan/* + POST /api/scan/domain + wired wizard). Mock-only, max 50 domains, không gọi Hunter. Phase 09 sẽ wire Hunter hoặc Supabase Auth |
 | 2026-05-18 | Phase 08C done; Phase 09A in-progress — Hunter Domain Search provider, server-only + dynamic import, quota-safe (max 5 domain/request, 10s timeout/domain, sequential, no retry), env-gated, typed errors → HTTP status. Live test deferred cho owner (5 search/lần) |
+| 2026-05-19 | Phase 09A done; Phase 09B in-progress — UX polish (1-domain test recommendation copy, live over-cap warning, per-domain error vs empty display). Regression smoke test 3 path OK. Live Hunter test vẫn deferred cho owner |

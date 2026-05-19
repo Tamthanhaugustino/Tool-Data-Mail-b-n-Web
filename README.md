@@ -24,13 +24,14 @@ Desktop app (logic gốc) phát triển riêng tại project **`b2b-lead-finder`
 | SerpAPI live smoke test + typed error UX | **Done (Phase 08B)** — 6 mã code → HTTP status + UI hint; offline smoke test ✓ |
 | Domain Scan backend foundation (mock + API + UI wired) | **Done (Phase 08C)** — xem [`docs/SCAN.md`](./docs/SCAN.md) |
 | Hunter.io real provider (quota-safe, server-only) | **Done (Phase 09A)** — `HUNTER_API_KEY` + `SCAN_PROVIDER` env-gated, max 5 domain/request |
+| Hunter UX polish + 1-domain live guide | **Done (Phase 09B)** — over-cap UI hint, per-domain error display, regression OK |
 | Supabase Auth migration | Chưa (deferred) |
-| Saved Leads / DB persistence | Chưa (Phase 09B+) |
+| Saved Leads / DB persistence | Chưa (Phase 09C+) |
 | Hunter.io / SerpAPI integration | Chưa có (chỉ mock trên UI) |
 | Billing / payment | Chưa có |
 | Production deploy | Chưa có |
 
-**Phase hiện tại:** [Phase 09A — Hunter real provider (quota-safe)](./docs/ROADMAP.md#phase-09a--hunter-real-provider-quota-safe--current)
+**Phase hiện tại:** [Phase 09B — Hunter live smoke test + UX polish](./docs/ROADMAP.md#phase-09b--hunter-live-smoke-test--ux-polish--current)
 
 Chi tiết lộ trình: [`docs/ROADMAP.md`](./docs/ROADMAP.md)
 
@@ -186,8 +187,9 @@ tool-data-mail-web/
 | 08A | SerpAPI real provider (quota-safe) | **Done** (server-only fetch, env-gated, dynamic import) |
 | 08B | SerpAPI live smoke test + typed error UX | **Done** (6 mã code → HTTP status + UI hint) |
 | 08C | Domain Scan backend foundation | **Done** (mock provider + `/api/scan/domain` + wired wizard) |
-| 09A | Hunter real provider (quota-safe) | **Current** (server-only fetch, env-gated, max 5 domain/request) |
-| 09B | Hunter live polish *or* Saved Leads foundation | Planned |
+| 09A | Hunter real provider (quota-safe) | **Done** (server-only fetch, env-gated, max 5 domain/request) |
+| 09B | Hunter live smoke test + UX polish | **Current** (1-domain guide, over-cap UI, per-domain error display) |
+| 09C | Saved Leads foundation *or* Supabase Auth migration | Planned |
 | 06 | Domain Scan job system | Planned |
 | 07 | Results, Saved Leads, Export | Planned |
 | 08 | Billing / subscription / credit limits | Planned |

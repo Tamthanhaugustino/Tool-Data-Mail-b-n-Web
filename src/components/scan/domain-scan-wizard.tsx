@@ -208,12 +208,23 @@ export function DomainScanWizard({
         </Alert>
       )}
       {selectedProvider === "hunter" && step !== "Results" && (
-        <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
-          <b>Hunter.io dùng quota thật.</b> Mỗi domain tốn 1 search · tối đa{" "}
-          <b>{MAX_DOMAINS.hunter} domain</b> và <b>{MAX_EMAIL_LIMIT.hunter} email/domain</b> mỗi
-          lần. Server chỉ chạy khi đã cấu hình{" "}
-          <code className="font-mono">HUNTER_API_KEY</code>. Nếu chưa, request sẽ trả{" "}
-          <code className="font-mono">provider_unavailable</code> mà không tiêu quota.
+        <div className="space-y-1 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+          <p>
+            <b>Hunter.io dùng quota thật.</b> Khuyến nghị test <b>1 domain trước</b> để xác nhận key và
+            mapping hoạt động đúng, rồi mới scan batch lớn.
+          </p>
+          <p>
+            Tối đa <b>{MAX_DOMAINS.hunter} domain</b> · <b>{MAX_EMAIL_LIMIT.hunter} email/domain</b> mỗi
+            lần. Server chỉ chạy khi đã set{" "}
+            <code className="font-mono">HUNTER_API_KEY</code>; thiếu key → trả{" "}
+            <code className="font-mono">provider_unavailable</code> mà không tiêu quota.
+          </p>
+          {normalizedPreview.domains.length > MAX_DOMAINS.hunter && (
+            <p className="font-medium text-amber-950">
+              Hiện có <b>{normalizedPreview.domains.length}</b> domain hợp lệ — vượt trần Hunter.
+              Bớt xuống ≤ {MAX_DOMAINS.hunter}, hoặc đổi provider Mock.
+            </p>
+          )}
         </div>
       )}
       <nav className="flex flex-wrap items-center gap-2 text-sm">
@@ -524,7 +535,8 @@ function ScanResultsView({
   }
 
   const { run, domains } = response;
-  const emptyDomains = domains.filter((d) => d.empty);
+  const errorDomains = domains.filter((d) => d.error);
+  const emptyDomains = domains.filter((d) => d.empty && !d.error);
 
   return (
     <div className="space-y-4">
@@ -613,6 +625,25 @@ function ScanResultsView({
           )}
         </p>
       </div>
+
+      {errorDomains.length > 0 && (
+        <Alert className="border-red-200 bg-red-50 text-red-900">
+          <AlertDescription>
+            <b>{errorDomains.length}</b> domain bị provider trả lỗi (đã tiêu quota mà không có
+            kết quả):
+            <ul className="mt-1 list-inside list-disc text-xs">
+              {errorDomains.slice(0, 5).map((d) => (
+                <li key={d.domain} className="font-mono">
+                  <b>{d.domain}</b>: {d.error}
+                </li>
+              ))}
+              {errorDomains.length > 5 && (
+                <li>… và {errorDomains.length - 5} domain khác</li>
+              )}
+            </ul>
+          </AlertDescription>
+        </Alert>
+      )}
 
       {emptyDomains.length > 0 && (
         <Alert>
