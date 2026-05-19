@@ -35,7 +35,9 @@ Desktop app (logic gốc) phát triển riêng tại project **`b2b-lead-finder`
 | Billing / payment | Chưa có |
 | Production deploy | Chưa có |
 
-**Phase hiện tại:** [Phase 09H — Usage / Quota foundation](./docs/ROADMAP.md#phase-09h--usage--quota-foundation--done)
+**Phase hiện tại:** [Phase 09K — Private Beta Release Checklist](./docs/PRIVATE_BETA_CHECKLIST.md)
+
+Trước khi mời tester, đọc qua [`docs/PRIVATE_BETA_CHECKLIST.md`](./docs/PRIVATE_BETA_CHECKLIST.md) — checklist setup env, migrations, manual test flow và known limitations.
 
 Chi tiết lộ trình: [`docs/ROADMAP.md`](./docs/ROADMAP.md)
 
@@ -204,8 +206,11 @@ tool-data-mail-web/
 | 09D | Saved Leads Supabase persist | **Done** |
 | 09E | Supabase Auth hybrid foundation | **Done** |
 | 09F | User API Keys foundation | **Done** |
-| 06 | Domain Scan job system | Planned |
-| 07 | Results, Saved Leads, Export | Planned |
+| 09G | Scan Jobs persistence | **Done** |
+| 09H | Usage / Quota foundation | **Done** |
+| 09I | Results/Leads/History UX polish | **Done** |
+| 09J | Security & Production Readiness audit | **Done** |
+| 09K | Private Beta Release Checklist | **Done** — xem [`docs/PRIVATE_BETA_CHECKLIST.md`](./docs/PRIVATE_BETA_CHECKLIST.md) |
 | 08 | Billing / subscription / credit limits | Planned |
 | 09 | Admin dashboard | Planned |
 | 10 | Deployment & production readiness | Planned |
@@ -226,12 +231,16 @@ Bảng đầy đủ, deliverable và phụ thuộc: **[`docs/ROADMAP.md`](./docs
 
 ## Related documentation
 
+- [Private Beta checklist (Phase 09K)](./docs/PRIVATE_BETA_CHECKLIST.md)
 - [Roadmap](./docs/ROADMAP.md)
 - [Auth foundation (Phase 03)](./docs/AUTH.md)
 - [Database foundation (Phase 04)](./docs/DATABASE.md)
 - [Supabase setup (Phase 06)](./docs/SUPABASE_SETUP.md)
 - [Keyword Discovery backend (Phase 07)](./docs/DISCOVERY.md)
 - [Domain Scan backend (Phase 08C)](./docs/SCAN.md)
+- [User API Keys (Phase 09F)](./docs/API_KEYS.md)
+- [Saved Leads (Phase 09C/09D)](./docs/SAVED_LEADS.md)
+- [Usage / Quota foundation (Phase 09H)](./docs/USAGE.md)
 - [Tech decisions](./docs/TECH_DECISION.md)
 - [API & database draft](./docs/API_DATABASE_DRAFT.md)
 - [UI brief](./plans/tool-data-mail-web-ui-brief.md)

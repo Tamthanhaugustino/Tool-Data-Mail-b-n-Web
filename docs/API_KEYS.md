@@ -21,11 +21,17 @@ RLS bật, không policy anon/authenticated. App dùng service role server-only 
 
 ## Encryption
 
-- Env: `APP_ENCRYPTION_KEY`, server-only, tối thiểu 32 ký tự.
+- Env: `APP_ENCRYPTION_KEY`, server-only, **bắt buộc** ≥32 ký tự **random/high-entropy**.
+- Sinh nhanh (chọn 1):
+  - `openssl rand -hex 32`
+  - `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
+  - `python -c "import secrets; print(secrets.token_hex(32))"`
+- KHÔNG dùng password người-có-thể-đoán-được — KDF hiện tại là SHA-256 nên entropy của passphrase chính là entropy thực của key AES.
 - Helper: `src/lib/api-keys/crypto.ts`, `import "server-only"`.
 - Thuật toán: AES-256-GCM, IV random 12 bytes, format ciphertext `v1:<iv>:<tag>:<payload>`.
 - Key lưu DB không bao giờ trả plaintext về client.
 - Nếu thiếu `APP_ENCRYPTION_KEY`, `PUT /api/settings/api-keys` trả lỗi cấu hình và không ghi DB.
+- **Đổi giá trị `APP_ENCRYPTION_KEY` sẽ làm decrypt fail** (`api_key_decrypt_failed`); user phải xóa và lưu lại key cá nhân. Coi như rotate key thủ công.
 
 ## API
 
