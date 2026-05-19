@@ -351,7 +351,7 @@ export function DomainScanWizard({
                   <Switch checked={verifiedOnly} onCheckedChange={setVerifiedOnly} />
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-600">Auto-save scan vào History (Phase 10+)</span>
+                  <span className="text-sm text-slate-600">Auto-save scan vào History</span>
                   <Switch checked={autoHistory} onCheckedChange={setAutoHistory} disabled />
                 </div>
               </div>
@@ -623,6 +623,24 @@ function ScanResultsView({
           {verifiedOnly && rows.length !== run.totalEmails
             ? ` · đang lọc verified (${rows.length}/${run.totalEmails})`
             : ""}
+        </p>
+        <p className="mt-1 text-xs text-slate-500">
+          {response.scanJobId ? (
+            <>
+              Đã lưu history:{" "}
+              <Link
+                href={`/results?jobId=${encodeURIComponent(response.scanJobId)}`}
+                className="font-medium text-primary underline-offset-2 hover:underline"
+              >
+                xem lại run này
+              </Link>
+              {response.scanStorage === "supabase"
+                ? " · Supabase"
+                : " · in-memory fallback"}
+            </>
+          ) : (
+            "History persistence chưa khả dụng cho run này."
+          )}
         </p>
       </div>
 

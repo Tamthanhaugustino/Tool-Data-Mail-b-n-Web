@@ -26,7 +26,8 @@ Phase 09C Saved Leads foundation ███████████████�
 Phase 09D Saved Leads Supabase    ████████████████████  DONE (app_saved_leads + fallback)
 Phase 09E Supabase Auth hybrid     ████████████████████  DONE (Supabase-first + demo fallback)
 Phase 09F User API Keys            ████████████████████  DONE (encrypted keys + env fallback)
-Phase 06  Domain Scan jobs      ░░░░░░░░░░░░░░░░░░░░
+Phase 09G Scan Jobs persistence    ████████████████████  DONE (jobs/results + fallback)
+Phase 09H Quota usage foundation   ░░░░░░░░░░░░░░░░░░░░
 Phase 07  Results / Leads       ░░░░░░░░░░░░░░░░░░░░
 Phase 08  Billing               ░░░░░░░░░░░░░░░░░░░░
 Phase 09  Admin                 ░░░░░░░░░░░░░░░░░░░░
@@ -459,19 +460,46 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 
 ---
 
-## Phase 06 — Domain Scan job system
+## Phase 09G — Scan Jobs persistence — DONE
 
-**Mục tiêu:** Flow Input → Preview → Scanning → Results với Hunter.io thật; job async + progress.
+**Mục tiêu:** Persist Domain Scan jobs/results để `/history` và `/results?jobId=` đọc được dữ liệu thật, nhưng vẫn build/run khi Supabase chưa cấu hình.
+
+**Đã làm:**
+
+- [x] [`supabase/migrations/0004_app_scan_jobs.sql`](../supabase/migrations/0004_app_scan_jobs.sql) — `app_scan_jobs`, `app_scan_results`, indexes theo `user_id`, RLS on, không anon policy
+- [x] [`src/lib/scan-jobs`](../src/lib/scan-jobs) — repository server-only, Supabase probe, memory fallback, sanitize error
+- [x] `POST /api/scan/domain` tạo job/results sau scan; response giữ contract cũ và thêm `scanJobId`/`scanStorage`
+- [x] API `GET /api/scan/jobs`, `GET /api/scan/jobs/[id]` scoped theo `session.id`
+- [x] `/history` đọc jobs thật, có note fallback khi chưa Supabase/migration
+- [x] `/results?jobId=<id>` đọc persisted results, vẫn giữ mock behavior khi không có `jobId`
+
+**Chưa làm (deferred):**
+
+- [ ] Background queue/worker, progress realtime, cancel job
+- [ ] Persist Keyword Discovery history vào cùng model
+- [ ] Delete/retry scan job
+- [ ] Billing/quota enforcement
+
+**Deliverable:** Domain Scan mock/Hunter vẫn chạy; nếu Supabase service role + migration 0004 sẵn sàng thì jobs/results bền vững, nếu thiếu thì fallback in-memory không crash.
+
+**Phụ thuộc:** Phase 09E auth session, Phase 09F provider key resolution, Supabase service role + migration 0004 nếu muốn persist.
+
+---
+
+## Phase 09H — Quota and usage foundation
+
+**Mục tiêu:** Ghi usage events tối thiểu để chuẩn bị billing/quota sau này, chưa enforce quota thật.
 
 **Công việc dự kiến:**
 
-- Preview validate domain (không tốn quota)
-- `POST /api/scan/start`, poll hoặc SSE progress
-- Hủy run, ghi log; quota Hunter hiển thị thật
+- Migration `app_usage_events` hoặc `app_usage_counters`
+- Helper `recordUsageEvent()` server-only, safe no-op nếu Supabase chưa cấu hình
+- Ghi event nhẹ cho discovery, domain scan, saved lead, export CSV
+- UI summary đơn giản nếu layout hiện tại phù hợp
 
-**Deliverable:** Domain scan nhiều domain, kết quả persist DB.
+**Deliverable:** Có dữ liệu usage foundation để Phase billing/quota dùng tiếp, nhưng không chặn user theo quota.
 
-**Phụ thuộc:** Phase 04–05 (pattern scan đã có).
+**Phụ thuộc:** Phase 09G persistence, Supabase service role nếu muốn persist.
 
 ---
 
@@ -586,3 +614,4 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 | 2026-05-19 | Phase 09D done — `app_saved_leads` migration, Supabase repository + memory fallback, UI storage banners |
 | 2026-05-19 | Phase 09E done — Supabase Auth hybrid foundation: `getSession()` Supabase-first, demo HMAC fallback, middleware accepts both |
 | 2026-05-19 | Phase 09F done — encrypted `app_user_api_keys`, Settings API key UI, Hunter/SerpAPI user-key-first with env fallback |
+| 2026-05-19 | Phase 09G done — persisted `app_scan_jobs`/`app_scan_results`, scan job APIs, `/history` real data, `/results?jobId=` |

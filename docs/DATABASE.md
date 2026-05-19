@@ -91,6 +91,8 @@ audit_logs
 | `saved_leads` | Mini-CRM lead đã lưu. Unique (workspace, email). | members |
 | `app_saved_leads` | **Phase 09D** — lead per demo `session.id` (text). Unique (user_id, email, domain). Service role + app filter; RLS on, no anon policies. | server app |
 | `app_user_api_keys` | **Phase 09F** — encrypted Hunter/SerpAPI keys per hybrid auth user id. Unique (user_id, provider). | server app |
+| `app_scan_jobs` | **Phase 09G** — Domain Scan job per hybrid auth user id. Stores provider/status/input domains/counts/duration/sanitized error. | server app |
+| `app_scan_results` | **Phase 09G** — Results linked to `app_scan_jobs(id)` with `user_id` denormalized for scoped reads. No raw provider secrets. | server app |
 | `exports` | Job export CSV/JSON, file đặt trong Supabase Storage. | members |
 | `billing_subscriptions` | 1 row/workspace; plan + status; Stripe hoặc activation code. | members read, owner write |
 | `audit_logs` | Append-only log thao tác nhạy cảm. | members read, system writes (service_role) |
@@ -192,7 +194,21 @@ Các bước còn lại:
 2. Đọc role/plan từ DB.
 3. Disable demo HMAC fallback khi Supabase Auth đã ổn định.
 
-## 9. Cái CHƯA làm
+## 9. App persistence migrations (Phase 09D-09G)
+
+Các bảng `app_*` là bridge an toàn trong giai đoạn auth hybrid. `user_id` là text và có thể là demo session id hoặc Supabase `auth.users.id`. App dùng service-role client server-only và luôn filter theo `user_id`; RLS bật nhưng không có anon policy.
+
+| Migration | Bảng | Ghi chú |
+|---|---|---|
+| `0002_app_saved_leads.sql` | `app_saved_leads` | Saved Leads bền vững; unique `user_id + lower(email) + lower(domain)` |
+| `0003_app_user_api_keys.sql` | `app_user_api_keys` | Hunter/SerpAPI key cá nhân, ciphertext only, cần `APP_ENCRYPTION_KEY` |
+| `0004_app_scan_jobs.sql` | `app_scan_jobs`, `app_scan_results` | Domain Scan history/results; `/history` và `/results?jobId=` đọc qua API scoped user |
+
+Nếu thiếu Supabase env hoặc chưa apply migration tương ứng, repository layer fallback in-memory để app vẫn build/run. In-memory không bền vững qua restart và chỉ phục vụ demo/local.
+
+`app_scan_results.raw` hiện để `null` trong app code để tránh lưu URL/header/API key từ provider response. Nếu sau này cần raw metadata, phải scrub `api_key`, token, Authorization header và URL nhạy cảm trước khi insert.
+
+## 10. Cái CHƯA làm
 
 Phase 04 (schema) và Phase 05 (client wiring) gộp lại còn dang dở:
 
@@ -204,7 +220,7 @@ Phase 04 (schema) và Phase 05 (client wiring) gộp lại còn dang dở:
 - Không ghi audit log thật.
 - Không billing/Stripe.
 
-## 10. Phase tiếp theo
+## 11. Phase tiếp theo
 
 Phase 06 (hoặc tiếp Phase 05 nếu chia nhỏ) — Keyword Discovery real workflow:
 - Provision Supabase project.

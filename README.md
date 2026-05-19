@@ -14,7 +14,7 @@ Desktop app (logic gốc) phát triển riêng tại project **`b2b-lead-finder`
 |----------|------------|
 | Frontend prototype (UI shell + mock data) | **Done** — `npm run build` / `npm run lint` pass |
 | Design handoff (`design/`) | Có — HTML/CSS mock + screenshots |
-| Backend / API thật | Chưa có |
+| Backend / API thật | **Partial** — discovery/scan/leads/settings APIs đã có foundation |
 | Auth foundation (cookie HMAC + demo users) | **Done (Phase 03)** — xem [`docs/AUTH.md`](./docs/AUTH.md) |
 | Supabase Auth hybrid foundation | **Done (Phase 09E)** — Supabase session/sign-in nếu env sẵn sàng, fallback demo HMAC |
 | Database schema (SQL migration + TS types) | **Done (Phase 04 foundation)** — xem [`docs/DATABASE.md`](./docs/DATABASE.md) |
@@ -30,10 +30,11 @@ Desktop app (logic gốc) phát triển riêng tại project **`b2b-lead-finder`
 | Saved Leads Supabase persist (`app_saved_leads`) | **Done (Phase 09D)** — service role + migration 0002; fallback memory nếu chưa env |
 | Supabase Auth migration production | Chưa hoàn tất — hybrid fallback, chưa bắt buộc Supabase Auth |
 | User API Keys foundation | **Done (Phase 09F)** — encrypted personal Hunter/SerpAPI keys; env fallback |
+| Scan Jobs persistence | **Done (Phase 09G)** — `app_scan_jobs`/`app_scan_results` + `/history`/`/results?jobId=` |
 | Billing / payment | Chưa có |
 | Production deploy | Chưa có |
 
-**Phase hiện tại:** [Phase 09E — Supabase Auth foundation](./docs/ROADMAP.md#phase-09e--supabase-auth-migration-foundation--done)
+**Phase hiện tại:** [Phase 09G — Scan Jobs persistence](./docs/ROADMAP.md#phase-09g--scan-jobs-persistence--done)
 
 Chi tiết lộ trình: [`docs/ROADMAP.md`](./docs/ROADMAP.md)
 
@@ -62,7 +63,7 @@ Chi tiết lộ trình: [`docs/ROADMAP.md`](./docs/ROADMAP.md)
 | `/dashboard` | Trang chủ workspace |
 | `/discover` | Keyword Discovery |
 | `/scan` | Domain Scan (Input → Preview → Scanning → Results) |
-| `/results` | Bảng kết quả scan |
+| `/results` | Bảng kết quả scan; hỗ trợ `?jobId=<id>` để đọc persisted scan results |
 | `/leads` | Saved Leads |
 | `/history` | Scan History |
 | `/settings` | Settings · API Keys (mock connected / partial / error) |
@@ -112,6 +113,8 @@ cp .env.example .env.local
 | `APP_ENCRYPTION_KEY` | Phase 09F | **Server-only.** Mã hóa API key cá nhân. Thiếu env thì không lưu plaintext. |
 
 Phase 05–06 chỉ cần `AUTH_SECRET` để chạy local (Supabase client factories return `null` khi thiếu env nên `npm run build` vẫn pass). Khi muốn nối Supabase thật, làm theo [`docs/SUPABASE_SETUP.md`](./docs/SUPABASE_SETUP.md):
+
+Persisted Saved Leads, API Keys và Scan History cần chạy thêm migrations `0002`, `0003`, `0004`. Nếu thiếu Supabase env hoặc bảng chưa migrate, app vẫn build/chạy và dùng in-memory fallback cho các luồng demo liên quan.
 
 ```bash
 curl -s http://localhost:3000/api/health/supabase
@@ -167,6 +170,7 @@ tool-data-mail-web/
 │       ├── supabase/       # Phase 05 — client factories (browser/server/admin) + health
 │       ├── discovery/      # Phase 07/08 — Keyword Discovery (mock + SerpAPI)
 │       ├── scan/           # Phase 08C — Domain Scan (mock provider, domain-utils)
+│       ├── scan-jobs/      # Phase 09G — scan job/result persistence + fallback
 │       ├── mock-data.ts
 │       └── navigation.ts
 ├── middleware.ts

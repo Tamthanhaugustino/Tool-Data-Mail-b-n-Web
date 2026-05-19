@@ -67,6 +67,10 @@ export interface ScanResponse {
   run: ScanRunSummary;
   domains: ScanDomainSummary[];
   results: ScanResultItem[];
+  scanJobId?: string;
+  scanStorage?: "supabase" | "memory" | "none";
+  scanStorageFallback?: boolean;
+  scanStorageReason?: "not_configured" | "table_missing" | "write_failed";
 }
 
 export interface ScanProvider {

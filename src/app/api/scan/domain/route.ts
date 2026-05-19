@@ -33,10 +33,14 @@ import {
   HunterProviderError,
   type HunterErrorCode,
 } from "@/lib/scan/hunter-provider";
+import { createScanJob } from "@/lib/scan-jobs/repository";
+import { serializeScanJobsStorageMeta } from "@/lib/scan-jobs/types";
 import type {
+  ScanDomainSummary,
   ScanProvider,
   ScanProviderName,
   ScanResponse,
+  ScanResultItem,
 } from "@/lib/scan";
 
 export const runtime = "nodejs";
@@ -128,6 +132,44 @@ const HUNTER_ERROR_MAP: Record<HunterErrorCode, { status: number; error: string;
 
 function mapHunterError(e: HunterProviderError) {
   return HUNTER_ERROR_MAP[e.code] ?? HUNTER_ERROR_MAP.upstream;
+}
+
+function scanStatusFor(
+  summaries: ScanDomainSummary[],
+  results: ScanResultItem[],
+): "completed" | "partial" | "failed" {
+  const errorCount = summaries.filter((item) => item.error).length;
+  if (errorCount === 0) return "completed";
+  return results.length > 0 ? "partial" : "failed";
+}
+
+async function persistScanJobSafe(input: {
+  userId: string;
+  provider: ScanProviderName;
+  status: "completed" | "partial" | "failed";
+  inputDomains: string[];
+  emailLimitPerDomain: number;
+  scannedDomains: number;
+  totalEmails: number;
+  durationMs: number;
+  errorMessage?: string;
+  domainSummaries?: ScanDomainSummary[];
+  results: ScanResultItem[];
+}) {
+  return createScanJob({
+    userId: input.userId,
+    provider: input.provider,
+    status: input.status,
+    inputDomains: input.inputDomains,
+    emailLimitPerDomain: input.emailLimitPerDomain,
+    totalDomains: input.inputDomains.length,
+    scannedDomains: input.scannedDomains,
+    totalEmails: input.totalEmails,
+    durationMs: input.durationMs,
+    errorMessage: input.errorMessage,
+    domainSummaries: input.domainSummaries,
+    results: input.results,
+  });
 }
 
 export async function POST(req: Request) {
@@ -241,16 +283,31 @@ export async function POST(req: Request) {
       apiKey: providerApiKey,
     });
     const durationMs = Date.now() - startedAt;
+    const scanStatus = scanStatusFor(summaries, results);
     const warnings = normalizeWarnings.map((w) => `[${w.reason}] ${w.input}`);
     if (userKeyError) {
       warnings.push("[api_key_fallback] Không đọc được key cá nhân, đã dùng server env fallback.");
     }
 
+    const persisted = await persistScanJobSafe({
+      userId: session.id,
+      provider: provider.name,
+      status: scanStatus,
+      inputDomains: normalized,
+      emailLimitPerDomain,
+      scannedDomains: normalized.length,
+      totalEmails: results.length,
+      durationMs,
+      domainSummaries: summaries,
+      results,
+    });
+    const scanStorageMeta = serializeScanJobsStorageMeta(persisted);
+
     const response: ScanResponse = {
       run: {
-        id: crypto.randomUUID(),
+        id: persisted.job?.id ?? crypto.randomUUID(),
         provider: provider.name,
-        status: "completed",
+        status: scanStatus === "failed" ? "failed" : "completed",
         requestedDomains: (ds as string[]).length,
         scannedDomains: normalized.length,
         totalEmails: results.length,
@@ -260,6 +317,8 @@ export async function POST(req: Request) {
       },
       domains: summaries,
       results,
+      ...(persisted.job ? { scanJobId: persisted.job.id } : {}),
+      ...scanStorageMeta,
     };
     return NextResponse.json(response, {
       headers: { "cache-control": "no-store" },
@@ -267,9 +326,45 @@ export async function POST(req: Request) {
   } catch (e) {
     if (e instanceof HunterProviderError) {
       const { status, error, message } = mapHunterError(e);
-      return jsonError(status, error, message, { provider: provider.name, code: e.code });
+      const durationMs = Date.now() - startedAt;
+      const persisted = await persistScanJobSafe({
+        userId: session.id,
+        provider: provider.name,
+        status: "failed",
+        inputDomains: normalized,
+        emailLimitPerDomain,
+        scannedDomains: 0,
+        totalEmails: 0,
+        durationMs,
+        errorMessage: message,
+        results: [],
+      });
+      return jsonError(status, error, message, {
+        provider: provider.name,
+        code: e.code,
+        ...(persisted.job ? { scanJobId: persisted.job.id } : {}),
+        ...serializeScanJobsStorageMeta(persisted),
+      });
     }
     const msg = e instanceof Error ? e.message : "unknown error";
-    return jsonError(500, "internal", sanitize(msg), { provider: provider.name });
+    const durationMs = Date.now() - startedAt;
+    const cleanMessage = sanitize(msg);
+    const persisted = await persistScanJobSafe({
+      userId: session.id,
+      provider: provider.name,
+      status: "failed",
+      inputDomains: normalized,
+      emailLimitPerDomain,
+      scannedDomains: 0,
+      totalEmails: 0,
+      durationMs,
+      errorMessage: cleanMessage,
+      results: [],
+    });
+    return jsonError(500, "internal", cleanMessage, {
+      provider: provider.name,
+      ...(persisted.job ? { scanJobId: persisted.job.id } : {}),
+      ...serializeScanJobsStorageMeta(persisted),
+    });
   }
 }

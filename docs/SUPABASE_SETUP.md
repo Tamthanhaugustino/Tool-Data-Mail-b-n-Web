@@ -97,6 +97,15 @@ Chi tiết: [`SAVED_LEADS.md`](./SAVED_LEADS.md).
 
 Chi tiết: [`API_KEYS.md`](./API_KEYS.md).
 
+### Migration Phase 09G — `app_scan_jobs` / `app_scan_results` (Scan History)
+
+1. Chạy [`supabase/migrations/0004_app_scan_jobs.sql`](../supabase/migrations/0004_app_scan_jobs.sql).
+2. Verify hai bảng **`app_scan_jobs`** và **`app_scan_results`**.
+3. Chạy Domain Scan trên `/scan` rồi mở `/history`; nếu persist OK, job mới sẽ hiện từ Supabase.
+4. Bấm “Xem” để mở `/results?jobId=<id>` và đọc results đã lưu.
+
+Nếu thiếu Supabase env hoặc chưa apply migration 0004, `/scan` vẫn chạy và app dùng in-memory fallback. Fallback này không bền vững qua restart. Phase này chưa có queue/background worker và chưa enforce billing/quota.
+
 ### Re-apply / reset
 
 Nếu cần xoá hết để chạy lại migration:
@@ -160,5 +169,6 @@ Route luôn HTTP 200 — phân biệt healthy/degraded qua field `ok`. Error mes
 - [ ] Nếu dùng API key cá nhân: `.env.local` có `APP_ENCRYPTION_KEY`
 - [ ] `SUPABASE_SERVICE_ROLE_KEY` **không** ở dòng `NEXT_PUBLIC_*`
 - [ ] Migration `0001_initial_schema.sql` đã chạy thành công
+- [ ] Migration `0002_app_saved_leads.sql`, `0003_app_user_api_keys.sql`, `0004_app_scan_jobs.sql` đã chạy nếu cần các feature Phase 09D-09G
 - [ ] 11 bảng + enum types xuất hiện ở **Database → Tables / Types**
 - [ ] `curl /api/health/supabase` trả `{ ok: true }`

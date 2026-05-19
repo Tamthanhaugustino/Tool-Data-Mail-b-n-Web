@@ -1,6 +1,6 @@
-# Domain Scan — Phase 08C + 09A + 09B + 09C
+# Domain Scan — Phase 08C + 09A + 09B + 09C + 09G
 
-> Trạng thái: **mock + Hunter** providers, UX polish Phase 09B. **Lưu Saved Leads** từ Results qua `POST /api/leads` (in-memory, Phase 09C) — xem [`SAVED_LEADS.md`](./SAVED_LEADS.md). Scan run **chưa** persist DB.
+> Trạng thái: **mock + Hunter** providers, UX polish Phase 09B. **Lưu Saved Leads** từ Results qua `POST /api/leads` — xem [`SAVED_LEADS.md`](./SAVED_LEADS.md). Phase 09G persist Domain Scan jobs/results vào `app_scan_jobs` + `app_scan_results` khi Supabase migration 0004 sẵn sàng, fallback in-memory khi thiếu env/bảng.
 >
 > | Provider | Phase | Env | Quota | Limits |
 > |---|---|---|---|---|
@@ -23,6 +23,17 @@ src/lib/scan/
 
 src/app/api/scan/domain/
 └── route.ts             # POST /api/scan/domain — validate, normalize, resolve, dispatch
+
+src/app/api/scan/jobs/
+├── route.ts             # GET /api/scan/jobs — list jobs scoped user_id
+└── [id]/route.ts        # GET /api/scan/jobs/[id] — job + results scoped user_id
+
+src/lib/scan-jobs/
+├── repository.ts        # Supabase-first + memory fallback
+├── supabase-store.ts    # service-role writes/reads; no client import
+├── memory-store.ts      # process-local fallback
+├── sanitize.ts          # masks api_key/token/url
+└── types.ts
 
 src/components/scan/
 └── domain-scan-wizard.tsx # /scan client UI (4-step wizard + Provider selector)
@@ -111,7 +122,10 @@ Không bao giờ trả plaintext key về client. Nếu decrypt user key lỗi n
       "source": "mock",
       "status": "verified"
     }
-  ]
+  ],
+  "scanJobId": "uuid",
+  "scanStorage": "supabase",
+  "scanStorageFallback": false
 }
 ```
 
@@ -139,6 +153,25 @@ UI đọc `error` field và lookup `ERROR_HINTS[error]` trong [`domain-scan-wiza
 Per-domain soft errors (4xx/5xx cho 1 domain, parse, timeout không phải hard error) ghi vào `domains[].error` chứ không abort batch — user vẫn nhận được kết quả các domain khác.
 
 Sanitize 2 lớp: provider scrub `api_key=` + URL trước khi throw; route scrub thêm lần nữa + mask JWT + cắt 200 ký tự. `cache-control: no-store`.
+
+### Persistence (Phase 09G)
+
+Sau khi provider trả kết quả, route tạo scan job:
+
+- `app_scan_jobs`: provider, status (`completed` / `partial` / `failed`), input domains, email limit, counts, duration, sanitized error.
+- `app_scan_results`: email/name/title/company/domain/confidence/status/source/provider, linked bằng `job_id`, scoped thêm `user_id`.
+- Không lưu raw provider response trong phase này (`raw = null`) để tránh giữ URL/API key/token.
+
+Repository chọn Supabase khi `SUPABASE_SERVICE_ROLE_KEY` + migration 0004 sẵn sàng. Nếu thiếu env hoặc bảng chưa tồn tại, route dùng memory fallback và trả `scanStorage`, `scanStorageFallback`, `scanStorageReason`. Scan không fail chỉ vì lỗi persistence.
+
+APIs đọc:
+
+```text
+GET /api/scan/jobs?limit=50
+GET /api/scan/jobs/:id
+```
+
+Cả hai route lấy `session.id` từ hybrid auth và luôn filter `user_id`. `/history` dùng list API; `/results?jobId=<id>` dùng detail API. Phase này chưa có queue/background worker, chưa cancel/retry job, chưa billing/quota enforcement.
 
 ## 5. Domain normalization
 
