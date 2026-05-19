@@ -3,11 +3,28 @@ export type SavedLeadVerificationStatus = "verified" | "accept_all" | "webmail";
 
 export type LeadsStorageBackend = "supabase" | "memory";
 
+/** Lý do dùng memory thay vì Supabase (khi `storage` = `memory`). */
+export type LeadsStorageReason = "not_configured" | "table_missing";
+
 export type SavedLeadsOperationMeta = {
   storage: LeadsStorageBackend;
-  /** Supabase env có nhưng bảng `app_saved_leads` chưa migrate — đã dùng memory */
+  /** true chỉ khi env Supabase có nhưng bảng chưa sẵn sàng — đã fallback memory */
   storageFallback?: boolean;
+  storageReason?: LeadsStorageReason;
 };
+
+/** JSON fields cho API response (không lộ secret). */
+export function serializeLeadsStorageMeta(meta: SavedLeadsOperationMeta): {
+  storage: LeadsStorageBackend;
+  storageFallback?: true;
+  storageReason?: LeadsStorageReason;
+} {
+  return {
+    storage: meta.storage,
+    ...(meta.storageFallback ? { storageFallback: true as const } : {}),
+    ...(meta.storageReason ? { storageReason: meta.storageReason } : {}),
+  };
+}
 
 /** Bản ghi Saved Leads — shape ổn định cho UI (memory hoặc Supabase). */
 export type SavedLeadRecord = {

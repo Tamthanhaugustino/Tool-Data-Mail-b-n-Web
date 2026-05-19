@@ -29,70 +29,125 @@ export function getConfiguredLeadsStorageBackend(): LeadsStorageBackend {
   return isSupabaseLeadsConfigured() ? "supabase" : "memory";
 }
 
-async function shouldUseSupabase(): Promise<boolean> {
-  if (!isSupabaseLeadsConfigured()) return false;
-  return probeSupabaseLeadsTable();
+type ResolvedLeadsStorage = {
+  useSupabase: boolean;
+} & SavedLeadsOperationMeta;
+
+async function resolveLeadsStorage(): Promise<ResolvedLeadsStorage> {
+  if (!isSupabaseLeadsConfigured()) {
+    return {
+      useSupabase: false,
+      storage: "memory",
+      storageReason: "not_configured",
+    };
+  }
+
+  const tableOk = await probeSupabaseLeadsTable();
+  if (tableOk) {
+    return { useSupabase: true, storage: "supabase" };
+  }
+
+  return {
+    useSupabase: false,
+    storage: "memory",
+    storageFallback: true,
+    storageReason: "table_missing",
+  };
+}
+
+function tableMissingFallbackMeta(): SavedLeadsOperationMeta {
+  return {
+    storage: "memory",
+    storageFallback: true,
+    storageReason: "table_missing",
+  };
+}
+
+function isTableMissingError(e: unknown): boolean {
+  return e instanceof Error && e.message === "supabase_table_missing";
 }
 
 export async function listSavedLeads(
   userId: string,
 ): Promise<SavedLeadsOperationMeta & { leads: SavedLeadRecord[] }> {
-  if (await shouldUseSupabase()) {
+  const resolved = await resolveLeadsStorage();
+
+  if (resolved.useSupabase) {
     try {
       const leads = await listSavedLeadsSupabase(userId);
       return { leads, storage: "supabase" };
     } catch (e) {
-      if (e instanceof Error && e.message === "supabase_table_missing") {
+      if (isTableMissingError(e)) {
         return {
           leads: listSavedLeadsMemory(userId),
-          storage: "memory",
-          storageFallback: true,
+          ...tableMissingFallbackMeta(),
         };
       }
       throw e;
     }
   }
-  return { leads: listSavedLeadsMemory(userId), storage: "memory" };
+
+  return {
+    leads: listSavedLeadsMemory(userId),
+    storage: resolved.storage,
+    ...(resolved.storageFallback ? { storageFallback: true } : {}),
+    ...(resolved.storageReason ? { storageReason: resolved.storageReason } : {}),
+  };
 }
 
 export async function saveLeads(
   userId: string,
   inputs: SaveLeadInput[],
 ): Promise<SaveLeadsResult & SavedLeadsOperationMeta> {
-  if (await shouldUseSupabase()) {
+  const resolved = await resolveLeadsStorage();
+
+  if (resolved.useSupabase) {
     try {
       const result = await saveLeadsSupabase(userId, inputs);
       return { ...result, storage: "supabase" };
     } catch (e) {
-      if (e instanceof Error && e.message === "supabase_table_missing") {
+      if (isTableMissingError(e)) {
         const result = saveLeadsMemory(userId, inputs);
-        return { ...result, storage: "memory", storageFallback: true };
+        return { ...result, ...tableMissingFallbackMeta() };
       }
       throw e;
     }
   }
+
   const result = saveLeadsMemory(userId, inputs);
-  return { ...result, storage: "memory" };
+  return {
+    ...result,
+    storage: resolved.storage,
+    ...(resolved.storageFallback ? { storageFallback: true } : {}),
+    ...(resolved.storageReason ? { storageReason: resolved.storageReason } : {}),
+  };
 }
 
 export async function deleteSavedLead(
   userId: string,
   leadId: string,
 ): Promise<{ deleted: boolean } & SavedLeadsOperationMeta> {
-  if (await shouldUseSupabase()) {
+  const resolved = await resolveLeadsStorage();
+
+  if (resolved.useSupabase) {
     try {
       const deleted = await deleteSavedLeadSupabase(userId, leadId);
       return { deleted, storage: "supabase" };
     } catch (e) {
-      if (e instanceof Error && e.message === "supabase_table_missing") {
+      if (isTableMissingError(e)) {
         return {
           deleted: deleteSavedLeadMemory(userId, leadId),
-          storage: "memory",
-          storageFallback: true,
+          ...tableMissingFallbackMeta(),
         };
       }
       throw e;
     }
   }
-  return { deleted: deleteSavedLeadMemory(userId, leadId), storage: "memory" };
+
+  return {
+    deleted: deleteSavedLeadMemory(userId, leadId),
+    storage: resolved.storage,
+    ...(resolved.storageFallback ? { storageFallback: true } : {}),
+    ...(resolved.storageReason ? { storageReason: resolved.storageReason } : {}),
+  };
 }

@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/session";
 import { deleteSavedLead } from "@/lib/leads/repository";
 import { sanitizeApiMessage } from "@/lib/leads/sanitize";
+import { serializeLeadsStorageMeta } from "@/lib/leads/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -28,7 +29,8 @@ export async function DELETE(_req: Request, context: RouteContext) {
   }
 
   try {
-    const { deleted, storage, storageFallback } = await deleteSavedLead(session.id, id);
+    const result = await deleteSavedLead(session.id, id);
+    const { deleted, ...meta } = result;
     if (!deleted) {
       return NextResponse.json(
         { error: "not_found", message: "Không tìm thấy lead hoặc đã bị xóa." },
@@ -37,7 +39,7 @@ export async function DELETE(_req: Request, context: RouteContext) {
     }
 
     return NextResponse.json(
-      { ok: true, storage, ...(storageFallback ? { storageFallback: true } : {}) },
+      { ok: true, ...serializeLeadsStorageMeta(meta) },
       { headers: { "cache-control": "no-store" } },
     );
   } catch (e) {

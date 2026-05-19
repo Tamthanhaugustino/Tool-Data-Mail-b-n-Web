@@ -6,6 +6,9 @@
 --
 -- Apply: Supabase SQL Editor hoặc `supabase db push` sau khi có project.
 
+create extension if not exists "pgcrypto";
+create extension if not exists "citext";
+
 -- =====================================================================
 -- app_saved_leads
 -- =====================================================================
@@ -51,6 +54,8 @@ begin
   return new;
 end;
 $$;
+
+drop trigger if exists app_saved_leads_set_updated_at on public.app_saved_leads;
 
 create trigger app_saved_leads_set_updated_at
   before update on public.app_saved_leads

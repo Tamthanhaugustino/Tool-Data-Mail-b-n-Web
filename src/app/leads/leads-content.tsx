@@ -21,6 +21,7 @@ import {
 import { downloadCsvFile, savedLeadsToCsv } from "@/lib/leads/export-csv";
 import type {
   LeadsStorageBackend,
+  LeadsStorageReason,
   SavedLeadRecord,
 } from "@/lib/leads/types";
 
@@ -47,8 +48,9 @@ function formatSavedAt(iso: string) {
 function storageAlertCopy(
   storage: LeadsStorageBackend,
   storageFallback?: boolean,
+  storageReason?: LeadsStorageReason,
 ): { className: string; body: ReactNode } {
-  if (storageFallback) {
+  if (storageFallback || storageReason === "table_missing") {
     return {
       className: "mb-4 border-amber-200 bg-amber-50 text-amber-950",
       body: (
@@ -91,10 +93,12 @@ export function LeadsContent({
   initialLeads,
   storage,
   storageFallback,
+  storageReason,
 }: {
   initialLeads: SavedLeadRecord[];
   storage: LeadsStorageBackend;
   storageFallback?: boolean;
+  storageReason?: LeadsStorageReason;
 }) {
   const [leads, setLeads] = useState<SavedLeadRecord[]>(initialLeads);
   const [error, setError] = useState<string | null>(null);
@@ -161,7 +165,7 @@ export function LeadsContent({
       />
 
       {(() => {
-        const alert = storageAlertCopy(storage, storageFallback);
+        const alert = storageAlertCopy(storage, storageFallback, storageReason);
         return (
           <Alert className={alert.className}>
             <AlertDescription className="text-sm">{alert.body}</AlertDescription>

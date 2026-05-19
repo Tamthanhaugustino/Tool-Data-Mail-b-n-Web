@@ -550,6 +550,7 @@ function ScanResultsView({
         duplicateCount?: number;
         storage?: "supabase" | "memory";
         storageFallback?: boolean;
+        storageReason?: "not_configured" | "table_missing";
       };
       const saved = ok.savedCount ?? 0;
       const dup = ok.duplicateCount ?? 0;
@@ -562,9 +563,9 @@ function ScanResultsView({
       }
       if (ok.storage === "supabase" && !ok.storageFallback) {
         message += " Lưu bền vững trên Supabase.";
-      } else if (ok.storageFallback) {
+      } else if (ok.storageFallback || ok.storageReason === "table_missing") {
         message += " (Fallback in-memory — chưa có bảng app_saved_leads.)";
-      } else if (ok.storage === "memory") {
+      } else if (ok.storageReason === "not_configured" || ok.storage === "memory") {
         message += " (In-memory demo — chưa cấu hình Supabase.)";
       }
       setSaveFeedback({

@@ -7,7 +7,8 @@ export const dynamic = "force-dynamic";
 
 export default async function LeadsPage() {
   const session = await requireSession();
-  const { leads: initialLeads, storage, storageFallback } = await listSavedLeads(session.id);
+  const { leads: initialLeads, storage, storageFallback, storageReason } =
+    await listSavedLeads(session.id);
 
   return (
     <AppShell title="Saved Leads" session={session}>
@@ -15,6 +16,7 @@ export default async function LeadsPage() {
         initialLeads={initialLeads}
         storage={storage}
         storageFallback={storageFallback}
+        storageReason={storageReason}
       />
     </AppShell>
   );

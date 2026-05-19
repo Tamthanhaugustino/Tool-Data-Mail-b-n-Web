@@ -49,26 +49,39 @@ export function isSupabaseLeadsTableMissing(error: { code?: string; message?: st
   );
 }
 
-let probeCache: boolean | undefined;
+/** Cache probe OK vĩnh viễn; cache thiếu bảng chỉ TTL ngắn để nhận migration mới. */
+let probeCacheOk: boolean | undefined;
+let probeMissingUntilMs = 0;
+
+const PROBE_MISSING_TTL_MS = 30_000;
 
 export async function probeSupabaseLeadsTable(): Promise<boolean> {
-  if (probeCache !== undefined) return probeCache;
+  const now = Date.now();
+  if (probeCacheOk === true) return true;
+  if (probeMissingUntilMs > now) return false;
+
   const client = getSupabaseAdminClient();
   if (!client) {
-    probeCache = false;
+    probeMissingUntilMs = now + PROBE_MISSING_TTL_MS;
     return false;
   }
+
   const { error } = await client.from(TABLE).select("id").limit(1);
   if (!error) {
-    probeCache = true;
+    probeCacheOk = true;
+    probeMissingUntilMs = 0;
     return true;
   }
+
   if (isSupabaseLeadsTableMissing(error)) {
-    probeCache = false;
+    probeCacheOk = undefined;
+    probeMissingUntilMs = now + PROBE_MISSING_TTL_MS;
     return false;
   }
+
   // Lỗi khác (mạng, quyền…) — coi như đã cấu hình, để tầng gọi xử lý.
-  probeCache = true;
+  probeCacheOk = true;
+  probeMissingUntilMs = 0;
   return true;
 }
 
@@ -115,7 +128,7 @@ export async function saveLeadsSupabase(
     throw listError;
   }
 
-  const existing = new Set(
+  const existingFromDb = new Set(
     (existingRows ?? []).map((r: { email: string; domain: string }) =>
       leadDedupeKey(r.email, r.domain),
     ),
@@ -123,15 +136,20 @@ export async function saveLeadsSupabase(
 
   const saved: SavedLeadRecord[] = [];
   const duplicates: Array<{ email: string; domain: string }> = [];
+  const seenInBatch = new Set<string>();
   const toInsert: Record<string, unknown>[] = [];
 
   for (const input of inputs) {
     const key = leadDedupeKey(input.email, input.domain);
-    if (existing.has(key)) {
+    if (existingFromDb.has(key)) {
       duplicates.push({ email: input.email.trim(), domain: input.domain.trim() });
       continue;
     }
-    existing.add(key);
+    if (seenInBatch.has(key)) {
+      duplicates.push({ email: input.email.trim(), domain: input.domain.trim() });
+      continue;
+    }
+    seenInBatch.add(key);
     toInsert.push({
       user_id: userId,
       email: input.email.trim(),
@@ -156,7 +174,7 @@ export async function saveLeadsSupabase(
 
   if (insertError) {
     if (insertError.code === "23505") {
-      return saveLeadsSupabaseOneByOne(userId, inputs, existing);
+      return saveLeadsSupabaseOneByOne(userId, inputs, existingFromDb);
     }
     if (isSupabaseLeadsTableMissing(insertError)) {
       throw new Error("supabase_table_missing");
@@ -174,7 +192,7 @@ export async function saveLeadsSupabase(
 async function saveLeadsSupabaseOneByOne(
   userId: string,
   inputs: SaveLeadInput[],
-  existing: Set<string>,
+  existingFromDb: Set<string>,
 ): Promise<SaveLeadsResult> {
   const client = getSupabaseAdminClient();
   if (!client) {
@@ -183,13 +201,19 @@ async function saveLeadsSupabaseOneByOne(
 
   const saved: SavedLeadRecord[] = [];
   const duplicates: Array<{ email: string; domain: string }> = [];
+  const seenInRetry = new Set<string>();
 
   for (const input of inputs) {
     const key = leadDedupeKey(input.email, input.domain);
-    if (existing.has(key)) {
+    if (existingFromDb.has(key)) {
       duplicates.push({ email: input.email.trim(), domain: input.domain.trim() });
       continue;
     }
+    if (seenInRetry.has(key)) {
+      duplicates.push({ email: input.email.trim(), domain: input.domain.trim() });
+      continue;
+    }
+    seenInRetry.add(key);
 
     const { data, error } = await client
       .from(TABLE)
@@ -210,13 +234,13 @@ async function saveLeadsSupabaseOneByOne(
     if (error) {
       if (error.code === "23505") {
         duplicates.push({ email: input.email.trim(), domain: input.domain.trim() });
-        existing.add(key);
+        existingFromDb.add(key);
         continue;
       }
       throw error;
     }
 
-    existing.add(key);
+    existingFromDb.add(key);
     saved.push(rowToRecord(data as AppSavedLeadRow));
   }
 

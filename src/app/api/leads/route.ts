@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/session";
 import { listSavedLeads, saveLeads } from "@/lib/leads/repository";
 import { sanitizeApiMessage } from "@/lib/leads/sanitize";
+import { serializeLeadsStorageMeta } from "@/lib/leads/types";
 import { parseSaveLeadInput } from "@/lib/leads/validate";
 
 export const runtime = "nodejs";
@@ -26,9 +27,10 @@ export async function GET() {
   }
 
   try {
-    const { leads, storage, storageFallback } = await listSavedLeads(session.id);
+    const result = await listSavedLeads(session.id);
+    const { leads, ...meta } = result;
     return NextResponse.json(
-      { leads, storage, ...(storageFallback ? { storageFallback: true } : {}) },
+      { leads, ...serializeLeadsStorageMeta(meta) },
       { headers: { "cache-control": "no-store" } },
     );
   } catch (e) {
@@ -81,18 +83,15 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { saved, duplicates, storage, storageFallback } = await saveLeads(
-      session.id,
-      parsed,
-    );
+    const result = await saveLeads(session.id, parsed);
+    const { saved, duplicates, ...meta } = result;
     return NextResponse.json(
       {
         savedCount: saved.length,
         duplicateCount: duplicates.length,
         saved,
         duplicates,
-        storage,
-        ...(storageFallback ? { storageFallback: true } : {}),
+        ...serializeLeadsStorageMeta(meta),
       },
       { headers: { "cache-control": "no-store" } },
     );

@@ -12,10 +12,13 @@
 
 ## 2. Storage backends
 
-| `storage` trong API | Điều kiện |
-|-------------------|-----------|
-| `supabase` | `NEXT_PUBLIC_SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` + bảng `app_saved_leads` đã migrate |
-| `memory` | Thiếu env **hoặc** bảng chưa có (`storageFallback: true`) |
+| `storage` | `storageFallback` | `storageReason` | Ý nghĩa |
+|-----------|-------------------|-----------------|--------|
+| `supabase` | — | — | Env + bảng OK |
+| `memory` | — | `not_configured` | Thiếu Supabase env |
+| `memory` | `true` | `table_missing` | Env có, bảng chưa migrate / probe fail |
+
+Probe thiếu bảng cache TTL **30s** — sau khi chạy migration không cần restart server.
 
 Repository: [`src/lib/leads/repository.ts`](../src/lib/leads/repository.ts) — API route chỉ gọi facade, không import Supabase trực tiếp.
 
