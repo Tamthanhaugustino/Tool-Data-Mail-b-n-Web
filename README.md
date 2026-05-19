@@ -23,13 +23,14 @@ Desktop app (logic gốc) phát triển riêng tại project **`b2b-lead-finder`
 | SerpAPI real provider (quota-safe, server-only) | **Done (Phase 08A)** — `SERPAPI_API_KEY` + `DISCOVERY_PROVIDER` env-gated |
 | SerpAPI live smoke test + typed error UX | **Done (Phase 08B)** — 6 mã code → HTTP status + UI hint; offline smoke test ✓ |
 | Domain Scan backend foundation (mock + API + UI wired) | **Done (Phase 08C)** — xem [`docs/SCAN.md`](./docs/SCAN.md) |
+| Hunter.io real provider (quota-safe, server-only) | **Done (Phase 09A)** — `HUNTER_API_KEY` + `SCAN_PROVIDER` env-gated, max 5 domain/request |
 | Supabase Auth migration | Chưa (deferred) |
-| Hunter.io Domain Scan real call | Chưa (Phase 09+) |
+| Saved Leads / DB persistence | Chưa (Phase 09B+) |
 | Hunter.io / SerpAPI integration | Chưa có (chỉ mock trên UI) |
 | Billing / payment | Chưa có |
 | Production deploy | Chưa có |
 
-**Phase hiện tại:** [Phase 08C — Domain Scan backend foundation](./docs/ROADMAP.md#phase-08c--domain-scan-backend-foundation--current)
+**Phase hiện tại:** [Phase 09A — Hunter real provider (quota-safe)](./docs/ROADMAP.md#phase-09a--hunter-real-provider-quota-safe--current)
 
 Chi tiết lộ trình: [`docs/ROADMAP.md`](./docs/ROADMAP.md)
 
@@ -184,8 +185,9 @@ tool-data-mail-web/
 | 07 | Keyword Discovery backend foundation | **Done** (mock provider + `/api/discovery/keyword` + wired `/discover`) |
 | 08A | SerpAPI real provider (quota-safe) | **Done** (server-only fetch, env-gated, dynamic import) |
 | 08B | SerpAPI live smoke test + typed error UX | **Done** (6 mã code → HTTP status + UI hint) |
-| 08C | Domain Scan backend foundation | **Current** (mock provider + `/api/scan/domain` + wired wizard) |
-| 09 | Hunter real provider *or* Supabase Auth migration | Planned |
+| 08C | Domain Scan backend foundation | **Done** (mock provider + `/api/scan/domain` + wired wizard) |
+| 09A | Hunter real provider (quota-safe) | **Current** (server-only fetch, env-gated, max 5 domain/request) |
+| 09B | Hunter live polish *or* Saved Leads foundation | Planned |
 | 06 | Domain Scan job system | Planned |
 | 07 | Results, Saved Leads, Export | Planned |
 | 08 | Billing / subscription / credit limits | Planned |

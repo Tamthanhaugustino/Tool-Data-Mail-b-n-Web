@@ -9,16 +9,31 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ResultsTable } from "@/components/shared/results-table";
 import type { ScanResultRow } from "@/lib/mock-data";
 import { DEFAULT_DOMAINS } from "@/lib/mock-data";
 import { normalizeDomains } from "@/lib/scan";
 import type {
   ScanDomainSummary,
+  ScanProviderName,
   ScanResponse,
   ScanResultItem,
 } from "@/lib/scan";
 import { cn } from "@/lib/utils";
+
+const MAX_DOMAINS: Record<ScanProviderName, number> = { mock: 50, hunter: 5 };
+const MAX_EMAIL_LIMIT: Record<ScanProviderName, number> = { mock: 100, hunter: 10 };
+const LIMIT_OPTIONS: Record<ScanProviderName, number[]> = {
+  mock: [5, 10, 25, 50],
+  hunter: [3, 5, 10],
+};
 
 const STEPS = ["Input", "Preview", "Scanning", "Results"] as const;
 type Step = (typeof STEPS)[number];
@@ -27,7 +42,19 @@ const ERROR_HINTS: Record<string, string> = {
   unauthorized: "Phiên đăng nhập đã hết hạn. Đăng nhập lại tại /login.",
   invalid_input: "Kiểm tra danh sách domain hoặc tham số request.",
   provider_unavailable:
-    "Hunter provider chưa được wire (Phase 09). Dùng provider Mock.",
+    "Set HUNTER_API_KEY trong .env.local rồi restart npm run dev. Hoặc chọn provider Mock.",
+  provider_invalid_key:
+    "Kiểm tra giá trị HUNTER_API_KEY ở Settings → API của Hunter Dashboard.",
+  provider_rate_limited:
+    "Hunter báo hết quota tháng hoặc rate limit ngắn hạn. Đợi reset, hoặc dùng Mock.",
+  provider_timeout:
+    "Mạng tới Hunter chậm hoặc bị block. Thử lại sau, hoặc dùng Mock.",
+  provider_network:
+    "Server không gọi được Hunter. Kiểm tra mạng / firewall.",
+  provider_parse:
+    "Hunter trả về dữ liệu không hợp lệ. Có thể do gói Hunter bị thay đổi.",
+  provider_upstream:
+    "Hunter trả lỗi không xác định. Kiểm tra trạng thái tại hunter.io.",
 };
 
 type DomainScanWizardProps = {
@@ -98,9 +125,20 @@ export function DomainScanWizard({
 }: DomainScanWizardProps) {
   const [step, setStep] = useState<Step>("Input");
   const [domains, setDomains] = useState(initialDomains ?? DEFAULT_DOMAINS);
+  const [selectedProvider, setSelectedProvider] = useState<ScanProviderName>("mock");
   const [limit, setLimit] = useState(10);
   const [verifiedOnly, setVerifiedOnly] = useState(true);
   const [autoHistory, setAutoHistory] = useState(true);
+
+  const domainCap = MAX_DOMAINS[selectedProvider];
+  const emailCap = MAX_EMAIL_LIMIT[selectedProvider];
+  const limitChoices = LIMIT_OPTIONS[selectedProvider];
+
+  const handleProviderChange = (next: ScanProviderName) => {
+    setSelectedProvider(next);
+    // Clamp limit to the new provider's ceiling (Hunter caps at 10).
+    setLimit((curr) => Math.min(curr, MAX_EMAIL_LIMIT[next]));
+  };
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -129,7 +167,7 @@ export function DomainScanWizard({
         body: JSON.stringify({
           domains: rawList,
           emailLimitPerDomain: limit,
-          provider: "mock",
+          provider: selectedProvider,
         }),
       });
       const data: unknown = await res.json().catch(() => null);
@@ -169,6 +207,15 @@ export function DomainScanWizard({
           </AlertDescription>
         </Alert>
       )}
+      {selectedProvider === "hunter" && step !== "Results" && (
+        <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+          <b>Hunter.io dùng quota thật.</b> Mỗi domain tốn 1 search · tối đa{" "}
+          <b>{MAX_DOMAINS.hunter} domain</b> và <b>{MAX_EMAIL_LIMIT.hunter} email/domain</b> mỗi
+          lần. Server chỉ chạy khi đã cấu hình{" "}
+          <code className="font-mono">HUNTER_API_KEY</code>. Nếu chưa, request sẽ trả{" "}
+          <code className="font-mono">provider_unavailable</code> mà không tiêu quota.
+        </div>
+      )}
       <nav className="flex flex-wrap items-center gap-2 text-sm">
         {STEPS.map((s, i) => (
           <span key={s} className="flex items-center gap-2">
@@ -194,7 +241,7 @@ export function DomainScanWizard({
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-base">Danh sách domain</CardTitle>
               <span className="text-xs text-slate-500">
-                <b>{normalizedPreview.domains.length} domain hợp lệ</b> · tối đa 50
+                <b>{normalizedPreview.domains.length} domain hợp lệ</b> · tối đa {domainCap}
               </span>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -208,7 +255,7 @@ export function DomainScanWizard({
                 <div className="flex justify-between text-xs text-slate-500">
                   <span>Dán URL đầy đủ cũng được — sẽ tự lấy domain.</span>
                   <span className="font-mono">
-                    {normalizedPreview.domains.length} / 50
+                    {normalizedPreview.domains.length} / {domainCap}
                   </span>
                 </div>
                 {normalizedPreview.warnings.length > 0 && (
@@ -243,9 +290,28 @@ export function DomainScanWizard({
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
+                <Label>Provider</Label>
+                <Select
+                  value={selectedProvider}
+                  onValueChange={(v) => v && handleProviderChange(v as ScanProviderName)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="mock">Mock (offline)</SelectItem>
+                    <SelectItem value="hunter">Hunter.io (quota)</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-slate-500">
+                  Mock: max {MAX_DOMAINS.mock} domain · {MAX_EMAIL_LIMIT.mock} email/domain · 0 quota.
+                  Hunter: max {MAX_DOMAINS.hunter} domain · {MAX_EMAIL_LIMIT.hunter} email/domain · 1 search / domain.
+                </p>
+              </div>
+              <div className="space-y-2 border-t pt-4">
                 <Label>Email limit / domain</Label>
                 <div className="flex flex-wrap gap-2">
-                  {[5, 10, 25, 50].map((n) => (
+                  {limitChoices.map((n) => (
                     <button
                       key={n}
                       type="button"
@@ -262,7 +328,9 @@ export function DomainScanWizard({
                   ))}
                 </div>
                 <p className="text-xs text-slate-500">
-                  Mock provider: tối đa 100 email/domain. Hunter sẽ tính 1 request / email tìm được (Phase 09).
+                  {selectedProvider === "hunter"
+                    ? `Hunter tính 1 search / domain. Tối đa ${emailCap} email/domain trên Domain Search API.`
+                    : `Mock không tốn quota. Tối đa ${emailCap} email/domain.`}
                 </p>
               </div>
               <div className="space-y-3 border-t pt-4">
@@ -271,7 +339,7 @@ export function DomainScanWizard({
                   <Switch checked={verifiedOnly} onCheckedChange={setVerifiedOnly} />
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-600">Auto-save scan vào History (Phase 09+)</span>
+                  <span className="text-sm text-slate-600">Auto-save scan vào History (Phase 10+)</span>
                   <Switch checked={autoHistory} onCheckedChange={setAutoHistory} disabled />
                 </div>
               </div>
@@ -285,14 +353,25 @@ export function DomainScanWizard({
           <CardHeader>
             <CardTitle className="text-base">Xác nhận trước khi scan</CardTitle>
             <CardDescription>
-              Checkpoint trước khi gọi mock provider (Hunter sẽ thay ở Phase 09).
+              {selectedProvider === "hunter"
+                ? "Checkpoint trước khi gọi Hunter.io thật — sẽ tiêu quota."
+                : "Checkpoint trước khi gọi mock provider — không tốn quota."}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Alert>
               <AlertDescription>
                 Sẽ quét <b>{normalizedPreview.domains.length}</b> domain · limit <b>{limit}</b>/domain
-                {" · "}ước tính <b>~{estimatedRequests}</b> request (mock = miễn phí).
+                · provider <b>{selectedProvider}</b>
+                {selectedProvider === "hunter" ? (
+                  <>
+                    {" · "}sẽ tiêu <b>{normalizedPreview.domains.length}</b> Hunter search.
+                  </>
+                ) : (
+                  <>
+                    {" · "}ước tính <b>~{estimatedRequests}</b> request (mock = miễn phí).
+                  </>
+                )}
               </AlertDescription>
             </Alert>
             {normalizedPreview.warnings.length > 0 && (
@@ -338,7 +417,12 @@ export function DomainScanWizard({
               <Loader2 className="size-4 animate-spin text-primary" />
               Đang quét {normalizedPreview.domains.length} domain…
             </CardTitle>
-            <CardDescription>Provider: mock · không tiêu quota Hunter</CardDescription>
+            <CardDescription>
+              Provider: {selectedProvider}
+              {selectedProvider === "hunter"
+                ? " · gọi Hunter.io thật"
+                : " · không tiêu quota Hunter"}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-slate-500">

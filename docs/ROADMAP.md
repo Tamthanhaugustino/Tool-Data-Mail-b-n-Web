@@ -19,8 +19,9 @@ Phase 06  Supabase setup        ████████████████
 Phase 07  Discovery backend     ████████████████████  DONE
 Phase 08A SerpAPI provider      ████████████████████  DONE (quota-safe)
 Phase 08B SerpAPI live + polish ████████████████████  DONE
-Phase 08C Domain Scan backend   ████████████████░░░░  CURRENT (mock + API + wizard)
-Phase 09  Hunter / Auth migration   ░░░░░░░░░░░░░░░░░░░░
+Phase 08C Domain Scan backend   ████████████████████  DONE
+Phase 09A Hunter provider       ████████████████░░░░  CURRENT (quota-safe)
+Phase 09B Saved Leads / polish  ░░░░░░░░░░░░░░░░░░░░
 Phase 06  Domain Scan jobs      ░░░░░░░░░░░░░░░░░░░░
 Phase 07  Results / Leads       ░░░░░░░░░░░░░░░░░░░░
 Phase 08  Billing               ░░░░░░░░░░░░░░░░░░░░
@@ -263,7 +264,7 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 
 ---
 
-## Phase 08C — Domain Scan backend foundation — CURRENT
+## Phase 08C — Domain Scan backend foundation — DONE
 
 **Mục tiêu:** Đối xứng với Phase 07: tách logic Domain Scan khỏi UI, provider interface, normalize/validate input, API route, mock provider để demo UI mà không tiêu quota / không gọi Hunter. Phase 09 chỉ thay implementation.
 
@@ -292,27 +293,67 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 
 ---
 
-## Phase 09 — Hunter real provider *or* Supabase Auth migration
+## Phase 09A — Hunter real provider (quota-safe) — CURRENT
+
+**Mục tiêu:** Thêm Hunter.io Domain Search provider cho `/scan` theo hướng quota-safe, server-only, không lộ API key. Giữ mock provider làm default. Đối xứng cấu trúc với Phase 08A SerpAPI.
+
+**Đã làm:**
+
+- [x] [`src/lib/scan/hunter-provider.ts`](../src/lib/scan/hunter-provider.ts) — `import "server-only"`, fetch `https://api.hunter.io/v2/domain-search` sequential per-domain, timeout 10s, no retry, `HunterProviderError` với 7 codes mirror `SerpapiProviderError`
+- [x] [`src/app/api/scan/domain/route.ts`](../src/app/api/scan/domain/route.ts) — accept `provider` body, `resolveProvider()` theo body → env (`SCAN_PROVIDER`) → mock, **dynamic import** Hunter module, return `503 provider_unavailable` (không silent fallback) khi `HUNTER_API_KEY` thiếu, sanitize `api_key=...`, lower limits cho hunter (MAX_DOMAINS=5, MAX_EMAIL_LIMIT=10), map `HunterProviderError.code` → HTTP status (429/502/503/504)
+- [x] [`src/components/scan/domain-scan-wizard.tsx`](../src/components/scan/domain-scan-wizard.tsx) — Provider Select (Mock / Hunter.io), warning amber panel khi chọn Hunter, dynamic limit chips và domain cap theo provider, auto-clamp limit khi switch sang Hunter, send `provider` trong body, `ERROR_HINTS` Vietnamese cho 7 codes
+- [x] `.env.example` — thêm `SCAN_PROVIDER`, `HUNTER_API_KEY` (server-only) với comment cảnh báo
+- [x] [`docs/SCAN.md`](./SCAN.md) — section §5b resolution + quota-safe rules + env vars + Hunter status mapping + live test steps + troubleshooting table 7 mã code
+
+**Quota-safe đảm bảo:**
+
+- Sequential fetch per-domain, max 5 domain/request → 1 lần bấm = tối đa 5 Hunter searches.
+- Timeout 10s qua AbortController per-domain.
+- Không auto-retry.
+- Hard-stop trên invalid_key/rate_limited (abort batch ngay).
+- Soft error per-domain ghi vào `domains[].error`, không abort.
+- Không silent fallback `hunter → mock` khi key thiếu.
+- Mock deployment không bundle code Hunter (dynamic import).
+- Error sanitize 2 lớp mask `api_key=`, URL, JWT.
+
+**Chưa làm (deferred):**
+
+- [ ] Live test với key Hunter thật trong repo này (không có key).
+- [ ] User-scoped Hunter key từ `user_api_keys` (cần Supabase Auth + RLS).
+- [ ] Quota counter / rate limit per user.
+- [ ] Persist `scan_jobs` / `scan_results` vào DB.
+- [ ] Saved Leads API thật.
+
+**Deliverable:** Owner điền `HUNTER_API_KEY` vào `.env.local`, set `SCAN_PROVIDER=hunter` (hoặc chọn Hunter trong UI), nhập 1–5 domain thật → 1 SERP request/domain → email thật từ Hunter Domain Search. Quota tối đa 5/lần bấm.
+
+**Phụ thuộc:** Phase 08C.
+
+---
+
+## Phase 09B — Hunter live polish *or* Saved Leads foundation
 
 **Mục tiêu:** Owner chọn hướng tiếp theo.
 
-**Nhánh A — Hunter real provider (đối xứng với Phase 08A SerpAPI):**
+**Nhánh A — Hunter live smoke test + polish (đối xứng Phase 08B):**
 
-- Tạo `src/lib/scan/hunter-provider.ts` `import "server-only"`.
-- Quota-safe: hard-cap 10 email/domain, timeout 10s, no retry.
-- API key từ env `HUNTER_API_KEY` (Phase 09); user-scoped key (`user_api_keys`) sau khi có Supabase Auth.
-- Dynamic import từ `route.ts`.
-- Typed errors mirror `SerpapiProviderError`.
+- Owner test với key thật 1–2 request, ghi smoke test record vào `SCAN.md`.
+- Polish UX nếu phát hiện vấn đề (rate limit messaging, partial success display).
+- Cải thiện confidence display / status badges nếu cần.
 
-**Nhánh B — Supabase Auth migration:**
+**Nhánh B — Saved Leads foundation:**
 
-- Swap `src/lib/auth/*` sang Supabase Auth (giữ `Session` shape).
-- Uncomment trigger `on_auth_user_created`.
+- API route `POST /api/leads` để lưu lead đã chọn từ scan results.
+- Hiện tại nút "Lưu lead đã chọn" disabled — wire qua route.
+- Mock store (in-memory) hoặc Supabase nếu đã apply migration.
+
+**Nhánh C — Supabase Auth migration:**
+
+- Swap `src/lib/auth/*` sang Supabase Auth.
 - Bật persistence Discovery + Scan → DB.
 
-**Deliverable:** Một trong hai nhánh hoàn tất.
+**Deliverable:** Một trong các nhánh hoàn tất.
 
-**Phụ thuộc:** Phase 08C.
+**Phụ thuộc:** Phase 09A.
 
 ---
 
@@ -437,3 +478,4 @@ Phase 10  Production            ░░░░░░░░░░░░░░░░
 | 2026-05-18 | Phase 07 done; Phase 08A in-progress — SerpAPI real provider, server-only + dynamic import, quota-safe (1 req/run, 10s timeout, no retry), env-gated. Auth migration / Domain Scan deferred Phase 08B |
 | 2026-05-18 | Phase 08A done; Phase 08B in-progress — SerpapiProviderError typed codes (6 mã) → route map HTTP status (429/502/503/504) → UI hiển thị Vietnamese hint. Offline smoke test 6 path đều OK. Live SerpAPI test deferred cho owner (1 search/lần) |
 | 2026-05-18 | Phase 08B done; Phase 08C in-progress — Domain Scan backend foundation (src/lib/scan/* + POST /api/scan/domain + wired wizard). Mock-only, max 50 domains, không gọi Hunter. Phase 09 sẽ wire Hunter hoặc Supabase Auth |
+| 2026-05-18 | Phase 08C done; Phase 09A in-progress — Hunter Domain Search provider, server-only + dynamic import, quota-safe (max 5 domain/request, 10s timeout/domain, sequential, no retry), env-gated, typed errors → HTTP status. Live test deferred cho owner (5 search/lần) |

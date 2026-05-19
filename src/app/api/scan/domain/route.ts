@@ -1,22 +1,34 @@
-// POST /api/scan/domain — Phase 08C.
+// POST /api/scan/domain — Phase 08C (mock) + Phase 09A (Hunter).
 //
 // Validates a Domain Scan request, normalizes + dedups the input list,
-// dispatches to the configured provider (mock for now), and returns the
-// run summary + per-domain summary + email rows.
+// resolves the provider (mock | hunter), and returns run + per-domain
+// summary + email rows.
 //
-// Phase 08C ships mock only. Hunter provider is deferred to Phase 09
-// and will plug into the same `ScanProvider` interface via dynamic
-// import (mirroring how SerpAPI was added in Phase 08A).
+// Provider resolution (server-controlled):
+//   1. If the request body sets `provider`, that hint is used IF the
+//      server permits it (any provider is permitted today, but env
+//      must back the choice — e.g. Hunter needs HUNTER_API_KEY).
+//   2. Else fall back to env SCAN_PROVIDER (`mock` | `hunter`).
+//   3. Else "mock".
 //
-// Quota-safe constraints:
-// - MAX_DOMAINS hard-capped at 50 in 08C.
-// - Per-domain email limit capped at 100 (mock) / 10 (hunter, future).
-// - No retry, no external network call in mock mode.
+// Quota-safe rules:
+//   - MAX_DOMAINS depends on provider: mock=50, hunter=5 in Phase 09A.
+//   - Per-domain email limit depends on provider: mock 1..100, hunter 1..10.
+//   - Hunter provider is dynamically imported only when needed, so a
+//     mock-only deployment never pulls Hunter network code.
+//   - When Hunter is requested but `HUNTER_API_KEY` is missing, we
+//     return 503 `provider_unavailable` — never silent fallback to mock.
+//   - HunterProviderError typed codes map 1:1 to HTTP status (mirrors
+//     the SerpAPI mapping in /api/discovery/keyword).
 
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/session";
 import { normalizeDomains } from "@/lib/scan/domain-utils";
 import { mockScanProvider } from "@/lib/scan/mock-provider";
+import {
+  HunterProviderError,
+  type HunterErrorCode,
+} from "@/lib/scan/hunter-provider";
 import type {
   ScanProvider,
   ScanProviderName,
@@ -26,11 +38,13 @@ import type {
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const MAX_DOMAINS = 50;
+const ALLOWED_PROVIDERS = new Set<ScanProviderName>(["mock", "hunter"]);
+const MAX_DOMAINS_MOCK = 50;
+const MAX_DOMAINS_HUNTER = 5;
 const MIN_EMAIL_LIMIT = 1;
 const DEFAULT_EMAIL_LIMIT = 10;
 const MAX_EMAIL_LIMIT_MOCK = 100;
-const ALLOWED_PROVIDERS = new Set<ScanProviderName>(["mock", "hunter"]);
+const MAX_EMAIL_LIMIT_HUNTER = 10;
 
 function jsonError(
   status: number,
@@ -58,17 +72,52 @@ function isAllowedProvider(v: unknown): v is ScanProviderName {
   return typeof v === "string" && ALLOWED_PROVIDERS.has(v as ScanProviderName);
 }
 
+class ProviderUnavailableError extends Error {
+  constructor(public providerName: ScanProviderName, message: string) {
+    super(message);
+    this.name = "ProviderUnavailableError";
+  }
+}
+
+function resolveDefaultProvider(): ScanProviderName {
+  const fromEnv = process.env.SCAN_PROVIDER;
+  if (fromEnv === "hunter") return "hunter";
+  return "mock";
+}
+
 async function resolveProvider(
   requested: ScanProviderName | undefined,
 ): Promise<ScanProvider> {
-  // Phase 08C: mock only. When Hunter lands in Phase 09 this branch
-  // will dynamic-import `hunter-provider.ts` and check env presence.
-  if (requested === "hunter") {
-    return Promise.reject(
-      new Error("provider_unavailable: hunter provider chưa được wire ở Phase 08C"),
-    );
+  const effective: ScanProviderName = requested ?? resolveDefaultProvider();
+
+  if (effective === "hunter") {
+    if (!process.env.HUNTER_API_KEY) {
+      throw new ProviderUnavailableError(
+        "hunter",
+        "Hunter provider is selected but HUNTER_API_KEY is not configured on the server.",
+      );
+    }
+    // Dynamic import keeps the Hunter module (server-only) out of any
+    // bundle graph touched by mock-only deployments.
+    const mod = await import("@/lib/scan/hunter-provider");
+    return mod.hunterScanProvider;
   }
+
   return mockScanProvider;
+}
+
+const HUNTER_ERROR_MAP: Record<HunterErrorCode, { status: number; error: string; message: string }> = {
+  missing_key:    { status: 503, error: "provider_unavailable", message: "Hunter chưa được cấu hình trên server (HUNTER_API_KEY)." },
+  invalid_key:    { status: 502, error: "provider_invalid_key", message: "Hunter từ chối API key. Kiểm tra giá trị HUNTER_API_KEY." },
+  rate_limited:   { status: 429, error: "provider_rate_limited", message: "Hunter báo hết quota hoặc bị rate limit. Thử lại sau hoặc nâng cấp gói." },
+  timeout:        { status: 504, error: "provider_timeout", message: "Hunter không phản hồi kịp 10s. Thử lại sau." },
+  network:        { status: 502, error: "provider_network", message: "Không kết nối được tới Hunter." },
+  parse:          { status: 502, error: "provider_parse", message: "Hunter trả về dữ liệu không hợp lệ." },
+  upstream:       { status: 502, error: "provider_upstream", message: "Hunter báo lỗi không xác định." },
+};
+
+function mapHunterError(e: HunterProviderError) {
+  return HUNTER_ERROR_MAP[e.code] ?? HUNTER_ERROR_MAP.upstream;
 }
 
 export async function POST(req: Request) {
@@ -95,14 +144,6 @@ export async function POST(req: Request) {
   if (ds.length === 0) {
     return jsonError(400, "invalid_input", "domains is empty");
   }
-  if (ds.length > MAX_DOMAINS) {
-    return jsonError(
-      400,
-      "invalid_input",
-      `too many domains: ${ds.length} > ${MAX_DOMAINS}. Chia nhỏ batch hoặc giảm số domain.`,
-      { max: MAX_DOMAINS },
-    );
-  }
   if (ds.some((d) => typeof d !== "string")) {
     return jsonError(400, "invalid_input", "every domain must be a string");
   }
@@ -119,6 +160,28 @@ export async function POST(req: Request) {
     requestedProvider = p;
   }
 
+  // Resolve provider FIRST so we know the per-provider domain ceiling
+  // and email ceiling.
+  let provider: ScanProvider;
+  try {
+    provider = await resolveProvider(requestedProvider);
+  } catch (e) {
+    if (e instanceof ProviderUnavailableError) {
+      return jsonError(503, "provider_unavailable", e.message, { provider: e.providerName });
+    }
+    return jsonError(500, "internal", sanitize(e instanceof Error ? e.message : "unknown"));
+  }
+
+  const maxDomains = provider.name === "hunter" ? MAX_DOMAINS_HUNTER : MAX_DOMAINS_MOCK;
+  if (ds.length > maxDomains) {
+    return jsonError(
+      400,
+      "invalid_input",
+      `too many domains: ${ds.length} > ${maxDomains} for provider ${provider.name}. Chia nhỏ batch.`,
+      { max: maxDomains, provider: provider.name },
+    );
+  }
+
   // Normalize first so the user sees what the server actually scanned.
   const { domains: normalized, warnings: normalizeWarnings } = normalizeDomains(ds as string[]);
   if (normalized.length === 0) {
@@ -127,20 +190,8 @@ export async function POST(req: Request) {
     });
   }
 
-  let provider: ScanProvider;
-  try {
-    provider = await resolveProvider(requestedProvider);
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : "unknown";
-    if (msg.startsWith("provider_unavailable")) {
-      return jsonError(503, "provider_unavailable", sanitize(msg), {
-        provider: requestedProvider,
-      });
-    }
-    return jsonError(500, "internal", sanitize(msg));
-  }
-
-  const maxEmailLimit = provider.name === "mock" ? MAX_EMAIL_LIMIT_MOCK : 10;
+  const maxEmailLimit =
+    provider.name === "hunter" ? MAX_EMAIL_LIMIT_HUNTER : MAX_EMAIL_LIMIT_MOCK;
   let emailLimitPerDomain = DEFAULT_EMAIL_LIMIT;
   if (el !== undefined) {
     if (typeof el !== "number" || !Number.isInteger(el)) {
@@ -154,6 +205,9 @@ export async function POST(req: Request) {
       );
     }
     emailLimitPerDomain = el;
+  } else if (provider.name === "hunter") {
+    // Default 10 is at the Hunter ceiling; leave it.
+    emailLimitPerDomain = Math.min(DEFAULT_EMAIL_LIMIT, MAX_EMAIL_LIMIT_HUNTER);
   }
 
   const startedAt = Date.now();
@@ -163,9 +217,7 @@ export async function POST(req: Request) {
       emailLimitPerDomain,
     });
     const durationMs = Date.now() - startedAt;
-    const warnings = normalizeWarnings.map(
-      (w) => `[${w.reason}] ${w.input}`,
-    );
+    const warnings = normalizeWarnings.map((w) => `[${w.reason}] ${w.input}`);
 
     const response: ScanResponse = {
       run: {
@@ -186,6 +238,10 @@ export async function POST(req: Request) {
       headers: { "cache-control": "no-store" },
     });
   } catch (e) {
+    if (e instanceof HunterProviderError) {
+      const { status, error, message } = mapHunterError(e);
+      return jsonError(status, error, message, { provider: provider.name, code: e.code });
+    }
     const msg = e instanceof Error ? e.message : "unknown error";
     return jsonError(500, "internal", sanitize(msg), { provider: provider.name });
   }
